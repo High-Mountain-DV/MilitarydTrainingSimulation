@@ -72,3 +72,9 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# JSG Custom
+Content/StarterContent/*
+Content/VRSpectator/*
+Content/VRTemplate/*
+Content/ThirdPerson/*
