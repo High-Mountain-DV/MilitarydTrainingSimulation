@@ -49,6 +49,10 @@
 				"Win64",
 				"Android"
 			]
+		},
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
