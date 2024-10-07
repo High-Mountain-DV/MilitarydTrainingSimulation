@@ -78,3 +78,6 @@ Content/StarterContent/*
 Content/VRSpectator/*
 Content/VRTemplate/*
 Content/ThirdPerson/*
+
+# CSW Custom
+.idea
