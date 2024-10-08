@@ -81,3 +81,8 @@ Content/ThirdPerson/*
 
 # CSW Custom
 .idea
+
+# HSB Custom
+Content/FirstPerson/*
+Content/FirstPersonArms/*
+Content/AnimStarterPack/*
