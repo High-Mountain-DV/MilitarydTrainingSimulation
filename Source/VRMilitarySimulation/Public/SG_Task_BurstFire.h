@@ -15,5 +15,5 @@ class VRMILITARYSIMULATION_API USG_Task_BurstFire : public UBTTask_BlackboardBas
 	GENERATED_BODY()
 	
 public:
-	virtual void EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };
