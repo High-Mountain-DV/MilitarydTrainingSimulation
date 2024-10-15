@@ -14,6 +14,7 @@ void UCSWGameInstance::Init()
 {
 	Super::Init();
 
+	MySessionName = GenerateTimestampedSessionName();
 	if (auto *subSystem = IOnlineSubsystem::Get())
 		SessionInterface = subSystem->GetSessionInterface();
 
@@ -25,10 +26,34 @@ void UCSWGameInstance::Init()
 	
 	// 방입장 응답
 	SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this , &UCSWGameInstance::OnMyJoinSessionComplete);
+	
+	// 방퇴장 응답
+	SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this , &UCSWGameInstance::OnMyDestroySessionComplete);
+
+	// 세션 참여자 변동 알림
+	SessionInterface->OnSessionParticipantsChangeDelegates.AddUObject(this, &UCSWGameInstance::OnMySessionParticipantsChange);
+}
+
+FString UCSWGameInstance::GenerateTimestampedSessionName() const
+{
+	// 현재 시간 얻기
+	FDateTime Now = FDateTime::Now();
+    
+	// 타임스탬프 형식으로 변환 (연도, 월, 일, 시, 분, 초)
+	FString Timestamp = Now.ToString(TEXT("%Y%m%d%H%M%S"));
+
+	// 세션 이름 생성
+	FString SessionName = FString::Printf(TEXT("Session_%s"), *Timestamp);
+
+	return SessionName;
 }
 
 void UCSWGameInstance::CreateMySession(const FString& roomName, int32 playerCount)
 {
+	if (SessionInterface->GetNamedSession(FName(MySessionName)) != nullptr)
+	{
+		SessionInterface->DestroySession(FName(MySessionName));
+	}
 	FOnlineSessionSettings settings;
 
 	// 1. 전용서버를 사용하는가?
@@ -69,7 +94,7 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnMyCreateSessionComplete is Success!!"));
 		// 서버가 여행을 떠나고싶다.
-		GetWorld()->ServerTravel(TEXT("/Game/CSW/BattleMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/CSW/WaitRoomMap?listen"));
 	}
 	else
 	{
@@ -155,6 +180,45 @@ void UCSWGameInstance::OnMyJoinSessionComplete(FName SessionName,
 	}
 }
 
+void UCSWGameInstance::ExitSession()
+{
+	ServerRPCExitSession();
+}
+
+void UCSWGameInstance::ServerRPCExitSession_Implementation()
+{
+	MulticastRPCExitSession();
+}
+
+void UCSWGameInstance::MulticastRPCExitSession_Implementation()
+{
+	// 방퇴장 요청
+	SessionInterface->DestroySession(FName(MySessionName));
+}
+
+void UCSWGameInstance::OnMyDestroySessionComplete(FName SessionName , bool bWasSuccessful)
+{
+	if ( bWasSuccessful )
+	{
+		// 클라이언트가 로비로 여행을 가고싶다.
+		auto* pc = GetWorld()->GetFirstPlayerController();
+		pc->ClientTravel(TEXT("/Game/CSW/LobbyMap"), ETravelType::TRAVEL_Absolute);
+	}
+}
+
+
+void UCSWGameInstance::OnMySessionParticipantsChange(FName SessionName, const FUniqueNetId& UniqueId, bool bJoined)
+{
+	if (bJoined)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player joined: %s"), *UniqueId.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player left: %s"), *UniqueId.ToString());
+	}
+}
+
 FString UCSWGameInstance::StringBase64Encode(const FString& str)
 {
 	// Set 할 때 : FString -> UTF8 (std::string) -> TArray<uint8> -> base64 로 Encode
@@ -172,3 +236,4 @@ FString UCSWGameInstance::StringBase64Decode(const FString& str)
 	std::string ut8String((char*)(arrayData.GetData()) , arrayData.Num());
 	return UTF8_TO_TCHAR(ut8String.c_str());
 }
+
