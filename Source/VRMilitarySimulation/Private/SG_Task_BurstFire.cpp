@@ -5,5 +5,6 @@
 
 EBTNodeResult::Type USG_Task_BurstFire::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	
 	return EBTNodeResult::Succeeded;
 }
