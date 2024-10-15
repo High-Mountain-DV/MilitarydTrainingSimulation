@@ -48,8 +48,8 @@ public:
 	
 
 	IOnlineSessionPtr SessionInterface;
-	FString MySessionName = TEXT("TEST");
-
+	FString MySessionName;
+	FString GenerateTimestampedSessionName() const ;
 	FSearchSignature OnSearchSignatureCompleteDelegate;
 
 	// 찾기를 위한 델리게이트...
@@ -69,7 +69,21 @@ public:
 	void JoinMySession(int32 index);
 	// 방입장 응답
 	void OnMyJoinSessionComplete(FName SessionName , EOnJoinSessionCompleteResult::Type EOnJoinSessionCompleteResult);
-	
+
+
+	// 방퇴장 요청 -> UI에서 호출
+	void ExitSession();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCExitSession();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCExitSession();
+	// 방퇴장 응답
+	void OnMyDestroySessionComplete(FName SessionName , bool bWasSuccessful);
+
+	void OnMySessionParticipantsChange(FName SessionName, const FUniqueNetId& UniqueId, bool bJoined);
+
 	FString StringBase64Encode(const FString& str);
 	FString StringBase64Decode(const FString& str);
 };

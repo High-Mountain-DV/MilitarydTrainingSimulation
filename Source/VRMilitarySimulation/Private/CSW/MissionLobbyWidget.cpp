@@ -70,6 +70,7 @@ void UMissionLobbyWidget::CR_OnClickGoMenu()
 
 void UMissionLobbyWidget::FR_OnClickGoMenu()
 {
+	FS_ScrollBox->ClearChildren();
 	WidgetSwitcher->SetActiveWidgetIndex(0);
 
 }
