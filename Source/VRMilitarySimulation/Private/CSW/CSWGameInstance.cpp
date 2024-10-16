@@ -93,6 +93,7 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 	if ( bWasSuccessful )
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnMyCreateSessionComplete is Success!!"));
+		UE_LOG(LogTemp, Warning, TEXT("%s\n"), *(IOnlineSubsystem::Get()->GetSubsystemName()).ToString())
 		// 서버가 여행을 떠나고싶다.
 		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/WaitRoomMap?listen"));
 	}
