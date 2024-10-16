@@ -19,6 +19,7 @@ void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	BulletCount = MaxBulletCount;
 }
 
 // Called every frame
@@ -60,4 +61,9 @@ void ASG_Enemy::SetHP(float Value)
 {
 	hp = Value;
 	OnRep_HP();
+}
+
+void ASG_Enemy::Reloading()
+{
+	BulletCount = MaxBulletCount;
 }

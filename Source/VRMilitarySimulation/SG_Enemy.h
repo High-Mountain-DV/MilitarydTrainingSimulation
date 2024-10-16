@@ -29,6 +29,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	float MaxHP = 100;
+	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
+	int32 MaxBulletCount = 40;
 
 	UFUNCTION()
 	void OnRep_HP();
@@ -38,6 +40,11 @@ public:
 	float GetHP();
 	void SetHP(float Value);
 
+	UPROPERTY(BlueprintReadWrite)
+	int32 BulletCount;
+
+	UFUNCTION(BlueprintCallable)
+	void Reloading();
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -45,4 +52,6 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool bDead;
+
+	
 };
