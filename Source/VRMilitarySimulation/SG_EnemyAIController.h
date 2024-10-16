@@ -14,6 +14,12 @@ class VRMILITARYSIMULATION_API ASG_EnemyAIController : public AAIController
 {
 	GENERATED_BODY()
 	
+protected:
+	FRotator SmoothTargetRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SmoothFocusInterpSpeed = 30.0f;
+
 public:
-	
+	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 };
