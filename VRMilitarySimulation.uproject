@@ -59,6 +59,8 @@
 		{
 			"Name": "MotionTrajectory",
 			"Enabled": true
+		},
+		{
 			"Name": "HPMotionController",
 			"Enabled": true,
 			"SupportedTargetPlatforms": [
