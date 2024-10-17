@@ -59,8 +59,13 @@ float ASG_Enemy::GetHP()
 
 void ASG_Enemy::SetHP(float Value)
 {
-	hp = Value;
+	hp = FMath::Max(0, Value);
 	OnRep_HP();
+}
+
+void ASG_Enemy::DamageProcess(float Damage)
+{
+	HP -= Damage;
 }
 
 void ASG_Enemy::Reloading()

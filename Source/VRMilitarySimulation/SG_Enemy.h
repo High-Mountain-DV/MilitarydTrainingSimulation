@@ -37,8 +37,12 @@ public:
 
 	__declspec(property(get = GetHP, put = SetHP)) float HP;
 
+	UFUNCTION(BlueprintCallable)
 	float GetHP();
+	UFUNCTION(BlueprintCallable)
 	void SetHP(float Value);
+	UFUNCTION(BlueprintCallable)
+	void DamageProcess(float Damage);
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 BulletCount;
