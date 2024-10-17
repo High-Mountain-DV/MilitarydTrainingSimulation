@@ -2,4 +2,23 @@
 
 
 #include "SG_EnemyAIController.h"
+#include "Kismet/KismetMathLibrary.h"
 
+void ASG_EnemyAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn /*= true*/)
+{
+	Super::UpdateControlRotation(DeltaTime, false);
+
+	if (bUpdatePawn)
+	{
+		APawn* const Me = GetPawn();
+
+		const FRotator CurrentPawnRotation = Me->GetActorRotation();
+
+		SmoothTargetRotation = UKismetMathLibrary::RInterpTo_Constant(CurrentPawnRotation, ControlRotation, DeltaTime, SmoothFocusInterpSpeed);
+
+		if (CurrentPawnRotation.Equals(SmoothTargetRotation, 1e-3f) == false)
+		{
+			Me->FaceRotation(SmoothTargetRotation, DeltaTime);
+		}
+	}
+}

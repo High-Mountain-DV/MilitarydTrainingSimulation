@@ -93,8 +93,9 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 	if ( bWasSuccessful )
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnMyCreateSessionComplete is Success!!"));
+		UE_LOG(LogTemp, Warning, TEXT("%s\n"), *(IOnlineSubsystem::Get()->GetSubsystemName()).ToString())
 		// 서버가 여행을 떠나고싶다.
-		GetWorld()->ServerTravel(TEXT("/Game/CSW/WaitRoomMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/WaitRoomMap?listen"));
 	}
 	else
 	{
@@ -202,7 +203,7 @@ void UCSWGameInstance::OnMyDestroySessionComplete(FName SessionName , bool bWasS
 	{
 		// 클라이언트가 로비로 여행을 가고싶다.
 		auto* pc = GetWorld()->GetFirstPlayerController();
-		pc->ClientTravel(TEXT("/Game/CSW/LobbyMap"), ETravelType::TRAVEL_Absolute);
+		pc->ClientTravel(TEXT("/Game/MilitarySimulator/CSW/LobbyMap"), ETravelType::TRAVEL_Absolute);
 	}
 }
 

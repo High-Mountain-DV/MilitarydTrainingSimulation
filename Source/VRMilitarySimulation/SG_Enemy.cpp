@@ -2,6 +2,9 @@
 
 
 #include "SG_Enemy.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+
 
 // Sets default values
 ASG_Enemy::ASG_Enemy()
@@ -16,6 +19,7 @@ void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	BulletCount = MaxBulletCount;
 }
 
 // Called every frame
@@ -32,3 +36,34 @@ void ASG_Enemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASG_Enemy, hp);
+}
+
+void ASG_Enemy::OnRep_HP()
+{
+	if (HP <= 0)
+	{
+		bDead = true;
+		GetCharacterMovement()->DisableMovement();
+	}
+}
+
+float ASG_Enemy::GetHP()
+{
+	return hp;
+}
+
+void ASG_Enemy::SetHP(float Value)
+{
+	hp = Value;
+	OnRep_HP();
+}
+
+void ASG_Enemy::Reloading()
+{
+	BulletCount = MaxBulletCount;
+}
