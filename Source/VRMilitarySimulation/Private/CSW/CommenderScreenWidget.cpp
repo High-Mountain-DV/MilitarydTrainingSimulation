@@ -5,15 +5,29 @@
 
 #include "Components/Image.h"
 
-void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
+void UCommenderScreenWidget::NativeConstruct()
 {
-	CamImage->SetBrushFromMaterial(CamMtl);
+	Super::NativeConstruct();
+
+	Cams.Add(CamImage0);
+	Cams.Add(CamImage1);
+	Cams.Add(CamImage2);
+	Cams.Add(CamImage3);
 }
 
-void UCommenderScreenWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
 {
-	Super::NativeTick(MyGeometry, InDeltaTime);
+	if (Idx < 4)
+		Cams[Idx++]->SetBrushFromMaterial(CamMtl);
+}
 
-	if (CamImage->GetDynamicMaterial())
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *CamImage->GetDynamicMaterial()->GetName());
+void UCommenderScreenWidget::SelectScreen(int32 idx)
+{
+	WholeScreen->SetBrush(Cams[idx]->GetBrush());
+	WholeScreen->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UCommenderScreenWidget::UnselectScreen()
+{
+	WholeScreen->SetVisibility(ESlateVisibility::Collapsed);
 }
