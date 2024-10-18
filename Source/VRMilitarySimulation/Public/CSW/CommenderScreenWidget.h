@@ -15,12 +15,31 @@ class VRMILITARYSIMULATION_API UCommenderScreenWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	
 	void AddPlayerScreen(UMaterialInstanceDynamic* CamMtl);
 
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	void SelectScreen(int32 idx);
+	void UnselectScreen();
+
 private:
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget, AllowPrivateAccess))
-	class UImage* CamImage;
+	class UImage* CamImage0;
 
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget, AllowPrivateAccess))
+	class UImage* CamImage1;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget, AllowPrivateAccess))
+	class UImage* CamImage2;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget, AllowPrivateAccess))
+	class UImage* CamImage3;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget, AllowPrivateAccess))
+	class UImage* WholeScreen;
+
+	TArray<UImage*> Cams;
+	int32 Idx = 0;
+	int32 SelectedIdx = 0;
 
 };

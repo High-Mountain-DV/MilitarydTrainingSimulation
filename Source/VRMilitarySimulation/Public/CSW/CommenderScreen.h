@@ -24,6 +24,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void AddPlayerScreen(UMaterialInstanceDynamic* CamMtl) const;
+
+	UFUNCTION(BlueprintCallable)
+	void SelectScreen(int32 idx);
+
+	UFUNCTION(BlueprintCallable)
+	void UnselectScreen();
+	
 private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(AllowPrivateAccess))

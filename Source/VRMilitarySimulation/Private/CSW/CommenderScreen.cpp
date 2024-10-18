@@ -41,3 +41,17 @@ void ACommenderScreen::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl) const
 		widget->AddPlayerScreen(CamMtl);
 }
 
+void ACommenderScreen::SelectScreen(int32 idx)
+{
+	auto* widget = Cast<UCommenderScreenWidget>(WidgetComp->GetWidget());
+	if (widget)
+		widget->SelectScreen(idx);
+}
+
+void ACommenderScreen::UnselectScreen()
+{
+	auto* widget = Cast<UCommenderScreenWidget>(WidgetComp->GetWidget());
+	if (widget)
+		widget->UnselectScreen();
+}
+
