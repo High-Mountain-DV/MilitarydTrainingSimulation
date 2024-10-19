@@ -52,7 +52,7 @@ void UWaitRoomWidget::OnClick_GoLobby()
 
 void UWaitRoomWidget::OnClick_GameStart()
 {
-	GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/BattleMap"));
+	GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/VRBattleMap"));
 }
 
 void UWaitRoomWidget::OnClick_GameReady()
