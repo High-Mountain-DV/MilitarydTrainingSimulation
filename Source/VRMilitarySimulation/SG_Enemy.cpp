@@ -17,9 +17,13 @@ ASG_Enemy::ASG_Enemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Gun = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun"));
+	Gun->SetupAttachment(RootComponent);
+	Gun->SetRelativeTransform(FTransform(FRotator(-90, -90, 0), FVector(62.589846, 0.000002, 36.728229), FVector(0.01)));
+
 	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMesh"));
-	GunMesh->SetupAttachment(RootComponent);
-	GunMesh->SetRelativeTransform(FTransform(FRotator(-90, -90, 0) ,FVector(62.589846, 0.000002, 36.728229), FVector(0.01)));
+	GunMesh->SetupAttachment(Gun);
+	//GunMesh->SetRelativeTransform(FTransform(FRotator(-90, -90, 0) ,FVector(62.589846, 0.000002, 36.728229), FVector(0.01)));
 
 	FirePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePosition"));
 	FirePosition->SetupAttachment(GunMesh);
@@ -76,6 +80,24 @@ bool ASG_Enemy::Fire()
 	BulletCount--;
 	if (BulletCount) return true;
 	else return false;
+}
+
+void ASG_Enemy::Aim(class AActor* TargetActor)
+{
+	check(GunMesh); if (nullptr == GunMesh) return;
+	check(TargetActor); if (nullptr == TargetActor) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("TargetActor's Name: %s"), *TargetActor->GetName());
+	// 목표 방향 계산
+	FVector GunLocation = GunMesh->GetComponentLocation();
+	FVector TargetLocation = TargetActor->GetActorLocation();
+	FVector DirectionToTarget = (TargetLocation - GunLocation).GetSafeNormal();
+	
+	// 회전값 계산
+	FRotator NewRotation = DirectionToTarget.Rotation();
+
+	// GunMesh 회전 적용
+	GunMesh->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(GunLocation, TargetLocation));
 }
 
 void ASG_Enemy::OnRep_HP()

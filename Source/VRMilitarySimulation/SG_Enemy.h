@@ -29,6 +29,11 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	bool Fire();
+	void Aim(class AActor* TargetActor);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* Gun;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UStaticMeshComponent* GunMesh;
 
