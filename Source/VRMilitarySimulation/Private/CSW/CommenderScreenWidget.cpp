@@ -18,7 +18,10 @@ void UCommenderScreenWidget::NativeConstruct()
 void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
 {
 	if (Idx < 4)
-		Cams[Idx++]->SetBrushFromMaterial(CamMtl);
+		if (!Cams.IsEmpty())
+		{
+			Cams[Idx++]->SetBrushFromMaterial(CamMtl);
+		}
 }
 
 void UCommenderScreenWidget::SelectScreen(int32 idx)
