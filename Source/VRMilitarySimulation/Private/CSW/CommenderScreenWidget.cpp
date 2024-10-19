@@ -23,8 +23,11 @@ void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
 
 void UCommenderScreenWidget::SelectScreen(int32 idx)
 {
-	WholeScreen->SetBrush(Cams[idx]->GetBrush());
-	WholeScreen->SetVisibility(ESlateVisibility::Visible);
+	if (!Cams.IsEmpty())
+	{
+		WholeScreen->SetBrush(Cams[idx]->GetBrush());
+		WholeScreen->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 void UCommenderScreenWidget::UnselectScreen()

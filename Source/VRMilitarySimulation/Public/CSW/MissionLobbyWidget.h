@@ -35,6 +35,7 @@ public:
 
 	UFUNCTION()
 	void MENU_OnClickGoFindSessions();
+	FString GenerateRandomString(int32 Length);
 
 	// Create Room=========================================
 	UFUNCTION()
