@@ -5,6 +5,10 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "../SG_Enemy.h"
+#include "Engine/CollisionProfile.h"
+#include "Engine/EngineTypes.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
 USG_ProjectileSystem::USG_ProjectileSystem()
@@ -30,15 +34,17 @@ void USG_ProjectileSystem::BeginPlay()
 	StartLocation = Owner->GetActorLocation();
 
 	bBulletInitialized = true;
-
 	
-	GetWorld()->GetTimerManager().SetTimer(DestroyHandle, [this]()
-		{
-			if (this)
+	if (Owner->HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(DestroyHandle, [this]()
 			{
-				Owner->Destroy();
-			}
-		}, BulletLifeTime, false);
+				if (this)
+				{
+					Owner->Destroy();
+				}
+			}, BulletLifeTime, false);
+	}
 }
 
 
@@ -46,9 +52,8 @@ void USG_ProjectileSystem::BeginPlay()
 void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!bBulletInitialized) return;
 	check(Owner); if (nullptr == Owner) return;
+	if (!bBulletInitialized) return;
 
 	StartLocation = Owner->GetActorLocation();
 	FVector NextLocation = StartLocation + BulletVelocity * DeltaTime;
@@ -57,27 +62,48 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	// TraceChannel
 	TArray<AActor*> ActorsToIgnore;
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, TraceChannel, false, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true);
+	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
+	ETraceTypeQuery bodychannel = UEngineTypes::ConvertToTraceType(BodyChannel);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true);
 
 	if (bHit)
 	{
-		ACharacter* Player = Cast<ACharacter>(OutHit.GetActor());
+		ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
 
-		// 플레이어가 맞았을 때
-		if (Player)
+		// 캐릭터가 맞았을 때
+		if (hitCharacter)
 		{
-			bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, BodyChannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple);
+			bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple);
 			if (bBodyHit)
 			{
-				// 적에게 데미지 처리
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("Player or Enemy Hit!"));
 
+				if (Owner->HasAuthority())
+				{
+					// 플레이어에게 데미지 처리
+					// 
+					// 에너미에게 데미지 처리
+					ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
+					if (Enemy)
+					{
+						Enemy->DamageProcess(BulletDamage);
+					}
+				}
 				// 출혈 이펙트
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
+
 			}
-			
+			// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
+			else
+			{	
+				Owner->SetActorLocation(NextLocation);
+				BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
+				return;
+			}
 		}
 		// 데칼 소환
-		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalFactory, FVector(2.5), OutHit.ImpactPoint, FRotator(0), 100.0f);
+		FRotator DecalRotation = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
+		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalFactory, FVector(2.5), OutHit.ImpactPoint, DecalRotation, 100.0f);
 		check(Owner); if (nullptr == Owner) return;
 
 		GetWorld()->GetTimerManager().ClearTimer(DestroyHandle);

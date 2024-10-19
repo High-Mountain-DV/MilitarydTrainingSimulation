@@ -28,6 +28,16 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	bool Fire();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* GunMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UArrowComponent* FirePosition;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class USceneComponent* Muzzle;
+
 	float MaxHP = 100;
 	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
 	int32 MaxBulletCount = 40;
@@ -49,6 +59,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Reloading();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AActor> BP_EnemyBullet;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UParticleSystem* FireVFX;
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -58,4 +74,7 @@ private:
 	bool bDead;
 
 	
+public:
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPC_SpawnFireVFX(const FTransform& SpawnTransform);
 };

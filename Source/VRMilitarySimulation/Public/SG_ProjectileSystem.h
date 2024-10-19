@@ -30,15 +30,18 @@ private:
 	UPROPERTY()
 	class AActor* Owner;
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
-	TEnumAsByte<ETraceTypeQuery> TraceChannel = ETraceTypeQuery::TraceTypeQuery2;
+	TEnumAsByte<ECollisionChannel> TraceChannel = ECollisionChannel::ECC_Camera;
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
-	TEnumAsByte<ETraceTypeQuery> BodyChannel = ETraceTypeQuery::TraceTypeQuery17;
+	TEnumAsByte<ECollisionChannel> BodyChannel = ECollisionChannel::ECC_GameTraceChannel7;
+
+	UPROPERTY(EditDefaultsOnly, Category = Defaults)
+	float BulletDamage = 20;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	float BulletSpeed = 37000;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
-	float BulletLifeTime = 10;
+	float BulletLifeTime = 5;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	float BulletMass = 0.015f;
