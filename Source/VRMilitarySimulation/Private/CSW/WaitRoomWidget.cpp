@@ -53,8 +53,12 @@ void UWaitRoomWidget::OnClick_GoLobby()
 void UWaitRoomWidget::OnClick_GameStart()
 {
 	auto* gm = GetWorld()->GetAuthGameMode();
+
+	UE_LOG(LogTemp, Warning, TEXT("Click!"));
+
 	if (gm)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
 		gm->bUseSeamlessTravel = true;
 		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/VRBattleMap?listen"));
 	}
