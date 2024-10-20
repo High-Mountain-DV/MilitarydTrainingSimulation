@@ -14,10 +14,20 @@ EBTNodeResult::Type USG_Task_Aim::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	auto* Blackboard = UAIBlueprintHelperLibrary::GetBlackboard(ControlledPawn);
 	check(Blackboard); if (nullptr == Blackboard) return EBTNodeResult::Failed;
 
-	auto* TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetActor")));
-	check(TargetActor); if (nullptr == TargetActor) return EBTNodeResult::Failed;
+	FVector TargetActorLocation;
 
-	ControlledPawn->Aim(TargetActor);
+	auto* TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetActor")));
+	if (nullptr == TargetActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("타겟 액터 소실, 마지막 추적 위치로 사격"));
+		TargetActorLocation = Blackboard->GetValueAsVector(TEXT("LastKnownLocation"));
+	}
+	else
+	{
+		TargetActorLocation = TargetActor->GetActorLocation();
+	}
+	TargetActorLocation.Z += 30;
+	ControlledPawn->Aim(TargetActorLocation);
 
 	return EBTNodeResult::Succeeded;
 }
