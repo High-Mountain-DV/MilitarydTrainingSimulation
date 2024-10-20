@@ -22,6 +22,13 @@ ASG_Enemy::ASG_Enemy()
 	WeaponComp->SetupAttachment(RootComponent);
 	WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229));
 
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh>tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MilitarySimulator/SHN/Assets/Character/NorthKorean/sol_8_low.sol_8_low'"));
+	if (tempMesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(tempMesh.Object);
+	}
+	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
+	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 }
 
 // Called when the game starts or when spawned
