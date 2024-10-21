@@ -51,7 +51,7 @@ public:
 	class UBoxComponent* BoxComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UStaticMeshComponent* Weapon;	
+	class USkeletalMeshComponent* Weapon;	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* FirePosition;
@@ -67,7 +67,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet")
 	int32 MaxBulletCount = 30;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet", BlueprintReadOnly)
 	int32 BulletCount = MaxBulletCount;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|VFX")

@@ -18,7 +18,7 @@ ASG_WeaponMaster::ASG_WeaponMaster()
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
 	BoxComp->SetupAttachment(RootComponent);
 
-	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(BoxComp);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -56,7 +56,7 @@ void ASG_WeaponMaster::Aim(const FVector TargetLocation)
 	// 목표 방향 계산
 	FVector GunLocation = GetActorLocation();
 	FVector DirectionToTarget = (TargetLocation - GunLocation).GetSafeNormal();
-	UKismetSystemLibrary::DrawDebugLine(GetWorld(), GunLocation, TargetLocation, FColor::Blue, 3);
+	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GunLocation, TargetLocation, FColor::Blue, 3);
 	// 회전값 계산
 	AimRotation = DirectionToTarget.Rotation();
 	//	bRLerpFlag = true;
