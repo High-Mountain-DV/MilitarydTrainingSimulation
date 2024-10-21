@@ -33,6 +33,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UChildActorComponent* WeaponComp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UArrowComponent* DebugArrow;
+
 	float MaxHP = 100;
 	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
 	int32 MaxBulletCount = 40;
@@ -58,9 +61,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Reloading();
 
-
+	int32 PointIndex = 1;
 	
+	UFUNCTION(BlueprintCallable)
+	bool FindPathPoints(const FVector& TargetLocation);
+	TArray<FVector> PathPoints;
+	FVector NextTargetLocation;
+	float Speed;
+	bool StartMovement;
+	UPROPERTY(EditDefaultsOnly)
+	bool PathFindDebug = true;
 
+	UFUNCTION(BlueprintCallable)
+	void DebugPoints(const TArray<FVector>& Array);
+
+	FVector GetDirectionToTarget();
+	FVector DirectionVector;
+
+	bool ArriveAtLocation(FVector Location, float Radius);
+	bool FindNextPathPoint();
+	void StopMovement();
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
