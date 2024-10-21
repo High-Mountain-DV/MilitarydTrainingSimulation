@@ -9,6 +9,7 @@
 #include "Engine/CollisionProfile.h"
 #include "Engine/EngineTypes.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "HSB/MilitaryVRPawn.h"
 
 // Sets default values for this component's properties
 USG_ProjectileSystem::USG_ProjectileSystem()
@@ -81,7 +82,11 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 				if (Owner->HasAuthority())
 				{
 					// 플레이어에게 데미지 처리
-					// 
+					AMilitaryVRPawn* Player = Cast<AMilitaryVRPawn>(hitCharacter);
+					if (Player)
+					{
+						Player->DamageProcess(BulletDamage);
+					}
 					// 에너미에게 데미지 처리
 					ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
 					if (Enemy)
