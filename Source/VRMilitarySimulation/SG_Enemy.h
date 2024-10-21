@@ -28,23 +28,39 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	bool Fire();
+	void Aim(const FVector TargetLocation);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UChildActorComponent* WeaponComp;
+
 	float MaxHP = 100;
 	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
 	int32 MaxBulletCount = 40;
+
+	UPROPERTY(BlueprintReadOnly)
+	class ASG_WeaponMaster* CurrentWeapon;
 
 	UFUNCTION()
 	void OnRep_HP();
 
 	__declspec(property(get = GetHP, put = SetHP)) float HP;
 
+	UFUNCTION(BlueprintCallable)
 	float GetHP();
+	UFUNCTION(BlueprintCallable)
 	void SetHP(float Value);
+	UFUNCTION(BlueprintCallable)
+	void DamageProcess(float Damage);
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 BulletCount;
 
 	UFUNCTION(BlueprintCallable)
 	void Reloading();
+
+
+	
+
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -54,4 +70,5 @@ private:
 	bool bDead;
 
 	
+public:
 };

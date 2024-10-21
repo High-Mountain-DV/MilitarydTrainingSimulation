@@ -13,5 +13,11 @@ UCLASS()
 class VRMILITARYSIMULATION_API ACSWGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	virtual void BeginPlay() override;
 	
+	UFUNCTION(BlueprintCallable)
+	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl); 
+
 };

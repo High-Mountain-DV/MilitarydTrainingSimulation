@@ -3,6 +3,8 @@
 
 #include "CSW/MissionLobbyWidget.h"
 
+#include <string>
+
 #include "Components/Button.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
@@ -47,6 +49,21 @@ void UMissionLobbyWidget::MENU_OnClickGoFindSessions()
 	}
 }
 
+// 무작위 문자열 생성 함수
+FString UMissionLobbyWidget::GenerateRandomString(int32 Length)
+{
+	FString RandomString;
+	FString Charset = TEXT("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+	for (int32 i = 0; i < Length; i++)
+	{
+		int32 Index = FMath::RandRange(0, Charset.Len() - 1);
+		RandomString += Charset[Index];
+	}
+
+	return RandomString;
+}
+
 void UMissionLobbyWidget::CR_OnClickCreateRoom()
 {
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
@@ -56,6 +73,8 @@ void UMissionLobbyWidget::CR_OnClickCreateRoom()
 	roomName = roomName.TrimStartAndEnd();
 	if ( roomName.IsEmpty() )
 	{
+		int32 count = (int32)CR_Slider_PlayerCount->GetValue();
+		gi->CreateMySession(GenerateRandomString(10) , count);
 		return;
 	}
 
