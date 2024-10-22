@@ -95,6 +95,7 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 		UE_LOG(LogTemp, Warning, TEXT("OnMyCreateSessionComplete is Success!!"));
 		UE_LOG(LogTemp, Warning, TEXT("%s\n"), *(IOnlineSubsystem::Get()->GetSubsystemName()).ToString())
 		// 서버가 여행을 떠나고싶다.
+		CurrentSessionName = MySessionName;
 		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/VRWaitingMap?listen"));
 	}
 	else
@@ -173,6 +174,7 @@ void UCSWGameInstance::OnMyJoinSessionComplete(FName SessionName,
 		auto* pc = GetWorld()->GetFirstPlayerController();
 
 		FString url;
+		CurrentSessionName = SessionName.ToString();
 		SessionInterface->GetResolvedConnectString(SessionName, url);
 		if (false == url.IsEmpty())
 		{
@@ -218,6 +220,17 @@ void UCSWGameInstance::OnMySessionParticipantsChange(FName SessionName, const FU
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player left: %s"), *UniqueId.ToString());
 	}
+}
+
+FNamedOnlineSession* UCSWGameInstance::GetSessionInfo()
+{
+	// 온라인 서브시스템에 접근
+	if (SessionInterface.IsValid())
+	{
+		// 세션 이름으로 세션 정보 가져오기 (일반적으로 세션 이름은 NAME_GameSession)
+		return SessionInterface->GetNamedSession(FName(CurrentSessionName));
+	}
+	return nullptr;
 }
 
 FString UCSWGameInstance::StringBase64Encode(const FString& str)
