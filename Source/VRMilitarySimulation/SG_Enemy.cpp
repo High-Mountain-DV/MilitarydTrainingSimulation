@@ -12,6 +12,7 @@
 #include "SG_WeaponMaster.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
+#include "VRMilitarySimulation.h"
 
 
 // Sets default values
@@ -60,9 +61,27 @@ void ASG_Enemy::Tick(float DeltaTime)
 	if (StartMovement)
 	{
 		DirectionVector = GetDirectionToTarget();
+
+		// 현재 액터의 rotation을 구합니다
+		FRotator CurrentRotation = GetActorRotation();
+
+		// DirectionVector를 회전값으로 변환
+		FRotator TargetRotation = DirectionVector.Rotation();
+
+		// 현재 회전값에서 목표 회전값으로 부드럽게 보간
+		FRotator NewRotation = FMath::RInterpTo(
+			CurrentRotation,    // 현재 회전값
+			TargetRotation,     // 목표 회전값
+			DeltaTime,         // 델타 타임
+			5.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
+		);
+
+		// 새로운 회전값 적용
+		SetActorRotation(NewRotation);
+
 		DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
 		AddMovementInput(DirectionVector, Speed);
-		if (ArriveAtLocation(NextTargetLocation, 50))
+		if (ArriveAtLocation(NextTargetLocation))
 		{
 			PointIndex += 1;
 			if (PointIndex < PathPoints.Num())
@@ -108,21 +127,31 @@ void ASG_Enemy::Reloading()
 	CurrentWeapon->Reloading();
 }
 
-bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation)
+bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation, float Radius)
 {
+	PRINTLOG(TEXT(""));
 	PointIndex = 1;
 	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), GetActorLocation(), TargetLocation);
-	if (!Path) return false;
+	if (!Path)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("!Path"));
+		return false;
+	}
 
 	PathPoints = Path->PathPoints;
+	if (PathPoints.Num() < 1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Path is not exist"));
+		return false;
+	}
 	NextTargetLocation = PathPoints[PointIndex];
 	if (PathFindDebug)
 	{
-		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Red, FRotator::ZeroRotator, 10);
+		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Purple, FRotator::ZeroRotator, 10);
 	}
 	Speed = 0.95;
 	StartMovement = true;
-
+	AcceptableRadius = Radius;
 	if (PathFindDebug)
 	{
 		DebugPoints(PathPoints);
@@ -134,7 +163,7 @@ void ASG_Enemy::DebugPoints(const TArray<FVector>& Array)
 {
 	for (const FVector& point : Array)
 	{
-		UKismetSystemLibrary::DrawDebugBox(GetWorld(), point, FVector(10), FColor::Green, FRotator::ZeroRotator, 10);
+		UKismetSystemLibrary::DrawDebugBox(GetWorld(), point, FVector(10), FColor::Blue, FRotator::ZeroRotator, 10);
 	}
 }
 
@@ -146,10 +175,10 @@ FVector ASG_Enemy::GetDirectionToTarget()
 	return UKismetMathLibrary::GetDirectionUnitVector(fromLocation, ToLocation);
 }
 
-bool ASG_Enemy::ArriveAtLocation(FVector Location, float Radius)
+bool ASG_Enemy::ArriveAtLocation(FVector Location)
 {
 	float Dist = FVector::Distance(GetActorLocation(), FVector(Location.X, Location.Y, GetActorLocation().Z));
-	return (Dist <= Radius);
+	return (Dist <= AcceptableRadius);
 }
 
 void ASG_Enemy::StopMovement()
@@ -164,7 +193,7 @@ void ASG_Enemy::OnRep_HP()
 	if (HP <= 0)
 	{
 		bDead = true;
-		GetCharacterMovement()->DisableMovement();
+		//GetCharacterMovement()->DisableMovement();
 	}
 }
 

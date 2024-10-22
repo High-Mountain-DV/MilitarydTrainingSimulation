@@ -76,7 +76,9 @@ bool ASG_WeaponMaster::Fire()
 	check(BP_EnemyBullet); if (nullptr == BP_EnemyBullet) return true;
 
 	//GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FTransform(SpawnRotation, SpawnLocation, FVector(1)), params);
-	GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), params);
+	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), params);
+	check(bullet); if (nullptr == bullet) return false;
+	bullet->SetOwner(this);
 
 	MulticastRPC_SpawnFireVFX(MuzzlePosition->GetComponentTransform());
 

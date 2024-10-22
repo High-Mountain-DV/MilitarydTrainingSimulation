@@ -27,5 +27,5 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	//RunBehaviorTree(BT_Enemy);
+	RunBehaviorTree(BT_Enemy);
 }

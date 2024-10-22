@@ -62,9 +62,14 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	// TraceChannel
 	TArray<AActor*> ActorsToIgnore;
+	AActor* Shooter = Owner->GetOwner();
+	check(Shooter); if (nullptr == Shooter) return;
+
+	ActorsToIgnore.Add(Shooter);
+
 	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
 	ETraceTypeQuery bodychannel = UEngineTypes::ConvertToTraceType(BodyChannel);
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Red, FColor::Green, 1.5f);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
 
 	if (bHit)
 	{
@@ -73,7 +78,8 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		// 캐릭터가 맞았을 때
 		if (hitCharacter)
 		{
-			bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("HitActor: %s"), *hitCharacter->GetName()));
+			bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
 			if (bBodyHit)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("Player or Enemy Hit!"));
@@ -87,6 +93,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 					if (Enemy)
 					{
 						Enemy->DamageProcess(BulletDamage);
+						UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
 					}
 				}
 				// 출혈 이펙트

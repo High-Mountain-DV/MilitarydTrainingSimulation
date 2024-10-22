@@ -16,27 +16,25 @@ class VRMILITARYSIMULATION_API USG_Task_MoveTo : public UBTTask_MoveTo
 	
 public:
     USG_Task_MoveTo();
-
-protected:
     virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
     virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-    UPROPERTY(EditAnywhere, Category = "Movement")
-    float MaxAcceleration = 800;
-
-    UPROPERTY(EditAnywhere, Category = "Movement")
-    float MaxSpeed = 600.0f;
-
-    UPROPERTY(EditAnywhere, Category = "Movement")
-    float CurrentSpeed = 0.0f;
-
-    UPROPERTY(EditAnywhere, Category = "Movement")
-    float AccelerationRate = 2.0f;
-
-    UPROPERTY(EditAnywhere, Category = "Movement")
-    float DecelerationRate = 4.0f;
-
+    UPROPERTY(EditAnywhere)
+    bool PathFindDebug = true;
+    class ASG_Enemy* AIPawn;
 private:
-    FNavPathSharedPtr CurrentPath;
-    int32 CurrentPathPoint;
+    FVector TargetLocation;
+    bool FindPathPoints();
+    int32 PointIndex;
+    TArray<FVector> PathPoints;
+    FVector NextTargetLocation;
+    float SpeedScale;
+    bool StartMovement;
+    void DebugPoints(const TArray<FVector>& Array);
+    FVector DirectionVector;
+    FVector GetDirectionToTarget();
+    bool ArriveAtLocation(FVector EndLocation, float& OutDist);
+    EBTNodeResult::Type StopMovement();
+    int32 ZeroVelocityCount = 0;
+    bool bCloseToTargetLocation = false;
 };

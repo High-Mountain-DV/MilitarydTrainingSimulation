@@ -64,7 +64,7 @@ public:
 	int32 PointIndex = 1;
 	
 	UFUNCTION(BlueprintCallable)
-	bool FindPathPoints(const FVector& TargetLocation);
+	bool FindPathPoints(const FVector& TargetLocation, float Radius);
 	TArray<FVector> PathPoints;
 	FVector NextTargetLocation;
 	float Speed;
@@ -72,14 +72,15 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	bool PathFindDebug = true;
 
+	float AcceptableRadius = 50;
+
 	UFUNCTION(BlueprintCallable)
 	void DebugPoints(const TArray<FVector>& Array);
 
 	FVector GetDirectionToTarget();
 	FVector DirectionVector;
 
-	bool ArriveAtLocation(FVector Location, float Radius);
-	bool FindNextPathPoint();
+	bool ArriveAtLocation(FVector Location);
 	void StopMovement();
 private:
 
