@@ -49,6 +49,7 @@ public:
 
 	IOnlineSessionPtr SessionInterface;
 	FString MySessionName;
+	FString CurrentSessionName;
 	FString GenerateTimestampedSessionName() const ;
 	FSearchSignature OnSearchSignatureCompleteDelegate;
 
@@ -84,6 +85,9 @@ public:
 
 	void OnMySessionParticipantsChange(FName SessionName, const FUniqueNetId& UniqueId, bool bJoined);
 
+	//참여중인 세션 정보 가져오기
+	FNamedOnlineSession* GetSessionInfo();
+	
 	FString StringBase64Encode(const FString& str);
 	FString StringBase64Decode(const FString& str);
 };
