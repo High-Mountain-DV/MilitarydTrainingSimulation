@@ -38,4 +38,7 @@ public:
 
 	UFUNCTION()
 	void OnClick_GameReady();
+
+private:
+	int32 MaxPlayerCnt;
 };
