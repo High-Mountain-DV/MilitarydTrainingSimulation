@@ -257,7 +257,7 @@ int32 UVRGripScriptBase::GetFunctionCallspace(UFunction * Function, FFrame * Sta
 		return GEngine->GetGlobalFunctionCallspace(Function, this, Stack);
 	}
 
-	// Owner is certified valid now
+	// MyBullet is certified valid now
 	return Owner->GetFunctionCallspace(Function, Stack);
 }
 

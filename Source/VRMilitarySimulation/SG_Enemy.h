@@ -28,7 +28,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	bool Fire();
+	bool Fire(bool& OutStopShooting);
 	void Aim(const FVector TargetLocation);
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UChildActorComponent* WeaponComp;

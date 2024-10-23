@@ -37,6 +37,8 @@ void ASG_WeaponMaster::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Shooter = Cast<APawn>(GetOwner());
+	//check(Shooter); if (nullptr == Shooter) return;
 }
 
 // Called every frame
@@ -65,7 +67,7 @@ void ASG_WeaponMaster::Aim(const FVector TargetLocation)
 	SetActorRotation(AimRotation);
 }
 
-bool ASG_WeaponMaster::Fire()
+bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 {
 	PRINTLOG(TEXT("Fire"));
 	// 총알 소환
@@ -73,16 +75,27 @@ bool ASG_WeaponMaster::Fire()
 	FRotator SpawnRotation = FirePosition->GetComponentRotation() + FRotator(UKismetMathLibrary::RandomFloatInRange(PitchMin, PitchMax), UKismetMathLibrary::RandomFloatInRange(YawMin, YawMax), 0);
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	//params.Instigator = Cast<APawn>(Shooter);
 	check(BP_EnemyBullet); if (nullptr == BP_EnemyBullet) return true;
 
 	//GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FTransform(SpawnRotation, SpawnLocation, FVector(1)), params);
 	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), params);
-	check(bullet); if (nullptr == bullet) return false;
-	bullet->SetOwner(this);
 
 	MulticastRPC_SpawnFireVFX(MuzzlePosition->GetComponentTransform());
 
 	Recoil();
+
+	if (UKismetMathLibrary::RandomIntegerInRange(0, 100) > StopShootingProb)
+	{
+		OutStopShooting = false;
+		StopShootingProb += StopShootingDelta;
+		UE_LOG(LogTemp, Warning, TEXT("StopShootingProb: %d"), StopShootingProb);
+	}
+	else
+	{
+		OutStopShooting = true;
+		StopShootingProb = 0;
+	}
 
 	BulletCount--;
 	if (BulletCount) return true;

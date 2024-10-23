@@ -94,9 +94,12 @@ public:
 
 	// -----------------------------BlueprintEditable----------------------------- //
 	
+	UPROPERTY()
+	class APawn* Shooter;
+
 	void Aim(const FVector TargetLocation);
 	FRotator AimRotation;
-	bool Fire();
+	bool Fire(bool& OutStopShooting);
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPC_SpawnFireVFX(const FTransform& SpawnTransform);
 
@@ -112,6 +115,8 @@ public:
 
 	FDataTableRowHandle WeaponData;
 
+	int32 StopShootingProb = 0;
 
-
+	UPROPERTY(EditDefaultsOnly)
+	int32 StopShootingDelta = 2;
 };

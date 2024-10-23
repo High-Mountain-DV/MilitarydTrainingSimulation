@@ -28,7 +28,12 @@ private:
 	UFUNCTION(BlueprintPure)
 	float DragForce() const;
 	UPROPERTY()
-	class AActor* Owner;
+	class AActor* MyBullet;
+	UPROPERTY()
+	class ASG_WeaponMaster* Weapon;
+	UPROPERTY()
+	class APawn* Shooter;
+
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECollisionChannel::ECC_Camera;
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)

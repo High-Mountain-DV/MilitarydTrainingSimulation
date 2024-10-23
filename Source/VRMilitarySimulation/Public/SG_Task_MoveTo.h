@@ -20,7 +20,9 @@ public:
     virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
     UPROPERTY(EditAnywhere)
-    bool PathFindDebug = true;
+    bool bRun = false;
+    UPROPERTY(EditAnywhere)
+    bool bDebugBoxOn = true;
     class ASG_Enemy* AIPawn;
 private:
     FVector TargetLocation;
@@ -28,7 +30,7 @@ private:
     int32 PointIndex;
     TArray<FVector> PathPoints;
     FVector NextTargetLocation;
-    float SpeedScale;
+    float SpeedScale = 0.5f;
     bool StartMovement;
     void DebugPoints(const TArray<FVector>& Array);
     FVector DirectionVector;

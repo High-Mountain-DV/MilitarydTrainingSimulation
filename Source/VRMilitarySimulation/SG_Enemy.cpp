@@ -34,7 +34,7 @@ ASG_Enemy::ASG_Enemy()
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
 	DebugArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DebugArrow"));
-	DebugArrow->SetupAttachment(GetArrowComponent());
+	DebugArrow->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -112,9 +112,9 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(ASG_Enemy, hp);
 }
 
-bool ASG_Enemy::Fire()
+bool ASG_Enemy::Fire(bool& OutStopShooting)
 {
-	bool bMagazineEmpty = CurrentWeapon->Fire();
+	bool bMagazineEmpty = CurrentWeapon->Fire(OutStopShooting);
 	return bMagazineEmpty;
 }
 
