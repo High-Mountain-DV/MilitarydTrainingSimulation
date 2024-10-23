@@ -27,7 +27,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	void SetWeapon();
 	bool Fire(bool& OutStopShooting);
 	void Aim(const FVector TargetLocation);
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -35,6 +35,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* DebugArrow;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<class ASG_WeaponMaster> WeaponClass;
 
 	float MaxHP = 100;
 	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
@@ -89,7 +92,6 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool bDead;
-
-	
 public:
+private:
 };

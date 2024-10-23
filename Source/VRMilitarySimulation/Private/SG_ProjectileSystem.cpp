@@ -62,10 +62,10 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	// TraceChannel
 	TArray<AActor*> ActorsToIgnore;
-	//auto* ShooterActor = Cast<AActor>(MyBullet->GetInstigator());
-	//check(ShooterActor); if (nullptr == ShooterActor) return;
+	auto* ShooterActor = Cast<AActor>(MyBullet->GetInstigator());
+	check(ShooterActor); if (nullptr == ShooterActor) return;
 
-	//ActorsToIgnore.Add(ShooterActor);
+	ActorsToIgnore.Add(ShooterActor);
 
 	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
 	ETraceTypeQuery bodychannel = UEngineTypes::ConvertToTraceType(BodyChannel);

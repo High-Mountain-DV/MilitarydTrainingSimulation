@@ -31,12 +31,11 @@ private:
     TArray<FVector> PathPoints;
     FVector NextTargetLocation;
     float SpeedScale = 0.5f;
-    bool StartMovement;
     void DebugPoints(const TArray<FVector>& Array);
     FVector DirectionVector;
     FVector GetDirectionToTarget();
     bool ArriveAtLocation(FVector EndLocation, float& OutDist);
-    EBTNodeResult::Type StopMovement();
     int32 ZeroVelocityCount = 0;
     bool bCloseToTargetLocation = false;
+    bool bCannotMove;
 };

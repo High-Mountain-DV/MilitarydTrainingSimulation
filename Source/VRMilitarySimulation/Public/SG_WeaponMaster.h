@@ -94,6 +94,8 @@ public:
 
 	// -----------------------------BlueprintEditable----------------------------- //
 	
+	void SetShooter();
+
 	UPROPERTY()
 	class APawn* Shooter;
 
@@ -119,4 +121,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	int32 StopShootingDelta = 2;
+
+	FActorSpawnParameters BulletSpawnParams;
+
 };

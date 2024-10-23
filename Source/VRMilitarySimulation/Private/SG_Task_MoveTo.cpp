@@ -18,23 +18,23 @@
 
 USG_Task_MoveTo::USG_Task_MoveTo()
 {
-    NodeName = TEXT("Smooth Move To");
-    bNotifyTick = true;
+	NodeName = TEXT("Smooth Move To");
+	bNotifyTick = true;
 }
 
 EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UE_LOG(LogTemp, Warning, TEXT("USG_Task_MoveTo::ExecuteTask"));
 	const UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
-    EBTNodeResult::Type NodeResult = EBTNodeResult::InProgress;
+	EBTNodeResult::Type NodeResult = EBTNodeResult::InProgress;
 
-    AAIController* AIController = OwnerComp.GetAIOwner();
-    if (!AIController)
-        return EBTNodeResult::Failed;
+	AAIController* AIController = OwnerComp.GetAIOwner();
+	if (!AIController)
+		return EBTNodeResult::Failed;
 
-    AIPawn = Cast<ASG_Enemy>(AIController->GetPawn());
-    if (!AIPawn)
-        return EBTNodeResult::Failed;
+	AIPawn = Cast<ASG_Enemy>(AIController->GetPawn());
+	if (!AIPawn)
+		return EBTNodeResult::Failed;
 
 	if (BlackboardKey.SelectedKeyType == UBlackboardKeyType_Object::StaticClass())
 	{
@@ -71,87 +71,85 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	UE_LOG(LogTemp, Warning, TEXT("TargetLocation: %s"), *TargetLocation.ToString());
 	if (bRun)
 		SpeedScale = 1.0f;
-    return EBTNodeResult::InProgress;
+	return EBTNodeResult::InProgress;
 }
 
 void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	if (StartMovement)
+	DirectionVector = GetDirectionToTarget();
+
+	// 현재 액터의 rotation을 구합니다
+	FRotator CurrentRotation = AIPawn->GetActorRotation();
+
+	// DirectionVector를 회전값으로 변환
+	FRotator TargetRotation = DirectionVector.Rotation();
+
+	// 현재 회전값에서 목표 회전값으로 부드럽게 보간
+	FRotator NewRotation = FMath::RInterpTo(
+		CurrentRotation,    // 현재 회전값
+		TargetRotation,     // 목표 회전값
+		DeltaSeconds,         // 델타 타임
+		2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
+	);
+
+	// 새로운 회전값 적용
+	AIPawn->SetActorRotation(NewRotation);
+	// 나중에 도착지에 가까워지면 speed 줄이는 코드 넣기
+	if (!bCloseToTargetLocation && PathPoints.Num() > 2 && PointIndex == PathPoints.Num() - 1)
 	{
-		DirectionVector = GetDirectionToTarget();
-
-		// 현재 액터의 rotation을 구합니다
-		FRotator CurrentRotation = AIPawn->GetActorRotation();
-
-		// DirectionVector를 회전값으로 변환
-		FRotator TargetRotation = DirectionVector.Rotation();
-
-		// 현재 회전값에서 목표 회전값으로 부드럽게 보간
-		FRotator NewRotation = FMath::RInterpTo(
-			CurrentRotation,    // 현재 회전값
-			TargetRotation,     // 목표 회전값
-			DeltaSeconds,         // 델타 타임
-			2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
-		);
-
-		// 새로운 회전값 적용
-		AIPawn->SetActorRotation(NewRotation);
-		// 나중에 도착지에 가까워지면 speed 줄이는 코드 넣기
-		if (!bCloseToTargetLocation && PathPoints.Num() > 2 && PointIndex == PathPoints.Num() - 1)
+		float dist = FVector::Distance(AIPawn->GetActorLocation(), FVector(NextTargetLocation.X, NextTargetLocation.Y, AIPawn->GetActorLocation().Z));
+		if (dist <= AcceptableRadius + 100)
 		{
-			float dist = FVector::Distance(AIPawn->GetActorLocation(), FVector(NextTargetLocation.X, NextTargetLocation.Y, AIPawn->GetActorLocation().Z));
-			if (dist <= AcceptableRadius + 100)
-			{
-				//bCloseToTargetLocation = true;
-			}
+			//bCloseToTargetLocation = true;
 		}
-		// 나중에 도착지에 가까워지면 speed 줄이는 코드 넣기
-		if (bCloseToTargetLocation)	
+	}
+	// 나중에 도착지에 가까워지면 speed 줄이는 코드 넣기
+	if (bCloseToTargetLocation)
+	{
+		SpeedScale = FMath::Max(0.5, SpeedScale - 0.04);
+	}
+
+	AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
+	//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *AIPawn->GetVelocity().ToString());
+	AIPawn->AddMovementInput(DirectionVector, SpeedScale);
+	if (AIPawn->GetVelocity().Equals(FVector(0), 100))
+	{
+		ZeroVelocityCount++;
+		if (ZeroVelocityCount >= 45)
 		{
-			SpeedScale = FMath::Max(0.5, SpeedScale	 - 0.04);
-		}
+			float randomRangeValue = 100;
+			float delta_x = FMath::RandRange(-randomRangeValue, randomRangeValue);
+			float delta_y = FMath::RandRange(-randomRangeValue, randomRangeValue);
 
-		AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-		UE_LOG(LogTemp, Warning, TEXT("Speed: {%f}"), SpeedScale);
-		//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *AIPawn->GetVelocity().ToString());
-		AIPawn->AddMovementInput(DirectionVector, SpeedScale);
-		if (AIPawn->GetVelocity().Equals(FVector(0), 100))
-		{
-			ZeroVelocityCount++;
-			if (ZeroVelocityCount >= 45)
-			{
-				float randomRangeValue = 100;
-				float delta_x = FMath::RandRange(-randomRangeValue, randomRangeValue);
-				float delta_y = FMath::RandRange(-randomRangeValue, randomRangeValue);
+			/*NextTargetLocation.X += delta_x;
+			NextTargetLocation.Y += delta_y;*/
 
-				/*NextTargetLocation.X += delta_x;
-				NextTargetLocation.Y += delta_y;*/
+			NextTargetLocation.X = AIPawn->GetActorLocation().X + delta_x;
+			NextTargetLocation.Y = AIPawn->GetActorLocation().Y + delta_y;
 
-				NextTargetLocation.X = AIPawn->GetActorLocation().X + delta_x;
-				NextTargetLocation.Y = AIPawn->GetActorLocation().Y + delta_y;
-				PointIndex -= 1;
-				ZeroVelocityCount = 0;
-				if (bDebugBoxOn) UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Red, FRotator::ZeroRotator, 10);
-			}
-		}
+			if (!bCannotMove) PointIndex -= 1;
+			bCannotMove = true;
 
-		float OutDist;
-		if (ArriveAtLocation(NextTargetLocation, OutDist))
-		{
-			PointIndex += 1;
 			ZeroVelocityCount = 0;
-			if (PointIndex < PathPoints.Num())
-			{
-				NextTargetLocation = PathPoints[PointIndex];
-				StartMovement = true;
-				
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Arrive at location"));
-				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-				//StopMovement();
-			}
+			if (bDebugBoxOn) UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Red, FRotator::ZeroRotator, 10);
+		}
+	}
+
+	float OutDist;
+	if (ArriveAtLocation(NextTargetLocation, OutDist))
+	{
+		PointIndex += 1;
+		ZeroVelocityCount = 0;
+		bCannotMove = false;
+		if (PointIndex < PathPoints.Num())
+		{
+			NextTargetLocation = PathPoints[PointIndex];
+
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Arrive at location"));
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}
 	}
 }
@@ -178,7 +176,6 @@ bool USG_Task_MoveTo::FindPathPoints()
 	{
 		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Purple, FRotator::ZeroRotator, 10);
 	}
-	StartMovement = true;
 	if (bDebugBoxOn)
 	{
 		DebugPoints(PathPoints);
@@ -207,13 +204,4 @@ bool USG_Task_MoveTo::ArriveAtLocation(FVector EndLocation, float& OutDist)
 {
 	OutDist = FVector::Distance(AIPawn->GetActorLocation(), FVector(EndLocation.X, EndLocation.Y, AIPawn->GetActorLocation().Z));
 	return (OutDist <= AcceptableRadius);
-}
-
-EBTNodeResult::Type USG_Task_MoveTo::StopMovement()
-{
-	SpeedScale = 0;
-	StartMovement = 0;
-	DirectionVector = AIPawn->GetActorForwardVector();
-
-	return EBTNodeResult::Succeeded;
 }

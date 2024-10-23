@@ -22,8 +22,8 @@ ASG_Enemy::ASG_Enemy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	WeaponComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("WeaponComp"));
+	//WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229)); 
 	WeaponComp->SetupAttachment(RootComponent);
-	WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229));
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MilitarySimulator/SHN/Assets/Character/NorthKorean/sol_8_low.sol_8_low'"));
 	if (tempMesh.Succeeded())
@@ -37,16 +37,18 @@ ASG_Enemy::ASG_Enemy()
 	DebugArrow->SetupAttachment(RootComponent);
 }
 
+
+
 // Called when the game starts or when spawned
 void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	BulletCount = MaxBulletCount;
-	CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
+	SetWeapon();
 	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
 	CurrentWeapon->SetOwner(this);
-
+	UE_LOG(LogTemp, Warning, TEXT("WeaponComp->GetChildActor's Name: {%s}"), *CurrentWeapon->GetName());
 	if (PathFindDebug)
 	{
 		DebugArrow->SetHiddenInGame(false);
@@ -110,6 +112,29 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASG_Enemy, hp);
+}
+
+void ASG_Enemy::SetWeapon()
+{
+	FActorSpawnParameters param;
+	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, true);
+	CurrentWeapon = GetWorld()->SpawnActor<ASG_WeaponMaster>(WeaponClass, GetMesh()->GetSocketTransform(TEXT("Enemy_TwoHandedGun_Socket")), param);
+	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
+	CurrentWeapon->K2_AttachToComponent(GetMesh(), TEXT("Enemy_TwoHandedGun_Socket"), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+
+	//CurrentWeapon->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
+
+	//WeaponComp->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
+	//if (WeaponClass) WeaponComp->SetChildActorClass(WeaponClass);
+	//WeaponComp->CreateChildActor();
+	//CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
+	//check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
+
+	CurrentWeapon->SetOwner(this);
+	CurrentWeapon->SetInstigator(this);
+	CurrentWeapon->Weapon->SetVisibility(true);
+	CurrentWeapon->SetShooter();
 }
 
 bool ASG_Enemy::Fire(bool& OutStopShooting)

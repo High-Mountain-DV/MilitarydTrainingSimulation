@@ -37,8 +37,7 @@ void ASG_WeaponMaster::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Shooter = Cast<APawn>(GetOwner());
-	//check(Shooter); if (nullptr == Shooter) return;
+
 }
 
 // Called every frame
@@ -50,6 +49,15 @@ void ASG_WeaponMaster::Tick(float DeltaTime)
 	{
 		RecoverRecoil(DeltaTime);
 	}*/
+}
+
+void ASG_WeaponMaster::SetShooter()
+{
+	Shooter = Cast<APawn>(GetOwner());
+	check(Shooter); if (nullptr == Shooter) return;
+
+	BulletSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	BulletSpawnParams.Instigator = Cast<APawn>(Shooter);
 }
 
 void ASG_WeaponMaster::Aim(const FVector TargetLocation)
@@ -73,13 +81,11 @@ bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 	// 총알 소환
 	FVector SpawnLocation = FirePosition->GetComponentLocation();
 	FRotator SpawnRotation = FirePosition->GetComponentRotation() + FRotator(UKismetMathLibrary::RandomFloatInRange(PitchMin, PitchMax), UKismetMathLibrary::RandomFloatInRange(YawMin, YawMax), 0);
-	FActorSpawnParameters params;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	//params.Instigator = Cast<APawn>(Shooter);
+	
 	check(BP_EnemyBullet); if (nullptr == BP_EnemyBullet) return true;
 
 	//GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FTransform(SpawnRotation, SpawnLocation, FVector(1)), params);
-	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), params);
+	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), BulletSpawnParams);
 
 	MulticastRPC_SpawnFireVFX(MuzzlePosition->GetComponentTransform());
 
