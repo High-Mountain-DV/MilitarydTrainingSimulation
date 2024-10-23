@@ -43,7 +43,7 @@ public:
 	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
 	int32 MaxBulletCount = 40;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class ASG_WeaponMaster* CurrentWeapon;
 
 	UFUNCTION()
@@ -65,7 +65,10 @@ public:
 	void Reloading();
 
 	int32 PointIndex = 1;
-	
+
+	UPROPERTY(BlueprintReadOnly)
+	FVector LeftHandPos;
+
 	UFUNCTION(BlueprintCallable)
 	bool FindPathPoints(const FVector& TargetLocation, float Radius);
 	TArray<FVector> PathPoints;
@@ -92,6 +95,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool bDead;
+	void AI_Move_To(float DeltaTime);
 public:
 private:
 };

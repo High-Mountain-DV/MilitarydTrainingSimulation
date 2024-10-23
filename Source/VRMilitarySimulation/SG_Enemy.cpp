@@ -62,42 +62,11 @@ void ASG_Enemy::Tick(float DeltaTime)
 	
 	if (StartMovement)
 	{
-		DirectionVector = GetDirectionToTarget();
-
-		// 현재 액터의 rotation을 구합니다
-		FRotator CurrentRotation = GetActorRotation();
-
-		// DirectionVector를 회전값으로 변환
-		FRotator TargetRotation = DirectionVector.Rotation();
-
-		// 현재 회전값에서 목표 회전값으로 부드럽게 보간
-		FRotator NewRotation = FMath::RInterpTo(
-			CurrentRotation,    // 현재 회전값
-			TargetRotation,     // 목표 회전값
-			DeltaTime,         // 델타 타임
-			5.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
-		);
-
-		// 새로운 회전값 적용
-		SetActorRotation(NewRotation);
-
-		DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-		AddMovementInput(DirectionVector, Speed);
-		if (ArriveAtLocation(NextTargetLocation))
-		{
-			PointIndex += 1;
-			if (PointIndex < PathPoints.Num())
-			{
-				NextTargetLocation = PathPoints[PointIndex];
-				Speed = 0.95;
-				StartMovement = true;
-			}
-			else
-			{
-				StopMovement();
-			}
-		}
+		AI_Move_To(DeltaTime);
 	}
+
+	LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
+	UE_LOG(LogTemp, Warning, TEXT("LeftHandPos: {%s}"), *LeftHandPos.ToString()); 
 }
 
 // Called to bind functionality to input
@@ -116,20 +85,20 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 void ASG_Enemy::SetWeapon()
 {
+	//CurrentWeapon = GetWorld()->SpawnActor<ASG_WeaponMaster>(WeaponClass, GetMesh()->GetSocketTransform(TEXT("Enemy_TwoHandedGun_Socket")), param);
+	//check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
+	//CurrentWeapon->K2_AttachToComponent(GetMesh(), TEXT("Enemy_TwoHandedGun_Socket"), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+
+	////CurrentWeapon->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
+
+	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	FActorSpawnParameters param;
 	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, true);
-	CurrentWeapon = GetWorld()->SpawnActor<ASG_WeaponMaster>(WeaponClass, GetMesh()->GetSocketTransform(TEXT("Enemy_TwoHandedGun_Socket")), param);
+	WeaponComp->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
+	if (WeaponClass) WeaponComp->SetChildActorClass(WeaponClass);
+	WeaponComp->CreateChildActor();
+	CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
 	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
-	CurrentWeapon->K2_AttachToComponent(GetMesh(), TEXT("Enemy_TwoHandedGun_Socket"), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-
-	//CurrentWeapon->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
-
-	//WeaponComp->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
-	//if (WeaponClass) WeaponComp->SetChildActorClass(WeaponClass);
-	//WeaponComp->CreateChildActor();
-	//CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
-	//check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
 
 	CurrentWeapon->SetOwner(this);
 	CurrentWeapon->SetInstigator(this);
@@ -145,7 +114,7 @@ bool ASG_Enemy::Fire(bool& OutStopShooting)
 
 void ASG_Enemy::Aim(const FVector TargetLocation)
 {
-	CurrentWeapon->Aim(TargetLocation);
+	//CurrentWeapon->Aim(TargetLocation);
 }
 void ASG_Enemy::Reloading()
 {
@@ -211,6 +180,45 @@ void ASG_Enemy::StopMovement()
 	Speed = 0;
 	StartMovement = 0;
 	DirectionVector = GetActorForwardVector();
+}
+
+void ASG_Enemy::AI_Move_To(float DeltaTime)
+{
+	DirectionVector = GetDirectionToTarget();
+
+	// 현재 액터의 rotation을 구합니다
+	FRotator CurrentRotation = GetActorRotation();
+
+	// DirectionVector를 회전값으로 변환
+	FRotator TargetRotation = DirectionVector.Rotation();
+
+	// 현재 회전값에서 목표 회전값으로 부드럽게 보간
+	FRotator NewRotation = FMath::RInterpTo(
+		CurrentRotation,    // 현재 회전값
+		TargetRotation,     // 목표 회전값
+		DeltaTime,         // 델타 타임
+		5.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
+	);
+
+	// 새로운 회전값 적용
+	SetActorRotation(NewRotation);
+
+	DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
+	AddMovementInput(DirectionVector, Speed);
+	if (ArriveAtLocation(NextTargetLocation))
+	{
+		PointIndex += 1;
+		if (PointIndex < PathPoints.Num())
+		{
+			NextTargetLocation = PathPoints[PointIndex];
+			Speed = 0.95;
+			StartMovement = true;
+		}
+		else
+		{
+			StopMovement();
+		}
+	}
 }
 
 void ASG_Enemy::OnRep_HP()

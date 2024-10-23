@@ -89,7 +89,7 @@ bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 
 	MulticastRPC_SpawnFireVFX(MuzzlePosition->GetComponentTransform());
 
-	Recoil();
+	//Recoil();
 
 	if (UKismetMathLibrary::RandomIntegerInRange(0, 100) > StopShootingProb)
 	{
