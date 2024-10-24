@@ -308,7 +308,7 @@ void ASG_Enemy::SetHP(float Value)
 	OnRep_HP();
 }
 
-void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName)
+void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName, const FVector& ShotDirection, AActor* Shooter)
 {
 	if (BoneName.Equals(TEXT("head")) || BoneName.Contains(TEXT("neck")))
 	{

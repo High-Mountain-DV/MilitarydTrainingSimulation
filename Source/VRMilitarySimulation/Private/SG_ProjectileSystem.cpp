@@ -96,7 +96,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 					ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
 					if (Enemy)
 					{
-						Enemy->DamageProcess(BulletDamage, OutHit.BoneName.ToString());
+						Enemy->DamageProcess(BulletDamage, OutHit.BoneName.ToString(), BulletVelocity.GetSafeNormal(), Shooter);
 						UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
 					}
 				}

@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetHP(float Value);
 	UFUNCTION(BlueprintCallable)
-	void DamageProcess(float Damage, const FString& BoneName);
+	void DamageProcess(float Damage, const FString& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
 	UPROPERTY(EditDefaultsOnly)
 	float HeadShotMultiplier = 10;
