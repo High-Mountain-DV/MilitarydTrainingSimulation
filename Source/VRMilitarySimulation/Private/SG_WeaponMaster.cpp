@@ -99,7 +99,7 @@ bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 	{
 		OutStopShooting = false;
 		StopShootingProb += StopShootingDelta;
-		UE_LOG(LogTemp, Warning, TEXT("StopShootingProb: %d"), StopShootingProb);
+		//UE_LOG(LogTemp, Warning, TEXT("StopShootingProb: %d"), StopShootingProb);
 	}
 	else
 	{

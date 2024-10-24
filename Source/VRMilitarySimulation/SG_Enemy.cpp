@@ -308,7 +308,23 @@ void ASG_Enemy::SetHP(float Value)
 	OnRep_HP();
 }
 
-void ASG_Enemy::DamageProcess(float Damage)
+void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName)
 {
+	if (BoneName.Equals(TEXT("head")) || BoneName.Contains(TEXT("neck")))
+	{
+		Damage *= HeadShotMultiplier;
+		UE_LOG(LogTemp, Warning, TEXT("HeadShot!"));
+	}
+	else if (BoneName.Contains(TEXT("arm")) || BoneName.Contains(TEXT("calf")) || BoneName.Contains(TEXT("thigh")))
+	{
+		Damage *= ArmOrLegShotMultiplier;
+		UE_LOG(LogTemp, Warning, TEXT("Arm or Leg Shot!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BodyShot!"));
+		Damage *= BodyShotMultiplier;
+	}
+
 	HP -= Damage;
 }

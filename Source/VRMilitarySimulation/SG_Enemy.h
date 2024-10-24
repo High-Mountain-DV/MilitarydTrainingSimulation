@@ -59,7 +59,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetHP(float Value);
 	UFUNCTION(BlueprintCallable)
-	void DamageProcess(float Damage);
+	void DamageProcess(float Damage, const FString& BoneName);
+
+	UPROPERTY(EditDefaultsOnly)
+	float HeadShotMultiplier = 10;
+
+	UPROPERTY(EditDefaultsOnly)
+	float BodyShotMultiplier = 5;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ArmOrLegShotMultiplier = 4;
+
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 BulletCount;

@@ -83,7 +83,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			if (bBodyHit)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("Player or Enemy Hit!"));
-
+				UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString()); 
 				if (MyBullet->HasAuthority())
 				{
 					// 플레이어에게 데미지 처리
@@ -96,7 +96,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 					ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
 					if (Enemy)
 					{
-						Enemy->DamageProcess(BulletDamage);
+						Enemy->DamageProcess(BulletDamage, OutHit.BoneName.ToString());
 						UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
 					}
 				}

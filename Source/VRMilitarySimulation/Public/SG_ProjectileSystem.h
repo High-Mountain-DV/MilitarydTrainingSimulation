@@ -40,7 +40,7 @@ private:
 	TEnumAsByte<ECollisionChannel> BodyChannel = ECollisionChannel::ECC_GameTraceChannel7;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
-	float BulletDamage = 20;
+	float BulletDamage = 50;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	float BulletSpeed = 37000;
