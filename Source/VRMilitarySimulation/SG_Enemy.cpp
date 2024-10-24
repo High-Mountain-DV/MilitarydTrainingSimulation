@@ -114,7 +114,7 @@ bool ASG_Enemy::Fire(bool& OutStopShooting)
 
 void ASG_Enemy::Aim(const FVector TargetLocation)
 {
-	//CurrentWeapon->Aim(TargetLocation);
+	CurrentWeapon->Aim(TargetLocation);
 }
 void ASG_Enemy::Reloading()
 {
