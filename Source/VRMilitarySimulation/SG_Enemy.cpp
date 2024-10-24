@@ -65,8 +65,16 @@ void ASG_Enemy::Tick(float DeltaTime)
 		AI_Move_To(DeltaTime);
 	}
 
+	if (bAiming)
+	{
+		LerpAimoffset(DeltaTime);
+	}
+	else
+	{
+		/*AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 5);
+		AimYaw = FMath::Lerp(AimYaw, 0, DeltaTime * 5);*/
+	}
 	LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
-	UE_LOG(LogTemp, Warning, TEXT("LeftHandPos: {%s}"), *LeftHandPos.ToString()); 
 }
 
 // Called to bind functionality to input
@@ -109,13 +117,50 @@ void ASG_Enemy::SetWeapon()
 bool ASG_Enemy::Fire(bool& OutStopShooting)
 {
 	bool bMagazineEmpty = CurrentWeapon->Fire(OutStopShooting);
+
+	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(4, 8);
+	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(-2, 2);
+	DestinationAimPitch += deltaPitch;
+	DestinationAimYaw += deltaYaw;
+	AimPitch += deltaPitch;
+	AimYaw += deltaYaw;
+	
 	return bMagazineEmpty;
 }
 
 void ASG_Enemy::Aim(const FVector TargetLocation)
 {
-	CurrentWeapon->Aim(TargetLocation);
+	bAiming = true;
+	FVector WeaponLocation = CurrentWeapon->FirePosition->GetComponentLocation();
+	FVector TargetDirection = (TargetLocation - WeaponLocation).GetSafeNormal();
+
+	// 현재 Actor의 Forward 방향을 기준으로 상대적인 회전값을 계산
+	FVector ActorForward = GetActorForwardVector();
+	FVector ActorRight = GetActorRightVector();
+	FVector ActorUp = GetActorUpVector();
+
+	// Yaw 계산 (수평 회전)
+	float DotProduct = FVector::DotProduct(ActorForward, TargetDirection);
+	float RightDot = FVector::DotProduct(ActorRight, TargetDirection);
+	DestinationAimYaw = FMath::Atan2(RightDot, DotProduct) * 180.0f / PI;
+
+	if (DestinationAimYaw > 0) DestinationAimYaw += 2.31;
+	else DestinationAimYaw += 4.81;
+
+	// Pitch 계산 (수직 회전)
+	float UpDot = FVector::DotProduct(ActorUp, TargetDirection);
+	float ForwardLength = FVector::VectorPlaneProject(TargetDirection, ActorUp).Size();
+	DestinationAimPitch = FMath::Atan2(UpDot, ForwardLength) * 180.0f / PI * AimOffsetPitchCoef;
+
+	// 각도 제한 (필요한 경우)
+	DestinationAimPitch = FMath::ClampAngle(DestinationAimPitch, -90.0f, 90.0f);
+	DestinationAimYaw = FMath::ClampAngle(DestinationAimYaw, -90.0f, 90.0f);
+
+	UE_LOG(LogTemp, Warning, TEXT("DestinationAimPitch: {%f}, DestinationAimYaw: {%f}"), DestinationAimPitch, DestinationAimYaw);
+
 }
+
+
 void ASG_Enemy::Reloading()
 {
 	CurrentWeapon->Reloading();
@@ -184,6 +229,9 @@ void ASG_Enemy::StopMovement()
 
 void ASG_Enemy::AI_Move_To(float DeltaTime)
 {
+	AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 10);
+	AimYaw = FMath::Lerp(AimYaw, 0, DeltaTime * 10);
+
 	DirectionVector = GetDirectionToTarget();
 
 	// 현재 액터의 rotation을 구합니다
@@ -218,6 +266,19 @@ void ASG_Enemy::AI_Move_To(float DeltaTime)
 		{
 			StopMovement();
 		}
+	}
+}
+
+void ASG_Enemy::LerpAimoffset(float DeltaTime)
+{
+	AimPitch = FMath::Lerp(AimPitch, DestinationAimPitch, DeltaTime * 12);
+	AimYaw = FMath::Lerp(AimYaw, DestinationAimYaw, DeltaTime * 12);
+
+	UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
+
+	if (FMath::Abs(AimPitch - DestinationAimPitch) <= 0.1 && FMath::Abs(AimYaw - DestinationAimYaw) <= 0.1)
+	{
+		bAiming = false;
 	}
 }
 

@@ -69,6 +69,11 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FVector LeftHandPos;
 
+	UPROPERTY(BlueprintReadOnly)
+	float AimPitch;
+	UPROPERTY(BlueprintReadOnly)
+	float AimYaw;
+
 	UFUNCTION(BlueprintCallable)
 	bool FindPathPoints(const FVector& TargetLocation, float Radius);
 	TArray<FVector> PathPoints;
@@ -88,6 +93,12 @@ public:
 
 	bool ArriveAtLocation(FVector Location);
 	void StopMovement();
+
+	UPROPERTY(EditDefaultsOnly)
+	float AimOffsetYawCoef= 1.05f;
+	UPROPERTY(EditDefaultsOnly)
+	float AimOffsetPitchCoef = 1;
+
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -98,4 +109,9 @@ private:
 	void AI_Move_To(float DeltaTime);
 public:
 private:
+	float DestinationAimPitch;
+	float DestinationAimYaw;
+	bool bAiming;
+
+	void LerpAimoffset(float DeltaTime);
 };

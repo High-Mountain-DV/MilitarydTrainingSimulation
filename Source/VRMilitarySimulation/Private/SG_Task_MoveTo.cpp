@@ -76,6 +76,8 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+
+
 	DirectionVector = GetDirectionToTarget();
 
 	// 현재 액터의 rotation을 구합니다
@@ -94,16 +96,8 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 
 	// 새로운 회전값 적용
 	AIPawn->SetActorRotation(NewRotation);
-	// 나중에 도착지에 가까워지면 speed 줄이는 코드 넣기
-	if (!bCloseToTargetLocation && PathPoints.Num() > 2 && PointIndex == PathPoints.Num() - 1)
-	{
-		float dist = FVector::Distance(AIPawn->GetActorLocation(), FVector(NextTargetLocation.X, NextTargetLocation.Y, AIPawn->GetActorLocation().Z));
-		if (dist <= AcceptableRadius + 100)
-		{
-			//bCloseToTargetLocation = true;
-		}
-	}
-	// 나중에 도착지에 가까워지면 speed 줄이는 코드 넣기
+	
+		
 	if (bCloseToTargetLocation)
 	{
 		SpeedScale = FMath::Max(0.5, SpeedScale - 0.04);
@@ -134,7 +128,11 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 			if (bDebugBoxOn) UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Red, FRotator::ZeroRotator, 10);
 		}
 	}
-
+	else
+	{
+		AIPawn->AimPitch = FMath::Lerp(AIPawn->AimPitch, 0, DeltaSeconds * 6);
+		AIPawn->AimYaw = FMath::Lerp(AIPawn->AimYaw, 0, DeltaSeconds * 6);
+	}
 	float OutDist;
 	if (ArriveAtLocation(NextTargetLocation, OutDist))
 	{
