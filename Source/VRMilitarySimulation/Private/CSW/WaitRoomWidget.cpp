@@ -17,11 +17,23 @@ void UWaitRoomWidget::NativeConstruct()
 	Button_GameStart->OnClicked.AddDynamic(this, &UWaitRoomWidget::OnClick_GameStart);
 	Button_GameReady->OnClicked.AddDynamic(this, &UWaitRoomWidget::OnClick_GameReady);
 
-	if (GetWorld()->GetFirstPlayerController()->HasAuthority())
+	auto* pc = GetWorld()->GetFirstPlayerController();
+	if (pc && pc->HasAuthority())
 		Button_GameReady->SetVisibility(ESlateVisibility::Hidden);
 	else
 		Button_GameStart->SetVisibility(ESlateVisibility::Hidden);
+
+	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+	if (gi)
+	{
+		auto *SessionInfo = gi->GetSessionInfo();
+		if (SessionInfo)
+			MaxPlayerCnt = SessionInfo->SessionSettings.NumPublicConnections;
+
+	}
 }
+
+
 
 void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -39,6 +51,21 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *names);
 	// 3. 출력하고싶다.
 	Txt_Users->SetText(FText::FromString(names));
+	if (users.Num() == MaxPlayerCnt)
+	{
+		auto *pc = GetWorld()->GetFirstPlayerController();
+		if (pc->HasAuthority())
+		{
+			auto* gm = GetWorld()->GetAuthGameMode();
+
+			if (gm)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
+				gm->bUseSeamlessTravel = true;
+				GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
+			}
+		}
+	}
 }
 
 void UWaitRoomWidget::OnClick_GoLobby()
