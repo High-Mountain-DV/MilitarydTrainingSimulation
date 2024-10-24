@@ -13,6 +13,7 @@
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "VRMilitarySimulation.h"
+#include "SG_EnemyAnimInstance.h"
 
 
 // Sets default values
@@ -44,6 +45,9 @@ void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
+	check(Anim); if (nullptr == Anim) return;
+
 	BulletCount = MaxBulletCount;
 	SetWeapon();
 	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
@@ -53,6 +57,7 @@ void ASG_Enemy::BeginPlay()
 	{
 		DebugArrow->SetHiddenInGame(false);
 	}
+
 }
 
 // Called every frame
@@ -112,6 +117,7 @@ void ASG_Enemy::SetWeapon()
 	CurrentWeapon->SetInstigator(this);
 	CurrentWeapon->Weapon->SetVisibility(true);
 	CurrentWeapon->SetShooter();
+	Anim->Weapon = CurrentWeapon;
 }
 
 bool ASG_Enemy::Fire(bool& OutStopShooting)
@@ -156,7 +162,7 @@ void ASG_Enemy::Aim(const FVector TargetLocation)
 	DestinationAimPitch = FMath::ClampAngle(DestinationAimPitch, -90.0f, 90.0f);
 	DestinationAimYaw = FMath::ClampAngle(DestinationAimYaw, -90.0f, 90.0f);
 
-	UE_LOG(LogTemp, Warning, TEXT("DestinationAimPitch: {%f}, DestinationAimYaw: {%f}"), DestinationAimPitch, DestinationAimYaw);
+	//UE_LOG(LogTemp, Warning, TEXT("DestinationAimPitch: {%f}, DestinationAimYaw: {%f}"), DestinationAimPitch, DestinationAimYaw);
 
 }
 
@@ -274,7 +280,7 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 	AimPitch = FMath::Lerp(AimPitch, DestinationAimPitch, DeltaTime * 12);
 	AimYaw = FMath::Lerp(AimYaw, DestinationAimYaw, DeltaTime * 12);
 
-	UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
+	//UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
 
 	if (FMath::Abs(AimPitch - DestinationAimPitch) <= 0.1 && FMath::Abs(AimYaw - DestinationAimYaw) <= 0.1)
 	{

@@ -46,6 +46,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class ASG_WeaponMaster* CurrentWeapon;
 
+	UPROPERTY()
+	class USG_EnemyAnimInstance* Anim;
+
 	UFUNCTION()
 	void OnRep_HP();
 

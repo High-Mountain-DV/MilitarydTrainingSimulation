@@ -71,7 +71,6 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
 	ETraceTypeQuery bodychannel = UEngineTypes::ConvertToTraceType(BodyChannel);
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
-
 	if (bHit)
 	{
 		ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());

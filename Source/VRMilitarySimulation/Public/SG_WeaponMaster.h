@@ -51,7 +51,10 @@ public:
 	class UBoxComponent* BoxComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class USkeletalMeshComponent* Weapon;	
+	class USkeletalMeshComponent* Weapon;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* Magazine;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* FirePosition;
@@ -113,6 +116,8 @@ public:
 
 	void Reloading();
 
+	void HideMagazine();
+	void ShowMagazine();
 
 
 	FDataTableRowHandle WeaponData;

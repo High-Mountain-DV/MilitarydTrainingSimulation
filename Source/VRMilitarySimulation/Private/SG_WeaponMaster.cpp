@@ -22,6 +22,10 @@ ASG_WeaponMaster::ASG_WeaponMaster()
 	Weapon->SetupAttachment(BoxComp);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Magazine"));
+	Magazine->SetupAttachment(Weapon);
+	Magazine->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	FirePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePosition"));
 	FirePosition->SetupAttachment(Weapon);
 	FirePosition->SetRelativeLocation(FVector(-749.233604, 351.409237, 292.697012));
@@ -171,6 +175,16 @@ void ASG_WeaponMaster::Reloading()
 
 
 
+
+void ASG_WeaponMaster::HideMagazine()
+{
+	Magazine->SetVisibility(false);
+}
+
+void ASG_WeaponMaster::ShowMagazine()
+{
+	Magazine->SetVisibility(true);
+}
 
 void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation(const FTransform& SpawnTransform)
 {
