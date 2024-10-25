@@ -25,6 +25,7 @@ ASG_WeaponMaster::ASG_WeaponMaster()
 	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Magazine"));
 	Magazine->SetupAttachment(Weapon);
 	Magazine->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Magazine->SetRelativeLocation(FVector(9823.016442, 0, 106.515316));
 
 	FirePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePosition"));
 	FirePosition->SetupAttachment(Weapon);
@@ -171,18 +172,15 @@ void ASG_WeaponMaster::Reloading()
 	PRINTLOG(TEXT(""));
 	BulletCount = MaxBulletCount;
 }
-
-
-
-
-
 void ASG_WeaponMaster::HideMagazine()
 {
+	check(Magazine); if (nullptr == Magazine) return;
 	Magazine->SetVisibility(false);
 }
 
 void ASG_WeaponMaster::ShowMagazine()
 {
+	check(Magazine); if (nullptr == Magazine) return;
 	Magazine->SetVisibility(true);
 }
 

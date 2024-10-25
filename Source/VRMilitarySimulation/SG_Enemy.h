@@ -61,13 +61,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DamageProcess(float Damage, const FString& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
 	float HeadShotMultiplier = 10;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
 	float BodyShotMultiplier = 5;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
 	float ArmOrLegShotMultiplier = 4;
 
 
@@ -93,7 +93,7 @@ public:
 	FVector NextTargetLocation;
 	float Speed;
 	bool StartMovement;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Debug")
 	bool PathFindDebug = true;
 
 	float AcceptableRadius = 50;
@@ -107,10 +107,25 @@ public:
 	bool ArriveAtLocation(FVector Location);
 	void StopMovement();
 
-	UPROPERTY(EditDefaultsOnly)
+	void HideWeaponMagazine();
+	void ShowWeaponMagazine();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Default | AimOffset")
 	float AimOffsetYawCoef= 1.05f;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Default | AimOffset")
 	float AimOffsetPitchCoef = 1;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	float RecoilPitchMainOffset = 4;
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	float RecoilPitchMaxOffset = 8;
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	float RecoilYawMinOffset= -2;
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	float RecoilMaxOffset = -2;
 
 private:
 
@@ -120,6 +135,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool bDead;
 	void AI_Move_To(float DeltaTime);
+
 public:
 private:
 	float DestinationAimPitch;

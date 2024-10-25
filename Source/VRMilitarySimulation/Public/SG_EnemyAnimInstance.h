@@ -20,9 +20,6 @@ public:
 	UPROPERTY()
 	class ASG_Enemy* Me;
 
-	UPROPERTY()
-	class ASG_WeaponMaster* Weapon;
-
 	UPROPERTY(EditDefaultsOnly)
 	class UAnimMontage* ReloadMontage;
 

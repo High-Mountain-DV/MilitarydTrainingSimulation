@@ -79,7 +79,7 @@ void ASG_Enemy::Tick(float DeltaTime)
 		/*AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 5);
 		AimYaw = FMath::Lerp(AimYaw, 0, DeltaTime * 5);*/
 	}
-	LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
+	//LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
 }
 
 // Called to bind functionality to input
@@ -117,15 +117,14 @@ void ASG_Enemy::SetWeapon()
 	CurrentWeapon->SetInstigator(this);
 	CurrentWeapon->Weapon->SetVisibility(true);
 	CurrentWeapon->SetShooter();
-	Anim->Weapon = CurrentWeapon;
 }
 
 bool ASG_Enemy::Fire(bool& OutStopShooting)
 {
 	bool bMagazineEmpty = CurrentWeapon->Fire(OutStopShooting);
+	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(RecoilPitchMainOffset, RecoilPitchMaxOffset);
+	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(RecoilYawMinOffset, RecoilMaxOffset);
 
-	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(4, 8);
-	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(-2, 2);
 	DestinationAimPitch += deltaPitch;
 	DestinationAimYaw += deltaYaw;
 	AimPitch += deltaPitch;
@@ -233,6 +232,16 @@ void ASG_Enemy::StopMovement()
 	DirectionVector = GetActorForwardVector();
 }
 
+void ASG_Enemy::HideWeaponMagazine()
+{
+	CurrentWeapon->HideMagazine();
+}
+
+void ASG_Enemy::ShowWeaponMagazine()
+{
+	CurrentWeapon->ShowMagazine();
+}
+
 void ASG_Enemy::AI_Move_To(float DeltaTime)
 {
 	AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 10);
@@ -325,6 +334,8 @@ void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName, const FVect
 		UE_LOG(LogTemp, Warning, TEXT("BodyShot!"));
 		Damage *= BodyShotMultiplier;
 	}
+
+	ApplyImpactToBone(FName(*BoneName), ShotDirection);
 
 	HP -= Damage;
 }

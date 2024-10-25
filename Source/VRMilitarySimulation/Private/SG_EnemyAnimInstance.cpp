@@ -3,7 +3,6 @@
 
 #include "SG_EnemyAnimInstance.h"
 #include "../SG_Enemy.h"
-#include "SG_WeaponMaster.h"
 #include "SG_EnemyMagazine.h"
 
 void USG_EnemyAnimInstance::NativeBeginPlay()
@@ -30,7 +29,7 @@ void USG_EnemyAnimInstance::AnimNotify_DettachMagazine()
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 
 	GrabMagazine->AttachToComponent(Me->GetMesh(), rules, TEXT("MagazineSocket"));
-	Weapon->HideMagazine();
+	Me->HideWeaponMagazine();
 }
 
 void USG_EnemyAnimInstance::AnimNotify_ThrowMagazine()
@@ -63,5 +62,5 @@ void USG_EnemyAnimInstance::AnimNotify_CoupleMagazine()
 
 	GrabMagazine->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	GrabMagazine->Destroy();
-	Weapon->ShowMagazine();
+	Me->ShowWeaponMagazine();
 }
