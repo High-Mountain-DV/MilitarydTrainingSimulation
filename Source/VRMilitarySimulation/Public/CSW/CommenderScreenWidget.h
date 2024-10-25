@@ -18,7 +18,7 @@ public:
 	virtual void NativeConstruct() override;
 	
 	void AddPlayerScreen(UMaterialInstanceDynamic* CamMtl);
-
+	void MakeCamArr();
 	void SelectScreen(int32 idx);
 	void SelectNextScreen();
 	void SelectPrevScreen();

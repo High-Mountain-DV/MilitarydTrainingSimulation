@@ -8,20 +8,26 @@
 void UCommenderScreenWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	Cams.Add(CamImage0);
-	Cams.Add(CamImage1);
-	Cams.Add(CamImage2);
-	Cams.Add(CamImage3);
 }
 
 void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
 {
 	if (Idx < 4)
-		if (!Cams.IsEmpty())
+	{
+		if (Cams.IsEmpty())
 		{
-			Cams[Idx++]->SetBrushFromMaterial(CamMtl);
+			MakeCamArr();
 		}
+		Cams[Idx++]->SetBrushFromMaterial(CamMtl);
+	}
+}
+
+void UCommenderScreenWidget::MakeCamArr()
+{
+	Cams.Add(CamImage0);
+	Cams.Add(CamImage1);
+	Cams.Add(CamImage2);
+	Cams.Add(CamImage3);
 }
 
 void UCommenderScreenWidget::SelectScreen(int32 idx)

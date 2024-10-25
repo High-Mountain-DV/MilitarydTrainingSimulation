@@ -41,4 +41,6 @@ public:
 
 private:
 	int32 MaxPlayerCnt;
+	FTimerHandle handle;
+
 };
