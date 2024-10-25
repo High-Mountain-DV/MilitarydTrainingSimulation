@@ -51,19 +51,22 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *names);
 	// 3. 출력하고싶다.
 	Txt_Users->SetText(FText::FromString(names));
-	if (users.Num() == MaxPlayerCnt)
+	if (users.Num() == MaxPlayerCnt && !GetWorld()->GetTimerManager().IsTimerActive(handle))
 	{
 		auto *pc = GetWorld()->GetFirstPlayerController();
 		if (pc->HasAuthority())
 		{
-			auto* gm = GetWorld()->GetAuthGameMode();
-
-			if (gm)
+			GetWorld()->GetTimerManager().SetTimer(handle, [&]()
 			{
-				UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
-				gm->bUseSeamlessTravel = true;
-				GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
-			}
+				auto* gm = GetWorld()->GetAuthGameMode();
+	
+				if (gm)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
+					gm->bUseSeamlessTravel = true;
+					GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
+				}
+			}, 5.f, false);
 		}
 	}
 }
