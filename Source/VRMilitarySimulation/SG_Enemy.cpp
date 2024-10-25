@@ -228,7 +228,7 @@ bool ASG_Enemy::ArriveAtLocation(FVector Location)
 void ASG_Enemy::StopMovement()
 {
 	Speed = 0;
-	StartMovement = 0;
+	StartMovement = false;
 	DirectionVector = GetActorForwardVector();
 }
 
@@ -274,8 +274,6 @@ void ASG_Enemy::AI_Move_To(float DeltaTime)
 		if (PointIndex < PathPoints.Num())
 		{
 			NextTargetLocation = PathPoints[PointIndex];
-			Speed = 0.95;
-			StartMovement = true;
 		}
 		else
 		{
