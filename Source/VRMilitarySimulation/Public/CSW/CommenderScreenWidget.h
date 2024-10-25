@@ -20,6 +20,8 @@ public:
 	void AddPlayerScreen(UMaterialInstanceDynamic* CamMtl);
 
 	void SelectScreen(int32 idx);
+	void SelectNextScreen();
+	void SelectPrevScreen();
 	void UnselectScreen();
 
 private:

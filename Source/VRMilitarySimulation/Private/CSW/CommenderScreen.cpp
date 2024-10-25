@@ -48,6 +48,20 @@ void ACommenderScreen::SelectScreen(int32 idx)
 		widget->SelectScreen(idx);
 }
 
+void ACommenderScreen::SelectNextScreen()
+{
+	auto* widget = Cast<UCommenderScreenWidget>(WidgetComp->GetWidget());
+	if (widget)
+		widget->SelectNextScreen();
+}
+
+void ACommenderScreen::SelectPrevScreen()
+{
+	auto* widget = Cast<UCommenderScreenWidget>(WidgetComp->GetWidget());
+	if (widget)
+		widget->SelectPrevScreen();
+}
+
 void ACommenderScreen::UnselectScreen()
 {
 	auto* widget = Cast<UCommenderScreenWidget>(WidgetComp->GetWidget());

@@ -29,6 +29,12 @@ public:
 	void SelectScreen(int32 idx);
 
 	UFUNCTION(BlueprintCallable)
+	void SelectNextScreen();
+
+	UFUNCTION(BlueprintCallable)
+	void SelectPrevScreen();
+
+	UFUNCTION(BlueprintCallable)
 	void UnselectScreen();
 	
 private:
