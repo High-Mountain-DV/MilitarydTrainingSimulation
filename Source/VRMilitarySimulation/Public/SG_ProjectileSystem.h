@@ -28,14 +28,19 @@ private:
 	UFUNCTION(BlueprintPure)
 	float DragForce() const;
 	UPROPERTY()
-	class AActor* Owner;
+	class AActor* MyBullet;
+	UPROPERTY()
+	class ASG_WeaponMaster* Weapon;
+	UPROPERTY()
+	class APawn* Shooter;
+
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECollisionChannel::ECC_Camera;
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	TEnumAsByte<ECollisionChannel> BodyChannel = ECollisionChannel::ECC_GameTraceChannel7;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
-	float BulletDamage = 20;
+	float BulletDamage = 50;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	float BulletSpeed = 37000;
