@@ -297,13 +297,17 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 	}
 }
 
+void ASG_Enemy::DieProcess(const FVector& ShotDirection, AActor* Shooter)
+{
+	
+}
+
 void ASG_Enemy::OnRep_HP()
 {
-	if (HP <= 0)
-	{
-		bDead = true;
-		//GetCharacterMovement()->DisableMovement();
-	}
+	//if (HP <= 0)
+	//{
+	//	bDead = true;
+	//}
 }
 
 float ASG_Enemy::GetHP()
@@ -338,4 +342,9 @@ void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName, const FVect
 	ApplyImpactToBone(FName(*BoneName), ShotDirection);
 
 	HP -= Damage;
+
+	if (HP == 0)
+	{
+		DieProcess(ShotDirection, Shooter);
+	}
 }

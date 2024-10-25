@@ -143,4 +143,5 @@ private:
 	bool bAiming;
 
 	void LerpAimoffset(float DeltaTime);
+	void DieProcess(const FVector& ShotDirection, AActor* Shooter);
 };
