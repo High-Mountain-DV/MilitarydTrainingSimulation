@@ -29,3 +29,10 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 
 	RunBehaviorTree(BT_Enemy);
 }
+
+void ASG_EnemyAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+
+	UE_LOG(LogTemp, Warning, TEXT("UnPossessed"));
+}

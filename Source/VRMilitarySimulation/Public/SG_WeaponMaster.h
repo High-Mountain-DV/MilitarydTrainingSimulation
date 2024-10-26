@@ -97,6 +97,7 @@ public:
 
 	// -----------------------------BlueprintEditable----------------------------- //
 	
+	UFUNCTION(BlueprintCallable)
 	void SetShooter();
 
 	UPROPERTY()
@@ -104,6 +105,7 @@ public:
 
 	void Aim(const FVector TargetLocation);
 	FRotator AimRotation;
+	UFUNCTION(BlueprintCallable)
 	bool Fire(bool& OutStopShooting);
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPC_SpawnFireVFX(const FTransform& SpawnTransform);

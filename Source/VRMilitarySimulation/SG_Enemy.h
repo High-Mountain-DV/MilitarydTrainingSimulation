@@ -127,6 +127,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
 	float RecoilMaxOffset = -2;
 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Default | Factory")
+	TSubclassOf<class ASG_DummyEnemy> BP_DummyEnemy;
+
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -143,5 +147,5 @@ private:
 	bool bAiming;
 
 	void LerpAimoffset(float DeltaTime);
-	void DieProcess(const FVector& ShotDirection, AActor* Shooter);
+	void DieProcess(const FString& BoneName, const FVector& ShotDirection, AActor* Shooter);
 };

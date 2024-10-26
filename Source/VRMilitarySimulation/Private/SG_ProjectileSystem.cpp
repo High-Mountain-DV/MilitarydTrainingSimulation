@@ -10,6 +10,7 @@
 #include "Engine/EngineTypes.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "HSB/MilitaryVRPawn.h"
+#include "SG_DummyEnemy.h"
 
 // Sets default values for this component's properties
 USG_ProjectileSystem::USG_ProjectileSystem()
@@ -74,7 +75,8 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	if (bHit)
 	{
 		ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
-
+		ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
+		UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
 		// 캐릭터가 맞았을 때
 		if (hitCharacter)
 		{
@@ -92,12 +94,16 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 					{
 						Player->DamageProcess(BulletDamage);
 					}
-					// 에너미에게 데미지 처리
-					ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
-					if (Enemy)
+					else
 					{
-						Enemy->DamageProcess(BulletDamage, OutHit.BoneName.ToString(), BulletVelocity.GetSafeNormal(), Shooter);
-						UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
+						// 에너미에게 데미지 처리
+						ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
+						if (Enemy)
+						{
+							Enemy->DamageProcess(BulletDamage, OutHit.BoneName.ToString(), BulletVelocity.GetSafeNormal(), Shooter);
+							UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
+						}
+
 					}
 				}
 				// 출혈 이펙트
@@ -107,10 +113,16 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
 			else
 			{	
+				check(MyBullet); if (nullptr == MyBullet) return;
 				MyBullet->SetActorLocation(NextLocation);
 				BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
 				return;
 			}
+		}
+		else if (dummyEnemy)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
+			dummyEnemy->Mesh->AddImpulse(BulletVelocity / 5);
 		}
 		// 데칼 소환
 		FRotator DecalRotation = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);

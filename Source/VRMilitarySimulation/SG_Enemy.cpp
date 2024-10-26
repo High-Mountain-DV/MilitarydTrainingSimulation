@@ -14,6 +14,10 @@
 #include "NavigationPath.h"
 #include "VRMilitarySimulation.h"
 #include "SG_EnemyAnimInstance.h"
+#include "SG_EnemyAIController.h"
+#include "BrainComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "SG_DummyEnemy.h"
 
 
 // Sets default values
@@ -295,9 +299,28 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 	}
 }
 
-void ASG_Enemy::DieProcess(const FVector& ShotDirection, AActor* Shooter)
+void ASG_Enemy::DieProcess(const FString& BoneName, const FVector& ShotDirection, AActor* Shooter)
 {
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+	float force = 10000;
+	GetMesh()->AddImpulse(ShotDirection * force, FName(*BoneName));
+	DetachFromControllerPendingDestroy();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
+	WeaponComp->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	CurrentWeapon->Weapon->SetSimulatePhysics(true);
+	CurrentWeapon->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	FTransform spawnTransform = GetActorTransform();
+	spawnTransform.SetLocation(spawnTransform.GetLocation() - FVector(0, 0, 5));
+	auto* dummyEnemy = GetWorld()->SpawnActor<ASG_DummyEnemy>(BP_DummyEnemy, GetActorTransform(), params);
+	dummyEnemy->Mesh->AddImpulse(ShotDirection * force);
+	Destroy();
+	/*auto* myController = Cast<ASG_EnemyAIController>(Controller);
+	check(myController); if (nullptr == myController) return;*/
 }
 
 void ASG_Enemy::OnRep_HP()
@@ -343,6 +366,6 @@ void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName, const FVect
 
 	if (HP == 0)
 	{
-		DieProcess(ShotDirection, Shooter);
+		DieProcess(BoneName, ShotDirection, Shooter);
 	}
 }
