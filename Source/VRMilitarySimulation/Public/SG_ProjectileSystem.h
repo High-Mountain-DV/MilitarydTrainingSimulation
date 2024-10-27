@@ -39,6 +39,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	TEnumAsByte<ECollisionChannel> BodyChannel = ECollisionChannel::ECC_GameTraceChannel7;
 
+	TArray<AActor*> ActorsToIgnore;
+
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	float BulletDamage = 50;
 
@@ -71,4 +73,7 @@ private:
 	class UMaterialInterface* BulletHoleDecalFactory;
 
 	FTimerHandle DestroyHandle;
+
+	ETraceTypeQuery tracechannel;
+	ETraceTypeQuery bodychannel;
 };

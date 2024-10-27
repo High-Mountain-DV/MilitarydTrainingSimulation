@@ -119,13 +119,13 @@ public:
 	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
-	float RecoilPitchMainOffset = 4;
+	float RecoilPitchMinOffset = 4;
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
 	float RecoilPitchMaxOffset = 8;
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
 	float RecoilYawMinOffset= -2;
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
-	float RecoilMaxOffset = -2;
+	float RecoilYawMaxOffset = -2;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Factory")
@@ -148,4 +148,5 @@ private:
 
 	void LerpAimoffset(float DeltaTime);
 	void DieProcess(const FString& BoneName, const FVector& ShotDirection, AActor* Shooter);
+	void Recoil();
 };

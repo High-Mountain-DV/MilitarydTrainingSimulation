@@ -32,11 +32,17 @@ void USG_ProjectileSystem::BeginPlay()
 	check(MyBullet); if (nullptr == MyBullet) return;
 
 	BulletVelocity = MyBullet->GetActorForwardVector() * BulletSpeed;
-
 	StartLocation = MyBullet->GetActorLocation();
-
 	bBulletInitialized = true;
 	
+	auto* ShooterActor = Cast<AActor>(MyBullet->GetInstigator());
+	check(ShooterActor); if (nullptr == ShooterActor) return;
+
+	ActorsToIgnore.Add(ShooterActor);
+
+	tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
+	bodychannel = UEngineTypes::ConvertToTraceType(BodyChannel);
+
 	if (MyBullet->HasAuthority())
 	{
 		GetWorld()->GetTimerManager().SetTimer(DestroyHandle, [this]()
@@ -62,15 +68,6 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	_DeltaTime = DeltaTime;
 	FHitResult OutHit;
 
-	// TraceChannel
-	TArray<AActor*> ActorsToIgnore;
-	auto* ShooterActor = Cast<AActor>(MyBullet->GetInstigator());
-	check(ShooterActor); if (nullptr == ShooterActor) return;
-
-	ActorsToIgnore.Add(ShooterActor);
-
-	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
-	ETraceTypeQuery bodychannel = UEngineTypes::ConvertToTraceType(BodyChannel);
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
 	if (bHit)
 	{

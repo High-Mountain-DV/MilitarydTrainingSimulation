@@ -126,13 +126,9 @@ void ASG_Enemy::SetWeapon()
 bool ASG_Enemy::Fire(bool& OutStopShooting)
 {
 	bool bMagazineEmpty = CurrentWeapon->Fire(OutStopShooting);
-	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(RecoilPitchMainOffset, RecoilPitchMaxOffset);
-	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(RecoilYawMinOffset, RecoilMaxOffset);
 
-	/*DestinationAimPitch += deltaPitch;
-	DestinationAimYaw += deltaYaw;
-	AimPitch += deltaPitch;
-	AimYaw += deltaYaw;*/
+	Recoil();
+	
 	
 	return bMagazineEmpty;
 }
@@ -276,8 +272,8 @@ void ASG_Enemy::AI_Move_To(float DeltaTime)
 
 void ASG_Enemy::LerpAimoffset(float DeltaTime)
 {
-	AimPitch = FMath::Lerp(AimPitch, DestinationAimPitch, DeltaTime * 12);
-	AimYaw = FMath::Lerp(AimYaw, DestinationAimYaw, DeltaTime * 12);
+	AimPitch = FMath::Lerp(AimPitch, DestinationAimPitch, DeltaTime * 6);
+	AimYaw = FMath::Lerp(AimYaw, DestinationAimYaw, DeltaTime * 6);
 	UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
 
 	if (FMath::Abs(AimPitch - DestinationAimPitch) <= 0.1 && FMath::Abs(AimYaw - DestinationAimYaw) <= 0.1)
@@ -308,6 +304,19 @@ void ASG_Enemy::DieProcess(const FString& BoneName, const FVector& ShotDirection
 	Destroy();
 	/*auto* myController = Cast<ASG_EnemyAIController>(Controller);
 	check(myController); if (nullptr == myController) return;*/
+}
+
+void ASG_Enemy::Recoil()
+{
+	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(RecoilPitchMinOffset, RecoilPitchMaxOffset);
+	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(RecoilYawMinOffset, RecoilYawMaxOffset);
+
+	AimPitch += deltaPitch;
+	AimYaw += deltaYaw;
+
+	bAiming = true;
+	DestinationAimPitch = 0;
+	DestinationAimYaw = 0;
 }
 
 void ASG_Enemy::OnRep_HP()
