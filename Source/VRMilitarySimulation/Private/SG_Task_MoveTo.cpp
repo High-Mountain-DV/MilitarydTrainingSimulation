@@ -121,7 +121,7 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 			NextTargetLocation.X = AIPawn->GetActorLocation().X + delta_x;
 			NextTargetLocation.Y = AIPawn->GetActorLocation().Y + delta_y;
 
-			if (!bCannotMove) PointIndex -= 1;
+			if (false == bCannotMove) PointIndex -= 1;
 			bCannotMove = true;
 
 			ZeroVelocityCount = 0;

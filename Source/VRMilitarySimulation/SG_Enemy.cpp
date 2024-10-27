@@ -129,10 +129,10 @@ bool ASG_Enemy::Fire(bool& OutStopShooting)
 	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(RecoilPitchMainOffset, RecoilPitchMaxOffset);
 	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(RecoilYawMinOffset, RecoilMaxOffset);
 
-	DestinationAimPitch += deltaPitch;
+	/*DestinationAimPitch += deltaPitch;
 	DestinationAimYaw += deltaYaw;
 	AimPitch += deltaPitch;
-	AimYaw += deltaYaw;
+	AimYaw += deltaYaw;*/
 	
 	return bMagazineEmpty;
 }
@@ -148,25 +148,13 @@ void ASG_Enemy::Aim(const FVector TargetLocation)
 	FVector ActorRight = GetActorRightVector();
 	FVector ActorUp = GetActorUpVector();
 
-	// Yaw 계산 (수평 회전)
-	float DotProduct = FVector::DotProduct(ActorForward, TargetDirection);
-	float RightDot = FVector::DotProduct(ActorRight, TargetDirection);
-	DestinationAimYaw = FMath::Atan2(RightDot, DotProduct) * 180.0f / PI;
-
-	if (DestinationAimYaw > 0) DestinationAimYaw += 2.31;
-	else DestinationAimYaw += 4.81;
-
 	// Pitch 계산 (수직 회전)
 	float UpDot = FVector::DotProduct(ActorUp, TargetDirection);
 	float ForwardLength = FVector::VectorPlaneProject(TargetDirection, ActorUp).Size();
-	DestinationAimPitch = FMath::Atan2(UpDot, ForwardLength) * 180.0f / PI * AimOffsetPitchCoef;
+	DestinationAimPitch = FMath::Atan2(UpDot, ForwardLength) * 180.0f / PI;
 
 	// 각도 제한 (필요한 경우)
 	DestinationAimPitch = FMath::ClampAngle(DestinationAimPitch, -90.0f, 90.0f);
-	DestinationAimYaw = FMath::ClampAngle(DestinationAimYaw, -90.0f, 90.0f);
-
-	//UE_LOG(LogTemp, Warning, TEXT("DestinationAimPitch: {%f}, DestinationAimYaw: {%f}"), DestinationAimPitch, DestinationAimYaw);
-
 }
 
 
@@ -290,8 +278,7 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 {
 	AimPitch = FMath::Lerp(AimPitch, DestinationAimPitch, DeltaTime * 12);
 	AimYaw = FMath::Lerp(AimYaw, DestinationAimYaw, DeltaTime * 12);
-
-	//UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
+	UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
 
 	if (FMath::Abs(AimPitch - DestinationAimPitch) <= 0.1 && FMath::Abs(AimYaw - DestinationAimYaw) <= 0.1)
 	{
