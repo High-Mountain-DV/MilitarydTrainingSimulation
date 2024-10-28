@@ -97,6 +97,7 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 		// 서버가 여행을 떠나고싶다.
 		CurrentSessionName = MySessionName;
 		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/VRWaitingMap?listen"));
+		// GetWorld()->ServerTravel(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap?listen"));
 	}
 	else
 	{
