@@ -24,6 +24,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 private:
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SpawnEmitterAtLocation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy = true);
+
 	FVector CalculateGravityAndDecelaration(FVector Velocity) const;
 	UFUNCTION(BlueprintPure)
 	float DragForce() const;

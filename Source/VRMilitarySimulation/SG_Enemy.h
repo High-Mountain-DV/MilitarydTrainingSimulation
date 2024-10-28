@@ -93,10 +93,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FVector LeftHandPos;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	float AimPitch;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	float AimYaw;
+
+	void SetAimOffsetAlpha(float AimOffsetAlpha);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SetAimOffsetAlpha(float AimOffsetAlpha);
 
 	UFUNCTION(BlueprintCallable)
 	bool FindPathPoints(const FVector& TargetLocation, float Radius);
@@ -120,11 +124,6 @@ public:
 
 	void HideWeaponMagazine();
 	void ShowWeaponMagazine();
-
-	UPROPERTY(EditDefaultsOnly, Category = "Default | AimOffset")
-	float AimOffsetYawCoef= 1.05f;
-	UPROPERTY(EditDefaultsOnly, Category = "Default | AimOffset")
-	float AimOffsetPitchCoef = 1;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
@@ -153,8 +152,11 @@ private:
 
 public:
 private:
+	UPROPERTY(Replicated)
 	float DestinationAimPitch;
+	UPROPERTY(Replicated)
 	float DestinationAimYaw;
+	UPROPERTY(Replicated)
 	bool bAiming;
 
 	void LerpAimoffset(float DeltaTime);

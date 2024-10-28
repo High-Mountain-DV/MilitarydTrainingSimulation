@@ -92,7 +92,7 @@ bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 	//GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FTransform(SpawnRotation, SpawnLocation, FVector(1)), params);
 	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), BulletSpawnParams);
 
-	MulticastRPC_SpawnFireVFX(MuzzlePosition->GetComponentTransform());
+	MulticastRPC_SpawnFireVFX();
 
 	//Recoil();
 
@@ -184,11 +184,12 @@ void ASG_WeaponMaster::ShowMagazine()
 	Magazine->SetVisibility(true);
 }
 
-void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation(const FTransform& SpawnTransform)
+void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 {
 	check(FireVFX); if (nullptr == FireVFX) return;
 
+	PRINTLOG(TEXT("FireVFX 소환"));
 	// 격발 이펙트 소환
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, SpawnTransform);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
 }
 

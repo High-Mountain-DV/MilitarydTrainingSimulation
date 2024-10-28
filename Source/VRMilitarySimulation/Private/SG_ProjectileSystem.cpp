@@ -73,22 +73,20 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		UE_LOG(LogTemp, Warning, TEXT("nullptr == Shooter"));
 		return;
 	}
-	if (nullptr != Shooter && Shooter->HasAuthority())
+	if (nullptr != Shooter)
 	{
 		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
 		if (bHit)
 		{
 			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
 			ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
-			UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
 			// 캐릭터가 맞았을 때
-			if (hitCharacter)
+			if (Shooter->HasAuthority() && hitCharacter)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("HitActor: %s"), *hitCharacter->GetName()));
 				bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
 				if (bBodyHit)
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("Player or Enemy Hit!"));
 					UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
 					if (MyBullet->HasAuthority())
 					{
@@ -111,7 +109,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 						}
 					}
 					// 출혈 이펙트
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
+					MulticastRPC_SpawnEmitterAtLocation(BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
 
 				}
 				// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
@@ -151,6 +149,11 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		MyBullet->SetActorLocation(NextLocation);
 		BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
 	}
+}
+
+void USG_ProjectileSystem::MulticastRPC_SpawnEmitterAtLocation_Implementation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy /*= true*/)
+{
+	UGameplayStatics::SpawnEmitterAtLocation(Shooter->GetWorld(), ParticleToSpawn, SpawnTransform, bAutoDestroy);
 }
 
 FVector USG_ProjectileSystem::CalculateGravityAndDecelaration(FVector Velocity) const

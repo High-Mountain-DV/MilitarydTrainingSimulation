@@ -108,7 +108,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool Fire(bool& OutStopShooting);
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPC_SpawnFireVFX(const FTransform& SpawnTransform);
+	void MulticastRPC_SpawnFireVFX();
 
 	void Recoil();
 	void StartRecoilRecovery();

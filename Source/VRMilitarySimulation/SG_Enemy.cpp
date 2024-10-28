@@ -54,6 +54,7 @@ void ASG_Enemy::BeginPlay()
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
 
+	PRINTLOG(TEXT("Anim 획득 성공"));
 	BulletCount = MaxBulletCount;
 	SetWeapon();
 
@@ -69,6 +70,7 @@ void ASG_Enemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	if (bAiming)	PRINTLOG(TEXT("bAiming : {%d}, AimPitch: {%f}, AimYaw: {%f}"), bAiming, AimPitch, AimYaw);
 	if (StartMovement)
 	{
 		AI_Move_To(DeltaTime);
@@ -99,6 +101,11 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 	DOREPLIFETIME(ASG_Enemy, hp);
 	DOREPLIFETIME(ASG_Enemy, CurrentWeapon);
+	DOREPLIFETIME(ASG_Enemy, DestinationAimPitch);
+	DOREPLIFETIME(ASG_Enemy, DestinationAimYaw);
+	DOREPLIFETIME(ASG_Enemy, bAiming);
+	DOREPLIFETIME(ASG_Enemy, AimYaw);
+	DOREPLIFETIME(ASG_Enemy, AimPitch);
 	
 }
 
@@ -151,7 +158,6 @@ void ASG_Enemy::Aim(const FVector TargetLocation)
 
 	// 현재 Actor의 Forward 방향을 기준으로 상대적인 회전값을 계산
 	FVector ActorForward = GetActorForwardVector();
-	FVector ActorRight = GetActorRightVector();
 	FVector ActorUp = GetActorUpVector();
 
 	// Pitch 계산 (수직 회전)
@@ -159,7 +165,7 @@ void ASG_Enemy::Aim(const FVector TargetLocation)
 	float ForwardLength = FVector::VectorPlaneProject(TargetDirection, ActorUp).Size();
 	DestinationAimPitch = FMath::Atan2(UpDot, ForwardLength) * 180.0f / PI;
 
-	// 각도 제한 (필요한 경우)
+	// 각도 제한
 	DestinationAimPitch = FMath::ClampAngle(DestinationAimPitch, -90.0f, 90.0f);
 }
 
@@ -167,6 +173,21 @@ void ASG_Enemy::Aim(const FVector TargetLocation)
 void ASG_Enemy::Reloading()
 {
 	CurrentWeapon->Reloading();
+}
+
+void ASG_Enemy::SetAimOffsetAlpha(float AimOffsetAlpha)
+{
+	MulticastRPC_SetAimOffsetAlpha(AimOffsetAlpha);
+}
+
+void ASG_Enemy::MulticastRPC_SetAimOffsetAlpha_Implementation(float AimOffsetAlpha)
+{
+	if (nullptr == Anim) 
+	{
+		PRINTLOG(TEXT("이거뜨면 Anim이 없어지는 버그인듯"));
+		return;
+	}
+	Anim->AimOffsetAlpha = AimOffsetAlpha;
 }
 
 bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation, float Radius)
@@ -345,6 +366,7 @@ void ASG_Enemy::Recoil()
 	float deltaPitch = UKismetMathLibrary::RandomFloatInRange(RecoilPitchMinOffset, RecoilPitchMaxOffset);
 	float deltaYaw = UKismetMathLibrary::RandomFloatInRange(RecoilYawMinOffset, RecoilYawMaxOffset);
 
+	if (!HasAuthority()) UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
 	AimPitch += deltaPitch;
 	AimYaw += deltaYaw;
 

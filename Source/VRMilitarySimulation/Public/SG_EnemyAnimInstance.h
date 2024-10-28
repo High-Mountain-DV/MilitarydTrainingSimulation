@@ -32,6 +32,9 @@ public:
 	UPROPERTY()
 	class AActor* NewGrabMagazine;
 	
+	UPROPERTY(BlueprintReadOnly)
+	float AimOffsetAlpha;
+
 	void PlayMontage(UAnimMontage* MontageToPlay, float PlayRate = 1.0f);
 
 	// AnimNotify
