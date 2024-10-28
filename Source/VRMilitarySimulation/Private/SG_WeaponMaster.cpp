@@ -62,7 +62,7 @@ void ASG_WeaponMaster::SetShooter()
 	check(Shooter); if (nullptr == Shooter) return;
 
 	BulletSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	BulletSpawnParams.Instigator = Cast<APawn>(Shooter);
+	BulletSpawnParams.Instigator = Shooter;
 }
 
 void ASG_WeaponMaster::Aim(const FVector TargetLocation)

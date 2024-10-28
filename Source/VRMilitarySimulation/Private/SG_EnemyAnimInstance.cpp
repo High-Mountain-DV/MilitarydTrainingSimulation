@@ -20,6 +20,11 @@ void USG_EnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 }
 
+void USG_EnemyAnimInstance::PlayMontage(UAnimMontage* MontageToPlay, float PlayRate /*= 1.0f*/)
+{
+	Montage_Play(MontageToPlay, PlayRate);
+}
+
 void USG_EnemyAnimInstance::AnimNotify_DettachMagazine()
 {
 	check(MagazineFactory); if (nullptr == MagazineFactory) return;

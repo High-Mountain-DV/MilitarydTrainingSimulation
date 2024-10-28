@@ -27,7 +27,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	void SetWeapon();
+
+	UFUNCTION()
+	float ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+
 	bool Fire(bool& OutStopShooting);
 	void Aim(const FVector TargetLocation);
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -43,8 +51,11 @@ public:
 	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
 	int32 MaxBulletCount = 40;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	class ASG_WeaponMaster* CurrentWeapon;
+
+	UFUNCTION()
+	void OnRep_CurrentWeapon();
 
 	UPROPERTY()
 	class USG_EnemyAnimInstance* Anim;
@@ -59,7 +70,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetHP(float Value);
 	UFUNCTION(BlueprintCallable)
-	void DamageProcess(float Damage, const FString& BoneName, const FVector& ShotDirection, AActor* Shooter);
+	void DamageProcess(float Damage, const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
 	float HeadShotMultiplier = 10;
@@ -147,6 +158,10 @@ private:
 	bool bAiming;
 
 	void LerpAimoffset(float DeltaTime);
-	void DieProcess(const FString& BoneName, const FVector& ShotDirection, AActor* Shooter);
+	void DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DieProcess(const FName& BoneName, const FVector&ShotDirection, AActor* Shooter);
+
 	void Recoil();
 };

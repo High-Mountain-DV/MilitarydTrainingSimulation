@@ -37,7 +37,7 @@ void USG_ProjectileSystem::BeginPlay()
 	
 	auto* ShooterActor = Cast<AActor>(MyBullet->GetInstigator());
 	check(ShooterActor); if (nullptr == ShooterActor) return;
-
+	Shooter = Cast<APawn>(ShooterActor);
 	ActorsToIgnore.Add(ShooterActor);
 
 	tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
@@ -60,6 +60,7 @@ void USG_ProjectileSystem::BeginPlay()
 void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 	check(MyBullet); if (nullptr == MyBullet) return;
 	if (!bBulletInitialized) return;
 
@@ -67,67 +68,81 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	FVector NextLocation = StartLocation + BulletVelocity * DeltaTime;
 	_DeltaTime = DeltaTime;
 	FHitResult OutHit;
-
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
-	if (bHit)
+	if (nullptr == Shooter)
 	{
-		ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
-		ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
-		UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
-		// 캐릭터가 맞았을 때
-		if (hitCharacter)
+		UE_LOG(LogTemp, Warning, TEXT("nullptr == Shooter"));
+		return;
+	}
+	if (nullptr != Shooter && Shooter->HasAuthority())
+	{
+		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
+		if (bHit)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("HitActor: %s"), *hitCharacter->GetName()));
-			bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
-			if (bBodyHit)
+			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
+			ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
+			UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
+			// 캐릭터가 맞았을 때
+			if (hitCharacter)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("Player or Enemy Hit!"));
-				UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString()); 
-				if (MyBullet->HasAuthority())
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("HitActor: %s"), *hitCharacter->GetName()));
+				bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
+				if (bBodyHit)
 				{
-					// 플레이어에게 데미지 처리
-					AMilitaryVRPawn* Player = Cast<AMilitaryVRPawn>(hitCharacter);
-					if (Player)
+					GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("Player or Enemy Hit!"));
+					UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
+					if (MyBullet->HasAuthority())
 					{
-						Player->DamageProcess(BulletDamage);
-					}
-					else
-					{
-						// 에너미에게 데미지 처리
-						ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
-						if (Enemy)
+						// 플레이어에게 데미지 처리
+						AMilitaryVRPawn* Player = Cast<AMilitaryVRPawn>(hitCharacter);
+						if (Player)
 						{
-							Enemy->DamageProcess(BulletDamage, OutHit.BoneName.ToString(), BulletVelocity.GetSafeNormal(), Shooter);
-							UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
+							Player->DamageProcess(BulletDamage);
 						}
+						else
+						{
+							// 에너미에게 데미지 처리
+							ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
+							if (Enemy)
+							{
+								Enemy->DamageProcess(BulletDamage, OutHit.BoneName, BulletVelocity.GetSafeNormal(), Shooter);
+								UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
+							}
 
+						}
 					}
+					// 출혈 이펙트
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
+
 				}
-				// 출혈 이펙트
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
+				// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
+				else
+				{
+					check(MyBullet); if (nullptr == MyBullet) return;
+					MyBullet->SetActorLocation(NextLocation);
+					BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
+					return;
+				}
+			}
+			else if (dummyEnemy)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
+				dummyEnemy->Mesh->AddImpulse(BulletVelocity / 5);
+			}
+			// 데칼 소환
+			FRotator DecalRotation = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
+			UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalFactory, FVector(2.5), OutHit.ImpactPoint, DecalRotation, 100.0f);
+			check(MyBullet); if (nullptr == MyBullet) return;
 
-			}
-			// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
-			else
-			{	
-				check(MyBullet); if (nullptr == MyBullet) return;
-				MyBullet->SetActorLocation(NextLocation);
-				BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
-				return;
-			}
+			GetWorld()->GetTimerManager().ClearTimer(DestroyHandle);
+			MyBullet->Destroy();
 		}
-		else if (dummyEnemy)
+		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
-			dummyEnemy->Mesh->AddImpulse(BulletVelocity / 5);
-		}
-		// 데칼 소환
-		FRotator DecalRotation = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
-		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalFactory, FVector(2.5), OutHit.ImpactPoint, DecalRotation, 100.0f);
-		check(MyBullet); if (nullptr == MyBullet) return;
+			check(MyBullet); if (nullptr == MyBullet) return;
 
-		GetWorld()->GetTimerManager().ClearTimer(DestroyHandle);
-		MyBullet->Destroy();
+			MyBullet->SetActorLocation(NextLocation);
+			BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
+		}
 	}
 	else
 	{

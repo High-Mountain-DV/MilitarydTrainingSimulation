@@ -18,6 +18,8 @@
 #include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "SG_DummyEnemy.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 
 // Sets default values
@@ -28,7 +30,7 @@ ASG_Enemy::ASG_Enemy()
 
 	WeaponComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("WeaponComp"));
 	//WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229)); 
-	WeaponComp->SetupAttachment(RootComponent);
+	WeaponComp->SetupAttachment(GetMesh(), TEXT("Enemy_TwoHandedGun_Socket"));
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MilitarySimulator/SHN/Assets/Character/NorthKorean/sol_8_low.sol_8_low'"));
 	if (tempMesh.Succeeded())
@@ -54,9 +56,7 @@ void ASG_Enemy::BeginPlay()
 
 	BulletCount = MaxBulletCount;
 	SetWeapon();
-	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
-	CurrentWeapon->SetOwner(this);
-	UE_LOG(LogTemp, Warning, TEXT("WeaponComp->GetChildActor's Name: {%s}"), *CurrentWeapon->GetName());
+
 	if (PathFindDebug)
 	{
 		DebugArrow->SetHiddenInGame(false);
@@ -98,29 +98,39 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASG_Enemy, hp);
+	DOREPLIFETIME(ASG_Enemy, CurrentWeapon);
+	
 }
 
 void ASG_Enemy::SetWeapon()
 {
-	//CurrentWeapon = GetWorld()->SpawnActor<ASG_WeaponMaster>(WeaponClass, GetMesh()->GetSocketTransform(TEXT("Enemy_TwoHandedGun_Socket")), param);
-	//check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
-	//CurrentWeapon->K2_AttachToComponent(GetMesh(), TEXT("Enemy_TwoHandedGun_Socket"), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-
-	////CurrentWeapon->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
-
-	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	if (!HasAuthority()) return;
 	FActorSpawnParameters param;
 	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	WeaponComp->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
 	if (WeaponClass) WeaponComp->SetChildActorClass(WeaponClass);
+
 	WeaponComp->CreateChildActor();
 	CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
-	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
 
-	CurrentWeapon->SetOwner(this);
-	CurrentWeapon->SetInstigator(this);
-	CurrentWeapon->Weapon->SetVisibility(true);
-	CurrentWeapon->SetShooter();
+	OnRep_CurrentWeapon();
+}
+
+float ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+{
+	check(Anim); if (nullptr == Anim) return 0.0f;
+
+	float OutDuration = Anim->Montage_Play(AnimMontage);
+	MulticastRPC_PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+
+	return OutDuration;
+}
+
+void ASG_Enemy::MulticastRPC_PlayAnimMontage_Implementation(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+{
+	if (!HasAuthority())	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
 }
 
 bool ASG_Enemy::Fire(bool& OutStopShooting)
@@ -274,7 +284,7 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 {
 	AimPitch = FMath::Lerp(AimPitch, DestinationAimPitch, DeltaTime * 6);
 	AimYaw = FMath::Lerp(AimYaw, DestinationAimYaw, DeltaTime * 6);
-	UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
+	//UE_LOG(LogTemp, Warning, TEXT("AimPitch: {%f}, AimYaw: {%f}"), AimPitch, AimYaw);
 
 	if (FMath::Abs(AimPitch - DestinationAimPitch) <= 0.1 && FMath::Abs(AimYaw - DestinationAimYaw) <= 0.1)
 	{
@@ -282,15 +292,39 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 	}
 }
 
-void ASG_Enemy::DieProcess(const FString& BoneName, const FVector& ShotDirection, AActor* Shooter)
+void ASG_Enemy::DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter)
+{
+	ServerRPC_DieProcess(BoneName, ShotDirection, Shooter);
+}
+
+void ASG_Enemy::ServerRPC_DieProcess_Implementation(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter)
 {
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
 	float force = 10000;
-	GetMesh()->AddImpulse(ShotDirection * force, FName(*BoneName));
+	GetMesh()->AddImpulse(ShotDirection * force, BoneName);
 	DetachFromControllerPendingDestroy();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
+	{
+		AAIController* AIController = Cast<AAIController>(GetController());
+		if (AIController)
+		{
+			// BehaviorTreeComponent 가져오기
+			UBehaviorTreeComponent* BehaviorTreeComp = AIController->FindComponentByClass<UBehaviorTreeComponent>();
+			if (BehaviorTreeComp)
+			{
+				// Blackboard 가져오기
+				UBlackboardComponent* Blackboard = BehaviorTreeComp->GetBlackboardComponent();
+				if (Blackboard)
+				{
+					// bDead 값을 true로 설정
+					Blackboard->SetValueAsBool(TEXT("bDead"), true);
+				}
+			}
+		}
+	}
+
 	WeaponComp->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	CurrentWeapon->Weapon->SetSimulatePhysics(true);
 	CurrentWeapon->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -319,6 +353,15 @@ void ASG_Enemy::Recoil()
 	DestinationAimYaw = 0;
 }
 
+void ASG_Enemy::OnRep_CurrentWeapon()
+{
+	CurrentWeapon->SetOwner(this);
+	CurrentWeapon->SetInstigator(this);
+	CurrentWeapon->SetShooter();
+
+	PRINTLOG(TEXT("WeaponComp->GetChildActor's Name: {%s}"), *CurrentWeapon->GetName());
+}
+
 void ASG_Enemy::OnRep_HP()
 {
 	//if (HP <= 0)
@@ -338,14 +381,15 @@ void ASG_Enemy::SetHP(float Value)
 	OnRep_HP();
 }
 
-void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName, const FVector& ShotDirection, AActor* Shooter)
+void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector& ShotDirection, AActor* Shooter)
 {
-	if (BoneName.Equals(TEXT("head")) || BoneName.Contains(TEXT("neck")))
+	FString BoneString = BoneName.ToString();
+	if (BoneName == TEXT("head") || BoneString.Contains(TEXT("neck")))
 	{
 		Damage *= HeadShotMultiplier;
 		UE_LOG(LogTemp, Warning, TEXT("HeadShot!"));
 	}
-	else if (BoneName.Contains(TEXT("arm")) || BoneName.Contains(TEXT("calf")) || BoneName.Contains(TEXT("thigh")))
+	else if (BoneString.Contains(TEXT("arm")) || BoneString.Contains(TEXT("calf")) || BoneString.Contains(TEXT("thigh")))
 	{
 		Damage *= ArmOrLegShotMultiplier;
 		UE_LOG(LogTemp, Warning, TEXT("Arm or Leg Shot!"));
@@ -356,7 +400,7 @@ void ASG_Enemy::DamageProcess(float Damage, const FString& BoneName, const FVect
 		Damage *= BodyShotMultiplier;
 	}
 
-	ApplyImpactToBone(FName(*BoneName), ShotDirection);
+	ApplyImpactToBone(BoneName, ShotDirection);
 
 	HP -= Damage;
 

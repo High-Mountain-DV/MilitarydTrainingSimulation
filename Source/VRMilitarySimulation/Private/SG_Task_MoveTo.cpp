@@ -76,6 +76,7 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+	if (!AIPawn) return;
 
 
 	DirectionVector = GetDirectionToTarget();
@@ -128,11 +129,6 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 			if (bDebugBoxOn) UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Red, FRotator::ZeroRotator, 10);
 		}
 	}
-	else
-	{
-		AIPawn->AimPitch = FMath::Lerp(AIPawn->AimPitch, 0, DeltaSeconds * 6);
-		AIPawn->AimYaw = FMath::Lerp(AIPawn->AimYaw, 0, DeltaSeconds * 6);
-	}
 	float OutDist;
 	if (ArriveAtLocation(NextTargetLocation, OutDist))
 	{
@@ -154,6 +150,8 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 
 bool USG_Task_MoveTo::FindPathPoints()
 {
+	if (!AIPawn) return false;
+
 	PRINTLOG(TEXT(""));
 	PointIndex = 1;
 	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), AIPawn->GetActorLocation(), TargetLocation);
@@ -191,7 +189,8 @@ void USG_Task_MoveTo::DebugPoints(const TArray<FVector>& Array)
 
 FVector USG_Task_MoveTo::GetDirectionToTarget()
 {
-	FVector fromLocation = AIPawn->GetActorLocation();
+	if (!AIPawn) return FVector(1, 0, 0);
+	FVector	fromLocation = AIPawn->GetActorLocation();
 	FVector ToLocation = FVector(NextTargetLocation.X, NextTargetLocation.Y, fromLocation.Z);
 
 	return UKismetMathLibrary::GetDirectionUnitVector(fromLocation, ToLocation);
@@ -200,6 +199,7 @@ FVector USG_Task_MoveTo::GetDirectionToTarget()
 
 bool USG_Task_MoveTo::ArriveAtLocation(FVector EndLocation, float& OutDist)
 {
+	if (!AIPawn) return false;
 	OutDist = FVector::Distance(AIPawn->GetActorLocation(), FVector(EndLocation.X, EndLocation.Y, AIPawn->GetActorLocation().Z));
 	return (OutDist <= AcceptableRadius);
 }

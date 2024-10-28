@@ -31,6 +31,8 @@ public:
 
 	UPROPERTY()
 	class AActor* NewGrabMagazine;
+	
+	void PlayMontage(UAnimMontage* MontageToPlay, float PlayRate = 1.0f);
 
 	// AnimNotify
 	UFUNCTION()
