@@ -18,14 +18,9 @@ ASG_WeaponMaster::ASG_WeaponMaster()
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
 	BoxComp->SetupAttachment(RootComponent);
 
-	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(BoxComp);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Magazine"));
-	Magazine->SetupAttachment(Weapon);
-	Magazine->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Magazine->SetRelativeLocation(FVector(9823.016442, 0, 106.515316));
 
 	FirePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePosition"));
 	FirePosition->SetupAttachment(Weapon);
@@ -42,7 +37,6 @@ void ASG_WeaponMaster::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 }
 
 // Called every frame
@@ -56,22 +50,13 @@ void ASG_WeaponMaster::Tick(float DeltaTime)
 	}*/
 }
 
-void ASG_WeaponMaster::SetShooter()
-{
-	Shooter = Cast<APawn>(GetOwner());
-	check(Shooter); if (nullptr == Shooter) return;
-
-	BulletSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	BulletSpawnParams.Instigator = Shooter;
-}
-
 void ASG_WeaponMaster::Aim(const FVector TargetLocation)
 {
 	PRINTLOG(TEXT(""));
 	// 목표 방향 계산
 	FVector GunLocation = GetActorLocation();
 	FVector DirectionToTarget = (TargetLocation - GunLocation).GetSafeNormal();
-	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GunLocation, TargetLocation, FColor::Blue, 3);
+	UKismetSystemLibrary::DrawDebugLine(GetWorld(), GunLocation, TargetLocation, FColor::Blue, 3);
 	// 회전값 계산
 	AimRotation = DirectionToTarget.Rotation();
 	//	bRLerpFlag = true;
@@ -80,33 +65,22 @@ void ASG_WeaponMaster::Aim(const FVector TargetLocation)
 	SetActorRotation(AimRotation);
 }
 
-bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
+bool ASG_WeaponMaster::Fire()
 {
-	//PRINTLOG(TEXT("Fire"));
+	PRINTLOG(TEXT("Fire"));
 	// 총알 소환
 	FVector SpawnLocation = FirePosition->GetComponentLocation();
 	FRotator SpawnRotation = FirePosition->GetComponentRotation() + FRotator(UKismetMathLibrary::RandomFloatInRange(PitchMin, PitchMax), UKismetMathLibrary::RandomFloatInRange(YawMin, YawMax), 0);
-	
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	check(BP_EnemyBullet); if (nullptr == BP_EnemyBullet) return true;
 
 	//GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FTransform(SpawnRotation, SpawnLocation, FVector(1)), params);
+	GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), params);
 
-	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, SpawnLocation, SpawnRotation, BulletSpawnParams);
+	MulticastRPC_SpawnFireVFX(MuzzlePosition->GetComponentTransform());
 
-	MulticastRPC_SpawnFireVFX();
-	//Recoil();
-
-	if (UKismetMathLibrary::RandomIntegerInRange(0, 100) > StopShootingProb)
-	{
-		OutStopShooting = false;
-		StopShootingProb += StopShootingDelta;
-		//UE_LOG(LogTemp, Warning, TEXT("StopShootingProb: %d"), StopShootingProb);
-	}
-	else
-	{
-		OutStopShooting = true;
-		StopShootingProb = 0;
-	}
+	Recoil();
 
 	BulletCount--;
 	if (BulletCount) return true;
@@ -172,28 +146,16 @@ void ASG_WeaponMaster::Reloading()
 	PRINTLOG(TEXT(""));
 	BulletCount = MaxBulletCount;
 }
-void ASG_WeaponMaster::HideMagazine()
-{
-	check(Magazine); if (nullptr == Magazine) return;
-	Magazine->SetVisibility(false);
-}
 
-void ASG_WeaponMaster::ShowMagazine()
-{
-	check(Magazine); if (nullptr == Magazine) return;
-	Magazine->SetVisibility(true);
-}
 
-void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
+
+
+
+void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation(const FTransform& SpawnTransform)
 {
 	check(FireVFX); if (nullptr == FireVFX) return;
 
-	//PRINTLOG(TEXT("FireVFX 소환"));
 	// 격발 이펙트 소환
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
-
-	check(FireSFX); if (nullptr == FireSFX) return;
-
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, SpawnTransform);
 }
 

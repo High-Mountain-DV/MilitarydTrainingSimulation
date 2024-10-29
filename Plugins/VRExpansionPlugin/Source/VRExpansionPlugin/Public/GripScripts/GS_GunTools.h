@@ -86,7 +86,7 @@ public:
 		SmoothingValueForStock = 0.0f;
 		bSmoothStockHand = false;
 
-		// SpeedScale up the lerp on fast movements for this
+		// Speed up the lerp on fast movements for this
 		StockHandSmoothing.DeltaCutoff = 20.0f;
 		StockHandSmoothing.MinCutoff = 5.0f;
 
