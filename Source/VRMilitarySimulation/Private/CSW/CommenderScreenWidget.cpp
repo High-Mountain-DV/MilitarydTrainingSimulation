@@ -8,6 +8,9 @@
 void UCommenderScreenWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	MakeCamArr();
+
 }
 
 void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
@@ -32,8 +35,10 @@ void UCommenderScreenWidget::MakeCamArr()
 
 void UCommenderScreenWidget::SelectScreen(int32 idx)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SelectScreen"));
 	if (!Cams.IsEmpty())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SelectScreenIn"));
 		WholeScreen->SetBrush(Cams[idx]->GetBrush());
 		SelectedIdx = idx;
 		WholeScreen->SetVisibility(ESlateVisibility::Visible);
