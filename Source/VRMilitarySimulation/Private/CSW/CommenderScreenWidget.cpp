@@ -15,8 +15,10 @@ void UCommenderScreenWidget::NativeConstruct()
 
 void UCommenderScreenWidget::AddPlayerScreen(UMaterialInstanceDynamic* CamMtl)
 {
+	UE_LOG(LogTemp, Warning, TEXT("AddPlayerScreen"));
 	if (Idx < 4)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AddPlayerScreen In"));
 		if (Cams.IsEmpty())
 		{
 			MakeCamArr();

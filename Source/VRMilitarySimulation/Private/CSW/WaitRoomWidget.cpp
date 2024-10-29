@@ -61,7 +61,8 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
 				gm->bUseSeamlessTravel = true;
-				GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
+				GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
+				// GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
 			}
 		}
 	}
