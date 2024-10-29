@@ -296,17 +296,17 @@ bool FPhysicsReplicationVR::ApplyRigidBodyState(float DeltaSeconds, FBodyInstanc
 	static const auto CVarEnableDefaultReplication = IConsoleManager::Get().FindConsoleVariable(TEXT("np2.EnableDefaultReplication"));
 
 	// If networked physics prediction is enabled, enforce the new physics replication flow via SetReplicatedTarget() using PhysicsObject instead of BodyInstance from BoneName.
-	AActor* Owner = Component->GetOwner();
+	AActor* MyBullet = Component->GetOwner();
 
-	if (Owner && (CVarEnableDefaultReplication->GetBool() || Owner->GetPhysicsReplicationMode() != EPhysicsReplicationMode::Default)) // For now, only opt in to the PhysicsObject flow if not using Default replication or if default is allowed via CVar.
+	if (MyBullet && (CVarEnableDefaultReplication->GetBool() || MyBullet->GetPhysicsReplicationMode() != EPhysicsReplicationMode::Default)) // For now, only opt in to the PhysicsObject flow if not using Default replication or if default is allowed via CVar.
 	{
-		const ENetRole OwnerRole = Owner->GetLocalRole();
+		const ENetRole OwnerRole = MyBullet->GetLocalRole();
 		const bool bIsSimulated = OwnerRole == ROLE_SimulatedProxy;
 		const bool bIsReplicatedAutonomous = OwnerRole == ROLE_AutonomousProxy && Component->bReplicatePhysicsToAutonomousProxy;
 		if (bIsSimulated || bIsReplicatedAutonomous)
 		{
 			Chaos::FConstPhysicsObjectHandle PhysicsObject = Component->GetPhysicsObjectByName(BoneName);
-			SetReplicatedTargetVR(PhysicsObject, ReplicatedTarget, ServerFrame, Owner->GetPhysicsReplicationMode());
+			SetReplicatedTargetVR(PhysicsObject, ReplicatedTarget, ServerFrame, MyBullet->GetPhysicsReplicationMode());
 			return;
 		}
 	}

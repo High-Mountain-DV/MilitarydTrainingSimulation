@@ -125,7 +125,7 @@ public:
 	EVRStateChangeAuthorityType GetStateChangeAuthorityType() { return StateChangeAuthorityType; }
 	void SetStateChangeAuthorityType(EVRStateChangeAuthorityType NewStateChangeAuthorityType);
 
-	// Speed that the button de-presses when no longer interacted with
+	// SpeedScale that the button de-presses when no longer interacted with
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRButtonComponent")
 	float DepressSpeed;
 
