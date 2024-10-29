@@ -56,20 +56,13 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		auto *pc = GetWorld()->GetFirstPlayerController();
 		if (pc->HasAuthority())
 		{
-			auto *world = GetWorld();
-			GetWorld()->GetTimerManager().SetTimer(handle, [world]()
+			auto* gm = GetWorld()->GetAuthGameMode();
+			if (gm)
 			{
-				if (!IsValid(world))
-					return ;
-				auto* gm = world->GetAuthGameMode();
-	
-				if (gm)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
-					gm->bUseSeamlessTravel = true;
-					world->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
-				}
-			}, 5.f, false);
+				UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
+				gm->bUseSeamlessTravel = true;
+				GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
+			}
 		}
 	}
 }
