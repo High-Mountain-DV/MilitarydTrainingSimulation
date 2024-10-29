@@ -1586,7 +1586,7 @@ void FOnlineSessionSteam::TickPendingInvites(float DeltaTime)
 
 void FOnlineSessionSteam::AppendSessionToPacket(FNboSerializeToBufferSteam& Packet, FOnlineSession* Session)
 {
-	/** MyBullet of the session */
+	/** Owner of the session */
 	((FNboSerializeToBuffer&)Packet) << StaticCastSharedPtr<const FUniqueNetIdSteam>(Session->OwningUserId)->UniqueNetId
 		<< Session->OwningUserName
 		<< Session->NumOpenPrivateConnections
