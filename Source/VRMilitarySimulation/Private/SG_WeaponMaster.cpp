@@ -94,7 +94,6 @@ bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, SpawnLocation, SpawnRotation, BulletSpawnParams);
 
 	MulticastRPC_SpawnFireVFX();
-
 	//Recoil();
 
 	if (UKismetMathLibrary::RandomIntegerInRange(0, 100) > StopShootingProb)
@@ -192,5 +191,9 @@ void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 	//PRINTLOG(TEXT("FireVFX 소환"));
 	// 격발 이펙트 소환
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
+
+	check(FireSFX); if (nullptr == FireSFX) return;
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime);
 }
 

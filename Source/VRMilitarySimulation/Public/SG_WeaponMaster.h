@@ -131,4 +131,9 @@ public:
 
 	FActorSpawnParameters BulletSpawnParams;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default | SFX")
+	class USoundWave* FireSFX;
+	UPROPERTY(EditDefaultsOnly, Category = "Default | SFX")
+	float FireSFX_StartTime;
+private:
 };
