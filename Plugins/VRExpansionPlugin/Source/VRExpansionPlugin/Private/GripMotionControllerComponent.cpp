@@ -1384,8 +1384,8 @@ bool UGripMotionControllerComponent::GripObjectByInterface(UObject* ObjectToGrip
 			/*return GripComponent(PrimComp, WorldOffset, bWorldOffsetIsRelative, OptionalSnapToSocketName,
 				OptionalBoneToGripName,
 				CollisionType,
-				IVRGripInterface::Execute_GripLateUpdateSetting(MyBullet),
-				IVRGripInterface::Execute_GripMovementReplicationType(MyBullet),
+				IVRGripInterface::Execute_GripLateUpdateSetting(Owner),
+				IVRGripInterface::Execute_GripMovementReplicationType(Owner),
 				Stiffness,
 				Damping,
 				bIsSlotGrip
@@ -1503,7 +1503,7 @@ bool UGripMotionControllerComponent::DropObjectByInterface_Implementation(UObjec
 		else if (Owner->GetClass()->ImplementsInterface(UVRGripInterface::StaticClass()))
 		{
 			return DropGrip_Implementation(*GripInfo, IVRGripInterface::Execute_SimulateOnDrop(Owner), OptionalAngularVelocity, OptionalLinearVelocity, bSkipNotify);
-			//return DropComponent(PrimComp, IVRGripInterface::Execute_SimulateOnDrop(MyBullet), OptionalAngularVelocity, OptionalLinearVelocity);
+			//return DropComponent(PrimComp, IVRGripInterface::Execute_SimulateOnDrop(Owner), OptionalAngularVelocity, OptionalLinearVelocity);
 		}
 		else
 		{
