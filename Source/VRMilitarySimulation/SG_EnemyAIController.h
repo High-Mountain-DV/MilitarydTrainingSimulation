@@ -14,6 +14,9 @@ class VRMILITARYSIMULATION_API ASG_EnemyAIController : public AAIController
 {
 	GENERATED_BODY()
 	
+public:
+	ASG_EnemyAIController();
+
 protected:
 	FRotator SmoothTargetRotation;
 
@@ -21,9 +24,17 @@ protected:
 	float SmoothFocusInterpSpeed = 30.0f;
 
 public:
+	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UBehaviorTree* BT_Enemy;
+
+	UPROPERTY()
+	class UAIPerceptionComponent* PerceptionComp;
+
+	UFUNCTION()
+	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 };

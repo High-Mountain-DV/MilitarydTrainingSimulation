@@ -82,7 +82,7 @@ void ASG_WeaponMaster::Aim(const FVector TargetLocation)
 
 bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 {
-	PRINTLOG(TEXT("Fire"));
+	//PRINTLOG(TEXT("Fire"));
 	// 총알 소환
 	FVector SpawnLocation = FirePosition->GetComponentLocation();
 	FRotator SpawnRotation = FirePosition->GetComponentRotation() + FRotator(UKismetMathLibrary::RandomFloatInRange(PitchMin, PitchMax), UKismetMathLibrary::RandomFloatInRange(YawMin, YawMax), 0);
@@ -188,7 +188,7 @@ void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 {
 	check(FireVFX); if (nullptr == FireVFX) return;
 
-	PRINTLOG(TEXT("FireVFX 소환"));
+	//PRINTLOG(TEXT("FireVFX 소환"));
 	// 격발 이펙트 소환
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
 }

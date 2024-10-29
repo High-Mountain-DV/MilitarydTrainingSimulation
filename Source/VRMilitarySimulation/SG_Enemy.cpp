@@ -70,7 +70,6 @@ void ASG_Enemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (bAiming)	PRINTLOG(TEXT("bAiming : {%d}, AimPitch: {%f}, AimYaw: {%f}"), bAiming, AimPitch, AimYaw);
 	if (StartMovement)
 	{
 		AI_Move_To(DeltaTime);
