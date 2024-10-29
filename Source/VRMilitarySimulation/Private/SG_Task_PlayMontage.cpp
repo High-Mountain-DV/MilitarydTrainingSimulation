@@ -29,6 +29,10 @@ EBTNodeResult::Type USG_Task_PlayMontage::ExecuteTask(UBehaviorTreeComponent& Ow
 				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 				return EBTNodeResult::Succeeded;
 			}
+			else
+			{
+				return EBTNodeResult::Succeeded;
+			}
 		}, playTime, false);
 
 	return EBTNodeResult::InProgress;
