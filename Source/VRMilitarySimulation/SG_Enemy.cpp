@@ -319,13 +319,7 @@ void ASG_Enemy::DieProcess(const FName& BoneName, const FVector& ShotDirection, 
 
 void ASG_Enemy::ServerRPC_DieProcess_Implementation(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter)
 {
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetSimulatePhysics(true);
-	float force = 10000;
-	GetMesh()->AddImpulse(ShotDirection * force, BoneName);
 	DetachFromControllerPendingDestroy();
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	{
 		AAIController* AIController = Cast<AAIController>(GetController());
 		if (AIController)
@@ -349,15 +343,21 @@ void ASG_Enemy::ServerRPC_DieProcess_Implementation(const FName& BoneName, const
 	CurrentWeapon->Weapon->SetSimulatePhysics(true);
 	CurrentWeapon->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
-	FActorSpawnParameters params;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FTransform spawnTransform = GetActorTransform();
 	spawnTransform.SetLocation(spawnTransform.GetLocation() - FVector(0, 0, 5));
-	auto* dummyEnemy = GetWorld()->SpawnActor<ASG_DummyEnemy>(BP_DummyEnemy, GetActorTransform(), params);
-	dummyEnemy->Mesh->AddImpulse(ShotDirection * force);
+
+	MulticastRPC_SpawnDummyEnemy(spawnTransform, ShotDirection);
+
 	Destroy();
-	/*auto* myController = Cast<ASG_EnemyAIController>(Controller);
-	check(myController); if (nullptr == myController) return;*/
+}
+
+void ASG_Enemy::MulticastRPC_SpawnDummyEnemy_Implementation(const FTransform& SpawnTransform, const FVector& ShotDirection)
+{
+	float force = 10000;
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	auto* dummyEnemy = GetWorld()->SpawnActor<ASG_DummyEnemy>(BP_DummyEnemy, SpawnTransform, params);
+	dummyEnemy->Mesh->AddImpulse(ShotDirection * force);
 }
 
 void ASG_Enemy::Recoil()

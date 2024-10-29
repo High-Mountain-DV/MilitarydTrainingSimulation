@@ -90,7 +90,8 @@ bool ASG_WeaponMaster::Fire(bool& OutStopShooting)
 	check(BP_EnemyBullet); if (nullptr == BP_EnemyBullet) return true;
 
 	//GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FTransform(SpawnRotation, SpawnLocation, FVector(1)), params);
-	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, FirePosition->GetComponentTransform(), BulletSpawnParams);
+
+	auto* bullet = GetWorld()->SpawnActor<AActor>(BP_EnemyBullet, SpawnLocation, SpawnRotation, BulletSpawnParams);
 
 	MulticastRPC_SpawnFireVFX();
 

@@ -32,9 +32,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UBehaviorTree* BT_Enemy;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class UBlackboardComponent* MyBlackboard;
+
 	UPROPERTY()
 	class UAIPerceptionComponent* PerceptionComp;
 
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
+
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+private:
+	void HandleVisualStimuls(AActor* Actor, FAIStimulus Stimulus);
+	void HandleAudioStimuls(AActor* Actor, FAIStimulus Stimulus);
 };

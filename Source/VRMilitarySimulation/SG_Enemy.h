@@ -165,5 +165,7 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_DieProcess(const FName& BoneName, const FVector&ShotDirection, AActor* Shooter);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SpawnDummyEnemy(const FTransform& SpawnTransform, const FVector& ShotDirection);
 	void Recoil();
 };

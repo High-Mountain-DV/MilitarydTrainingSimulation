@@ -10,7 +10,7 @@ public class VRMilitarySimulation : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
 			"OnlineSubsystem", "OnlineSubsystemSteam", "OnlineServicesOSSAdapter", "UMG", "GameplayTasks"
-		, "NavigationSystem" });
+		, "NavigationSystem", "AIModule" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
