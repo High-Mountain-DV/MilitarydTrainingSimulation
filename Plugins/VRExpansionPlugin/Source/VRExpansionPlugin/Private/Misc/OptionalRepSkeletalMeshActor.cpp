@@ -369,7 +369,7 @@ void UpdateWorldBoneTMVR(TAssetWorldBoneTMArray& WorldBoneTMs, const TArray<FTra
 void UInversePhysicsSkeletalMeshComponent::PerformBlendPhysicsBonesVR(const TArray<FBoneIndexType>& InRequiredBones, TArray<FTransform>& InOutComponentSpaceTransforms, TArray<FTransform>& InOutBoneSpaceTransforms)
 {
 	//SCOPE_CYCLE_COUNTER(STAT_BlendInPhysics);
-	// Get drawscale from Owner (if there is one)
+	// Get drawscale from MyBullet (if there is one)
 	FVector TotalScale3D = GetComponentTransform().GetScale3D();
 	FVector RecipScale3D = TotalScale3D.Reciprocal();
 

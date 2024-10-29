@@ -51,7 +51,10 @@ public:
 	class UBoxComponent* BoxComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UStaticMeshComponent* Weapon;	
+	class USkeletalMeshComponent* Weapon;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UStaticMeshComponent* Magazine;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* FirePosition;
@@ -67,7 +70,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet")
 	int32 MaxBulletCount = 30;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet", BlueprintReadOnly)
 	int32 BulletCount = MaxBulletCount;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|VFX")
@@ -94,11 +97,18 @@ public:
 
 	// -----------------------------BlueprintEditable----------------------------- //
 	
+	UFUNCTION(BlueprintCallable)
+	void SetShooter();
+
+	UPROPERTY()
+	class APawn* Shooter;
+
 	void Aim(const FVector TargetLocation);
 	FRotator AimRotation;
-	bool Fire();
+	UFUNCTION(BlueprintCallable)
+	bool Fire(bool& OutStopShooting);
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPC_SpawnFireVFX(const FTransform& SpawnTransform);
+	void MulticastRPC_SpawnFireVFX();
 
 	void Recoil();
 	void StartRecoilRecovery();
@@ -108,10 +118,22 @@ public:
 
 	void Reloading();
 
+	void HideMagazine();
+	void ShowMagazine();
 
 
 	FDataTableRowHandle WeaponData;
 
+	int32 StopShootingProb = 0;
 
+	UPROPERTY(EditDefaultsOnly)
+	int32 StopShootingDelta = 2;
 
+	FActorSpawnParameters BulletSpawnParams;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Default | SFX")
+	class USoundWave* FireSFX;
+	UPROPERTY(EditDefaultsOnly, Category = "Default | SFX")
+	float FireSFX_StartTime;
+private:
 };
