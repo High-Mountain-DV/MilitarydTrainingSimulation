@@ -79,6 +79,14 @@
 				"Mac",
 				"IOS"
 			]
+		},
+		{
+			"Name": "Chooser",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationWarping",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
