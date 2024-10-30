@@ -44,6 +44,8 @@ void UCommenderScreenWidget::SelectScreen(int32 idx)
 		WholeScreen->SetBrush(Cams[idx]->GetBrush());
 		SelectedIdx = idx;
 		WholeScreen->SetVisibility(ESlateVisibility::Visible);
+		for (int i = 0; i < Cams.Num(); i++)
+			Cams[i]->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -74,4 +76,7 @@ void UCommenderScreenWidget::SelectPrevScreen()
 void UCommenderScreenWidget::UnselectScreen()
 {
 	WholeScreen->SetVisibility(ESlateVisibility::Collapsed);
+
+	for (int i = 0; i < Cams.Num(); i++)
+		Cams[i]->SetVisibility(ESlateVisibility::Visible);
 }
