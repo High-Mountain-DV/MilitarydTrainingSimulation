@@ -51,14 +51,14 @@ void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (GEngine)
-	{
-		// 모든 디버그 메시지 비활성화
-		GEngine->bEnableOnScreenDebugMessages = false;
+	//if (GEngine)
+	//{
+	//	// 모든 디버그 메시지 비활성화
+	//	GEngine->bEnableOnScreenDebugMessages = false;
 
-		// 기존 메시지 제거
-		GEngine->ClearOnScreenDebugMessages();
-	}
+	//	// 기존 메시지 제거
+	//	GEngine->ClearOnScreenDebugMessages();
+	//}
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
