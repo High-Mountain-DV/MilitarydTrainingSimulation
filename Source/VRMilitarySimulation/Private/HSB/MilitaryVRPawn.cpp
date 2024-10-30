@@ -2,6 +2,10 @@
 
 
 #include "HSB/MilitaryVRPawn.h"
+#include "Net/UnrealNetwork.h"
+#include "MotionControllerComponent.h"
+#include "Delegates/DelegateCombinations.h"
+#include "TimerManager.h"
 
 // Sets default values
 AMilitaryVRPawn::AMilitaryVRPawn()
@@ -11,12 +15,63 @@ AMilitaryVRPawn::AMilitaryVRPawn()
 
 }
 
+//void AMilitaryVRPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+//{
+//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+//
+//	DOREPLIFETIME(AMilitaryVRPawn, RightController);
+//	DOREPLIFETIME(AMilitaryVRPawn, LeftController);
+//}
+
 // Called when the game starts or when spawned
 void AMilitaryVRPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//if (IsLocallyControlled())
+	//{
+	//	// 타이머를 설정하여 주기적으로 컨트롤러 Transform을 업데이트
+	//	GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle,
+	//		[this]()
+	//		{
+	//			if (RightController && LeftController)
+	//			{
+	//				Server_UpdateControllerTransform(
+	//					RightController->GetComponentTransform(),
+	//					LeftController->GetComponentTransform()
+	//				);
+	//			}
+	//		},
+	//		0.1f, // 업데이트 주기 (초)
+	//		true
+	//	);
+	//}
 }
+
+//void AMilitaryVRPawn::Server_UpdateControllerTransform_Implementation(
+//	const FTransform& RightTransform,
+//	const FTransform& LeftTransform)
+//{
+//	if (!HasAuthority()) return;
+//
+//	Multicast_UpdateControllerTransform(RightTransform, LeftTransform);
+//}
+//
+//void AMilitaryVRPawn::Multicast_UpdateControllerTransform_Implementation(
+//	const FTransform& RightTransform,
+//	const FTransform& LeftTransform)
+//{
+//	if (IsLocallyControlled()) return;
+//
+//	if (RightController)
+//	{
+//		RightController->SetWorldTransform(RightTransform);
+//	}
+//	if (LeftController)
+//	{
+//		LeftController->SetWorldTransform(LeftTransform);
+//	}
+//}
 
 // Called every frame
 void AMilitaryVRPawn::Tick(float DeltaTime)
