@@ -79,52 +79,83 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		if (bHit)
 		{
 			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
+			APawn* hitPawn = Cast<APawn>(OutHit.GetActor());
 			ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
 			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
 			// 캐릭터가 맞았을 때
-			if (Shooter->HasAuthority() && hitCharacter)
+			if (Shooter->HasAuthority())
 			{
-				bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
-				if (bBodyHit)
+				if (hitCharacter)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
-					if (MyBullet->HasAuthority())
+					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
+					if (bBodyHit)
 					{
-						// 플레이어에게 데미지 처리
-						AMilitaryVRPawn* Player = Cast<AMilitaryVRPawn>(hitCharacter);
-						if (Player)
+						UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
+						if (MyBullet->HasAuthority())
 						{
-							Player->DamageProcess(BulletDamage);
-						}
-						else
-						{
-							// 에너미에게 데미지 처리
-							ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
-							if (Enemy)
+							// 플레이어에게 데미지 처리
+							AMilitaryVRPawn* Player = Cast<AMilitaryVRPawn>(hitCharacter);
+							if (Player)
 							{
-								Enemy->DamageProcess(BulletDamage, OutHit.BoneName, BulletVelocity.GetSafeNormal(), Shooter);
-								UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
+								Player->DamageProcess(BulletDamage);
 							}
+							else
+							{
+								// 에너미에게 데미지 처리
+								ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
+								if (Enemy)
+								{
+									Enemy->DamageProcess(BulletDamage, OutHit.BoneName, BulletVelocity.GetSafeNormal(), Shooter);
+									UE_LOG(LogTemp, Warning, TEXT("OutHit.ImpactPoint: {%s}"), *OutHit.ImpactPoint.ToString());
+								}
 
+							}
 						}
-					}
-					// 출혈 이펙트
-					MulticastRPC_SpawnEmitterAtLocation(BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
+						// 출혈 이펙트
+						MulticastRPC_SpawnEmitterAtLocation(BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
 
+					}
+					// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
+					else
+					{
+						check(MyBullet); if (nullptr == MyBullet) return;
+						MyBullet->SetActorLocation(NextLocation);
+						BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
+						return;
+					}
 				}
-				// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
-				else
+				else if (hitPawn)
 				{
-					check(MyBullet); if (nullptr == MyBullet) return;
-					MyBullet->SetActorLocation(NextLocation);
-					BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
-					return;
+					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
+					if (bBodyHit)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
+						if (MyBullet->HasAuthority())
+						{
+							// 플레이어에게 데미지 처리
+							AMilitaryVRPawn* Player = Cast<AMilitaryVRPawn>(hitPawn);
+							if (Player)
+							{
+								Player->DamageProcess(BulletDamage);
+							}
+						}
+						// 출혈 이펙트
+						MulticastRPC_SpawnEmitterAtLocation(BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
+					}
+					// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
+					else
+					{
+						check(MyBullet); if (nullptr == MyBullet) return;
+						MyBullet->SetActorLocation(NextLocation);
+						BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
+						return;
+					}
 				}
-			}
-			else if (dummyEnemy)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
-				dummyEnemy->Mesh->AddImpulse(BulletVelocity / 5);
+				else if (dummyEnemy)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
+					dummyEnemy->Mesh->AddImpulse(BulletVelocity / 5);
+				}
 			}
 			// 데칼 소환
 			FRotator DecalRotation = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
