@@ -6,29 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "SG_WeaponMaster.generated.h"
 
-UENUM(BlueprintType)
-enum class EWeaponType : uint8 
-{
-	WT_Pistol UMETA(DisplayName = "Pistol"),
-	WT_AssaultRifle UMETA(DisplayName = "AssaultRifle")
-};
-
-USTRUCT(BlueprintType)
-struct FWeapon : public FTableRowBase
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Defaults)
-	FName WeaponName;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Defaults)
-	EWeaponType WeaponType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Defaults)
-	float Damage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Defaults)
-	int32 MagazineSize;
-};
-
 UCLASS()
 class VRMILITARYSIMULATION_API ASG_WeaponMaster : public AActor
 {
@@ -120,10 +97,6 @@ public:
 
 	void HideMagazine();
 	void ShowMagazine();
-
-
-	FDataTableRowHandle WeaponData;
-
 	int32 StopShootingProb = 0;
 
 	UPROPERTY(EditDefaultsOnly)
