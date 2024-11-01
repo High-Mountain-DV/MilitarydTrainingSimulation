@@ -4,9 +4,11 @@
 #include "CSW/HttpLoginActor.h"
 
 #include "Components/WidgetComponent.h"
+#include "CSW/CSWGameInstance.h"
 #include "CSW/JsonParseLib.h"
 #include "CSW/LoginWidget.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Kismet/GameplayStatics.h"
 
 AHttpLoginActor::AHttpLoginActor()
 {
@@ -26,18 +28,22 @@ void AHttpLoginActor::BeginPlay()
 		widget->SetHttpLoginActor(this);
 }
 
-void AHttpLoginActor::RequestLogin(const FString& id, const FString& passward)
+void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 {
-	TMap<FString, FString> userData;
+	TMap<FString, FString> body;
+	TMap<FString, FString> header;
 
-	userData.Add("loginId", id);
-	userData.Add("passward", passward);
+	body.Add("loginId", id);
+	body.Add("password", password);
 
-	Request(LoginPath, LoginMethod, UJsonParseLib::MakeJson(userData), [](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+	header.Add("Content-Type","application/json");
+	auto* gi = Cast<UCSWGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	Request(LoginPath, LoginMethod, header, UJsonParseLib::MakeJson(body), [gi](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 	{
-		if (bWasSuccessful && response.IsValid())
+		if (bWasSuccessful && response.IsValid() && IsValid(gi))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
+			gi->SetUserToken(response->GetHeader("Authorization"));
 		}
 		else
 		{
@@ -48,14 +54,17 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& passward)
 
 void AHttpLoginActor::RequestRegister(const FString& id, const FString& nickname, const FString& passward)
 {
-	TMap<FString, FString> userData;
+	TMap<FString, FString> Body;
+	TMap<FString, FString> header;
 
-	userData.Add("loginId", id);
-	userData.Add("passward", passward);
-	userData.Add("confirmPassward", passward);
-	userData.Add("nickname", nickname);
-	
-	Request(RegisterPath, RegisterMethod, UJsonParseLib::MakeJson(userData), [](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+
+	Body.Add("loginId", id);
+	Body.Add("password", passward);
+	Body.Add("confirmPassword", passward);
+	Body.Add("nickname", nickname);
+
+	header.Add("Content-Type","application/json");
+	Request(RegisterPath, RegisterMethod, header, UJsonParseLib::MakeJson(Body), [](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 	{
 		if (bWasSuccessful && response.IsValid())
 		{
