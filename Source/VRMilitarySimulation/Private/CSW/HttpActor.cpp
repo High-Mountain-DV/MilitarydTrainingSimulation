@@ -27,7 +27,7 @@ void AHttpActor::Tick(float DeltaTime)
 
 }
 
-void AHttpActor::Request(const FString& path, const FString& method, const FString& json, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback)
+void AHttpActor::Request(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& json, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback)
 {
 	FHttpModule& httpModule = FHttpModule::Get();
 	TSharedRef<IHttpRequest> req = httpModule.CreateRequest();
@@ -35,7 +35,10 @@ void AHttpActor::Request(const FString& path, const FString& method, const FStri
 	
 	req->SetURL(url);
 	req->SetVerb(method);
-	req->SetHeader(TEXT("content-type"), TEXT("application/json"));
+	for (auto pair : header)
+	{
+		req->SetHeader(pair.Key, pair.Value);
+	}
 	req->SetContentAsString(json);
 	req->OnProcessRequestComplete().BindLambda(callback);
 	req->ProcessRequest();

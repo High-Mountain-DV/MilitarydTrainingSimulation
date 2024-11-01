@@ -90,4 +90,9 @@ public:
 	
 	FString StringBase64Encode(const FString& str);
 	FString StringBase64Decode(const FString& str);
+
+	void SetUserToken(const FString& token);
+	
+private:
+	FString UserToken;
 };
