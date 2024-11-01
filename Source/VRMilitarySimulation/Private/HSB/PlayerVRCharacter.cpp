@@ -19,8 +19,8 @@ void APlayerVRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(APlayerVRCharacter, RightController);
-	DOREPLIFETIME(APlayerVRCharacter, LeftController);
+	DOREPLIFETIME(APlayerVRCharacter, RightCPPController);
+	DOREPLIFETIME(APlayerVRCharacter, LeftCPPController);
 }
 
 // Called when the game starts or when spawned
@@ -34,12 +34,14 @@ void APlayerVRCharacter::BeginPlay()
 		GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle,
 			[this]()
 			{
-				if (RightController && LeftController)
+				UE_LOG(LogTemp, Warning, TEXT("Has Not Controlled"));
+				if (RightCPPController && LeftCPPController)
 				{
 					Server_UpdateControllerTransform(
-						RightController->GetComponentTransform(),
-						LeftController->GetComponentTransform()
+						RightCPPController->GetComponentTransform(),
+						LeftCPPController->GetComponentTransform()
 					);
+					UE_LOG(LogTemp, Warning, TEXT("Has Controlled"));
 				}
 			},
 			0.1f, // 업데이트 주기 (초)
@@ -54,6 +56,7 @@ void APlayerVRCharacter::Server_UpdateControllerTransform_Implementation(
 {
 	if (!HasAuthority()) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("Im Server"));
 	Multicast_UpdateControllerTransform(RightTransform, LeftTransform);
 }
 
@@ -63,13 +66,13 @@ void APlayerVRCharacter::Multicast_UpdateControllerTransform_Implementation(
 {
 	if (IsLocallyControlled()) return;
 
-	if (RightController)
+	if (RightCPPController)
 	{
-		RightController->SetWorldTransform(RightTransform);
+		RightCPPController->SetWorldTransform(RightTransform);
 	}
-	if (LeftController)
+	if (LeftCPPController)
 	{
-		LeftController->SetWorldTransform(LeftTransform);
+		LeftCPPController->SetWorldTransform(LeftTransform);
 	}
 }
 
@@ -78,6 +81,15 @@ void APlayerVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (HasAuthority())
+	{
+		FVector RightLoc;
+		FVector LeftLoc;
+		RightLoc = RightCPPController->GetComponentLocation();
+
+		
+		UE_LOG(LogTemp, Warning, TEXT("X: %f , Y: %f, Z: %f"), RightLoc.X, RightLoc.Y, RightLoc.Z);
+	}
 }
 
 // Called to bind functionality to input

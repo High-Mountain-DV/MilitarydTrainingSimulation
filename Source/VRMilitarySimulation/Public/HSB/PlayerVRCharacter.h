@@ -44,10 +44,10 @@ public:
 
 	// Motion Controllers
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "VR")
-    class UMotionControllerComponent* RightController;
+    class UMotionControllerComponent* RightCPPController;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "VR")
-    class UMotionControllerComponent* LeftController;
+    class UMotionControllerComponent* LeftCPPController;
 
 public:
 	// Blueprint 이벤트를 위한 델리게이트
