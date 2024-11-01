@@ -252,3 +252,10 @@ FString UCSWGameInstance::StringBase64Decode(const FString& str)
 	return UTF8_TO_TCHAR(ut8String.c_str());
 }
 
+void UCSWGameInstance::SetUserToken(const FString& token)
+{
+	UserToken = token;
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *token);
+	GetWorld()->ServerTravel("/Game/MilitarySimulator/CSW/VRLobbyMap");
+}
+
