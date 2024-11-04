@@ -12,7 +12,7 @@ public class VRMilitarySimulation : ModuleRules
 			"OnlineSubsystem", "OnlineSubsystemSteam", "OnlineServicesOSSAdapter", "UMG", "GameplayTasks"
 		, "NavigationSystem", "AIModule", "Http", "Json", "JsonUtilities", "HeadMountedDisplay"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

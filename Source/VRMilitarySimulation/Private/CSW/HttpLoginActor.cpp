@@ -37,7 +37,9 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 	body.Add("password", password);
 
 	header.Add("Content-Type","application/json");
-	auto* gi = Cast<UCSWGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+	if (gi == nullptr)
+		return ;
 	Request(LoginPath, LoginMethod, header, UJsonParseLib::MakeJson(body), [gi](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 	{
 		if (bWasSuccessful && response.IsValid() && IsValid(gi))
