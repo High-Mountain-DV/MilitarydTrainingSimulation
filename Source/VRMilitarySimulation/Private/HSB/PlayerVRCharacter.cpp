@@ -86,9 +86,9 @@ void APlayerVRCharacter::Tick(float DeltaTime)
 		FVector RightLoc;
 		FVector LeftLoc;
 		RightLoc = RightCPPController->GetComponentLocation();
-
+		LeftLoc = LeftCPPController->GetComponentLocation();
 		
-		UE_LOG(LogTemp, Warning, TEXT("X: %f , Y: %f, Z: %f"), RightLoc.X, RightLoc.Y, RightLoc.Z);
+//		UE_LOG(LogTemp, Warning, TEXT("X: %f , Y: %f, Z: %f"), RightLoc.X, RightLoc.Y, RightLoc.Z);
 	}
 }
 

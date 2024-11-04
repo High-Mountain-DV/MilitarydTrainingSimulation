@@ -54,6 +54,10 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectGrabbed, UPrimitiveComponent*, GrabbedComponent);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectReleased, UPrimitiveComponent*, ReleasedComponent);
 
+	//// 총 잡기
+	//UFUNCTION(Server, Reliable)
+	//void ServerRPCTakeGun();
+
 	// 데미지 받는 함수
 	UFUNCTION(BlueprintImplementableEvent)
 	void DamageProcess(float Damage);
