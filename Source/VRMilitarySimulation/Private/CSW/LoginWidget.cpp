@@ -5,6 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/EditableText.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "CSW/HttpLoginActor.h"
 
@@ -12,6 +13,7 @@ void ULoginWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	Lg_Button_InputId->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickInputId);
 	Lg_Button_Login->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickLogin);
 	Lg_Button_GoRegister->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickGoRegister);
 	Rg_Button_Register->OnClicked.AddDynamic(this, &ULoginWidget::Rg_OnClickRegister);
@@ -21,12 +23,19 @@ void ULoginWidget::NativeConstruct()
 
 void ULoginWidget::Lg_OnClickLogin()
 {
-	HttpActor->RequestLogin(Lg_Input_Id->GetText().ToString(), Lg_Input_Passward->GetText().ToString());
+	HttpActor->RequestLogin(Lg_Text_Id->GetText().ToString(), Lg_Text_Id->GetText().ToString());
 }
 
 void ULoginWidget::Lg_OnClickGoRegister()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(1);
+}
+
+void ULoginWidget::Lg_OnClickInputId()
+{
+	SelectedInput = Lg_Text_Id;
+
+	SpawnKeyboardWidgetActor();
 }
 
 void ULoginWidget::Rg_OnClickRegister()
