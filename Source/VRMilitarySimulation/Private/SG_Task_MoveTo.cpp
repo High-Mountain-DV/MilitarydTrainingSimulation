@@ -144,6 +144,7 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 			if (PointIndex == PathPoints.Num() - 1)
 			{
 				TempAcceptableRadius = AcceptableRadius;
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("TempAcceptableRadius Set! : %f"), AcceptableRadius));
 			}
 		}
 		else
@@ -182,6 +183,8 @@ bool USG_Task_MoveTo::FindPathPoints()
 	{
 		DebugPoints(PathPoints);
 	}
+
+	if (PathPoints.Num() == 2) TempAcceptableRadius = AcceptableRadius;
 	return true;
 }
 
