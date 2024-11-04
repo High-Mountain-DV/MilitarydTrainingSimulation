@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VRWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "LoginWidget.generated.h"
 
@@ -10,7 +11,7 @@
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API ULoginWidget : public UUserWidget
+class VRMILITARYSIMULATION_API ULoginWidget : public UVRWidget
 {
 	GENERATED_BODY()
 
@@ -22,10 +23,16 @@ public:
 
 	// Login =================================================
 	UPROPERTY(meta=(BindWidget))
-	class UEditableText* Lg_Input_Id;
+	class UButton* Lg_Button_InputId;
 
 	UPROPERTY(meta=(BindWidget))
-	class UEditableText* Lg_Input_Passward;
+	class UButton* Lg_Button_InputPassward;
+	
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* Lg_Text_Id;
+
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* Lg_Text_Passward;
 	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* Lg_Button_Login;
@@ -38,6 +45,9 @@ public:
 
 	UFUNCTION()
 	void Lg_OnClickGoRegister();
+
+	UFUNCTION()
+	void Lg_OnClickInputId();
 
 	
 	
