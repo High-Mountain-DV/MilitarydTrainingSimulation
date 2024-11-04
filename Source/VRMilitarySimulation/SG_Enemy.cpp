@@ -133,19 +133,16 @@ void ASG_Enemy::SetWeapon()
 	OnRep_CurrentWeapon();
 }
 
-float ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+void ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
 {
-	check(Anim); if (nullptr == Anim) return 0.0f;
+	check(Anim); if (nullptr == Anim) return;
 
-	float OutDuration = Anim->Montage_Play(AnimMontage);
 	MulticastRPC_PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
-
-	return OutDuration;
 }
 
 void ASG_Enemy::MulticastRPC_PlayAnimMontage_Implementation(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
 {
-	if (!HasAuthority())	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
 }
 
 bool ASG_Enemy::Fire(bool& OutStopShooting)
@@ -153,7 +150,6 @@ bool ASG_Enemy::Fire(bool& OutStopShooting)
 	bool bMagazineEmpty = CurrentWeapon->Fire(OutStopShooting);
 
 	Recoil();
-	
 	
 	return bMagazineEmpty;
 }

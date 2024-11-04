@@ -18,21 +18,27 @@ public:
 	USG_Task_PlayMontage();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 
-	UPROPERTY(EditAnywhere)
+protected:
+	UPROPERTY(EditAnywhere, Category = "Montage")
 	TObjectPtr<class UAnimMontage> MontageToPlay;
-	UPROPERTY()
-	class USG_EnemyAnimInstance* Anim;
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	FName NotifyEndName;
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	bool bWaitForNotify = false;
 
 private:
-	//// 몽타주 종료 시 호출 될 함수
-	//UFUNCTION()
-	//void MontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	FTimerHandle FinishHandle;
+	UBehaviorTreeComponent* CurrentOwnerComp;
 
-	//// 약한 포인터로 컴포넌트 참조 저장
-	//TWeakObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
+	UFUNCTION()
+	void OnNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
-	//// 바인딩 델리게이트 저장용
-	//FOnMontageEnded MontageEndedDelegate;
+	// 몽타주 종료 시 호출 될 함수
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 };

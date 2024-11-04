@@ -81,22 +81,25 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 
 	DirectionVector = GetDirectionToTarget();
 
-	// 현재 액터의 rotation을 구합니다
-	FRotator CurrentRotation = AIPawn->GetActorRotation();
+	if (bFaceToDirection)
+	{
+		// 현재 액터의 rotation을 구합니다
+		FRotator CurrentRotation = AIPawn->GetActorRotation();
 
-	// DirectionVector를 회전값으로 변환
-	FRotator TargetRotation = DirectionVector.Rotation();
+		// DirectionVector를 회전값으로 변환
+		FRotator TargetRotation = DirectionVector.Rotation();
 
-	// 현재 회전값에서 목표 회전값으로 부드럽게 보간
-	FRotator NewRotation = FMath::RInterpTo(
-		CurrentRotation,    // 현재 회전값
-		TargetRotation,     // 목표 회전값
-		DeltaSeconds,         // 델타 타임
-		2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
-	);
+		// 현재 회전값에서 목표 회전값으로 부드럽게 보간
+		FRotator NewRotation = FMath::RInterpTo(
+			CurrentRotation,    // 현재 회전값
+			TargetRotation,     // 목표 회전값
+			DeltaSeconds,         // 델타 타임
+			2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
+		);
 
-	// 새로운 회전값 적용
-	AIPawn->SetActorRotation(NewRotation);
+		// 새로운 회전값 적용
+		AIPawn->SetActorRotation(NewRotation);
+	}
 	
 		
 	if (bCloseToTargetLocation)
@@ -138,7 +141,10 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 		if (PointIndex < PathPoints.Num())
 		{
 			NextTargetLocation = PathPoints[PointIndex];
-
+			if (PointIndex == PathPoints.Num() - 1)
+			{
+				TempAcceptableRadius = AcceptableRadius;
+			}
 		}
 		else
 		{
@@ -201,5 +207,5 @@ bool USG_Task_MoveTo::ArriveAtLocation(FVector EndLocation, float& OutDist)
 {
 	if (!AIPawn) return false;
 	OutDist = FVector::Distance(AIPawn->GetActorLocation(), FVector(EndLocation.X, EndLocation.Y, AIPawn->GetActorLocation().Z));
-	return (OutDist <= AcceptableRadius);
+	return (OutDist <= TempAcceptableRadius);
 }

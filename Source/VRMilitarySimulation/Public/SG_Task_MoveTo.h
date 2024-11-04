@@ -23,8 +23,12 @@ public:
     bool bRun = false;
     UPROPERTY(EditAnywhere)
     bool bDebugBoxOn = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bFaceToDirection = true;
     class ASG_Enemy* AIPawn;
 private:
+    float TempAcceptableRadius = 5;
     FVector TargetLocation;
     bool FindPathPoints();
     int32 PointIndex;
