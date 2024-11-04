@@ -175,10 +175,11 @@ bool USG_Task_MoveTo::FindPathPoints()
 		return false;
 	}
 	NextTargetLocation = PathPoints[PointIndex];
+	/*
 	if (bDebugBoxOn)
 	{
 		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Purple, FRotator::ZeroRotator, 10);
-	}
+	}*/
 	if (bDebugBoxOn)
 	{
 		DebugPoints(PathPoints);

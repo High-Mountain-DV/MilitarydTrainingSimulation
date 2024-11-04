@@ -194,6 +194,6 @@ void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 
 	check(FireSFX); if (nullptr == FireSFX) return;
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime, FireAttenuationSetting);
 }
 
