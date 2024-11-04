@@ -41,18 +41,20 @@ public:
 	// -----------------------------Component----------------------------- //
 	// 
 	// -----------------------------BlueprintEditable----------------------------- //
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults|Bullet")
 	TSubclassOf<AActor> BP_EnemyBullet;
 		
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults|Bullet")
 	int32 MaxBulletCount = 30;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Bullet", BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults|Bullet", BlueprintReadOnly)
 	int32 BulletCount = MaxBulletCount;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|VFX")
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults|VFX")
 	class UParticleSystem* FireVFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults|SFX")
+	USoundAttenuation* FireAttenuationSetting;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Recoil")
 	float PitchMin = -2;

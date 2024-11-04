@@ -27,14 +27,14 @@ ASG_WeaponMaster::ASG_WeaponMaster()
 	Magazine->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Magazine->SetRelativeLocation(FVector(9823.016442, 0, 106.515316));
 
-	FirePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePosition"));
+	FirePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePosition")); 
 	FirePosition->SetupAttachment(Weapon);
-	FirePosition->SetRelativeLocation(FVector(-749.233604, 351.409237, 292.697012));
-	FirePosition->SetRelativeRotation(FRotator(0, 90, 0));
+	FirePosition->SetRelativeLocation(FVector(55.804554, -9732.216496, 292.696964)); 
+	FirePosition->SetRelativeRotation(FRotator(-90, 90, 0));
 
 	MuzzlePosition = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzlePosition"));
 	MuzzlePosition->SetupAttachment(Weapon);
-	MuzzlePosition->SetRelativeLocation(FVector(-718.212279, 4505.655099, 302.310963));
+	MuzzlePosition->SetRelativeLocation(FVector(64.261638, -6318.533063, -46320.475966)); 
 }
 
 // Called when the game starts or when spawned
@@ -194,6 +194,6 @@ void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 
 	check(FireSFX); if (nullptr == FireSFX) return;
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime, FireAttenuationSetting);
 }
 
