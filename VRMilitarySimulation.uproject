@@ -87,11 +87,6 @@
 		{
 			"Name": "AnimationWarping",
 			"Enabled": true
-		},
-		{
-			"Name": "CustomMobileController",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/0832ac85f16f4d16b393ab2bfd03523e"
 		}
 	],
 	"TargetPlatforms": [

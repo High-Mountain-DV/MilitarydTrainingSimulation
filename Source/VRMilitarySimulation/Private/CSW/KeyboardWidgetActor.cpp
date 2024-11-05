@@ -26,3 +26,8 @@ void AKeyboardWidgetActor::PressKey(const FString& key)
 	ScreenWidget->AppendSelectedInput(key);
 	
 }
+
+void AKeyboardWidgetActor::CloseKeyboard()
+{
+	Destroy();
+}

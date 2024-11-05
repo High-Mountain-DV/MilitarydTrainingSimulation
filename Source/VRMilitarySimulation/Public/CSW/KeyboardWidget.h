@@ -19,8 +19,23 @@ public:
 	virtual void NativeConstruct() override;
 	
 	void PressKey(const FString& value);
+	
 	void SetKeyboardActor(AKeyboardWidgetActor* actor);
 
+	UPROPERTY(meta=(BindWidget))
+	class UButton* ButtonClose;
+
+	UFUNCTION()
+	void OnClickClose();
+	
+	UPROPERTY(meta=(BindWidget))
+	class UButton* ButtonEnter;
+
+	UFUNCTION()
+	void OnClickEnter();
+	
+
 private:
+	UPROPERTY()
 	AKeyboardWidgetActor* KeyboardActor;
 };
