@@ -65,7 +65,10 @@ void ASG_Enemy::BeginPlay()
 
 	PRINTLOG(TEXT("Anim 획득 성공"));
 	BulletCount = MaxBulletCount;
-	SetWeapon();
+	if (HasAuthority())
+	{
+		SetWeapon();
+	}
 
 	if (PathFindDebug)
 	{
@@ -79,6 +82,16 @@ void ASG_Enemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	if (CurrentWeapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *CurrentWeapon->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentWeapon is null"));
+
+	}
+
 	if (StartMovement)
 	{
 		AI_Move_To(DeltaTime);
@@ -119,7 +132,6 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 void ASG_Enemy::SetWeapon()
 {
-	if (!HasAuthority()) return;
 	FActorSpawnParameters param;
 	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -129,7 +141,12 @@ void ASG_Enemy::SetWeapon()
 
 	WeaponComp->CreateChildActor();
 	CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
+	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
 
+	CurrentWeapon->SetOwner(this);
+	CurrentWeapon->SetInstigator(this);
+	CurrentWeapon->SetShooter();
+		
 	OnRep_CurrentWeapon();
 }
 
@@ -381,6 +398,8 @@ void ASG_Enemy::Recoil()
 
 void ASG_Enemy::OnRep_CurrentWeapon()
 {
+	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
+
 	CurrentWeapon->SetOwner(this);
 	CurrentWeapon->SetInstigator(this);
 	CurrentWeapon->SetShooter();
