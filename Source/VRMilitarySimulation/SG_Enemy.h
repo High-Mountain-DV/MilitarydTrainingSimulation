@@ -47,9 +47,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<class ASG_WeaponMaster> WeaponClass;
 
+	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly, Category = "Default|State")
 	float MaxHP = 100;
-	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly)
-	int32 MaxBulletCount = 40;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	class ASG_WeaponMaster* CurrentWeapon;
@@ -72,18 +71,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DamageProcess(float Damage, const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Damage")
 	float HeadShotMultiplier = 10;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Damage")
 	float BodyShotMultiplier = 5;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Damage")
 	float ArmOrLegShotMultiplier = 4;
-
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 BulletCount;
 
 	UFUNCTION(BlueprintCallable)
 	void Reloading();
@@ -128,17 +123,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
 	float RecoilPitchMinOffset = 4;
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
 	float RecoilPitchMaxOffset = 8;
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
 	float RecoilYawMinOffset= -2;
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
 	float RecoilYawMaxOffset = -2;
 
-
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Factory")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Factory")
+	TSubclassOf<class ASG_Grenede> BP_Grenede;
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Factory")
 	TSubclassOf<class ASG_DummyEnemy> BP_DummyEnemy;
 
 private:
@@ -150,8 +146,9 @@ private:
 	bool bDead;
 	void AI_Move_To(float DeltaTime);
 
-public:
-private:
+	UPROPERTY()
+	class ASG_Grenede* Grenede;
+
 	UPROPERTY(Replicated)
 	float DestinationAimPitch;
 	UPROPERTY(Replicated)

@@ -64,7 +64,6 @@ void ASG_Enemy::BeginPlay()
 	check(Anim); if (nullptr == Anim) return;
 
 	PRINTLOG(TEXT("Anim 획득 성공"));
-	BulletCount = MaxBulletCount;
 	SetWeapon();
 
 	if (PathFindDebug)
