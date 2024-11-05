@@ -24,7 +24,11 @@ void AKeyboardWidgetActor::SetScreenWidget(UVRWidget* widget)
 void AKeyboardWidgetActor::PressKey(const FString& key)
 {
 	ScreenWidget->AppendSelectedInput(key);
-	
+}
+
+void AKeyboardWidgetActor::PressBackSpace()
+{
+	ScreenWidget->PopSelectedInput();
 }
 
 void AKeyboardWidgetActor::CloseKeyboard()

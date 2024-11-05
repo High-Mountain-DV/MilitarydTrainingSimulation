@@ -14,8 +14,18 @@ void UVRWidget::NativeConstruct()
 void UVRWidget::AppendSelectedInput(const FString& key)
 {
 	FString origin = SelectedInput->GetText().ToString();
-
 	SelectedInput->SetText(FText::FromString(origin + key));
+}
+
+void UVRWidget::PopSelectedInput()
+{
+	FString origin = SelectedInput->GetText().ToString();
+
+	if (origin.Len() > 0)
+	{
+		origin.RemoveAt(origin.Len() - 1);
+		SelectedInput->SetText(FText::FromString(origin));
+	}
 }
 
 void UVRWidget::SpawnKeyboardWidgetActor()
