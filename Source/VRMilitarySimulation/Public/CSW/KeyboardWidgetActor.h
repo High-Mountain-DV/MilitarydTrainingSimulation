@@ -21,6 +21,8 @@ public:
 
 	void PressKey(const FString& key);
 
+	void CloseKeyboard();
+
 private:
 	UPROPERTY()
 	UVRWidget* ScreenWidget;

@@ -7,7 +7,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "CSW/KeyboardWidgetActor.h"
 #include "CSW/VRWidget.h"
 
 // Sets default values
@@ -28,34 +27,34 @@ void AVRWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto *pc = GetWorld()->GetFirstPlayerController();
-	if (pc != nullptr)
-	{
-		EnableInput(pc);
-		if ( UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer()) )
-		{
-			Subsystem->AddMappingContext(WidgetInterationMappingContext , 0);
-		}
-	
-		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
-		{
-			EnhancedInputComponent->BindAction(IA_Widget_Interact_Left, ETriggerEvent::Started, this, &AVRWidgetActor::ClickWidgetLeft);
-			EnhancedInputComponent->BindAction(IA_Widget_Interact_Right, ETriggerEvent::Started, this, &AVRWidgetActor::ClickWidgetRight);
-	
-			EnhancedInputComponent->BindAction(IA_Widget_Interact_Left, ETriggerEvent::Completed, this, &AVRWidgetActor::UnclickWidgetLeft);
-			EnhancedInputComponent->BindAction(IA_Widget_Interact_Right, ETriggerEvent::Completed, this, &AVRWidgetActor::UnclickWidgetRight);
-		}
-
-		if (pc->GetPawn())
-		{
-			TArray<UActorComponent*> comps = pc->GetPawn()->K2_GetComponentsByClass(UWidgetInteractionComponent::StaticClass());
-			if (comps.Num() == 2)
-			{
-				WidgetInteractRefLeft = Cast<UWidgetInteractionComponent>(comps[0]);
-				WidgetInteractRefRight = Cast<UWidgetInteractionComponent>(comps[1]);
-			}
-		}
-	}
+	// auto *pc = GetWorld()->GetFirstPlayerController();
+	// if (pc != nullptr)
+	// {
+	// 	EnableInput(pc);
+	// 	if ( UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer()) )
+	// 	{
+	// 		Subsystem->AddMappingContext(WidgetInterationMappingContext , 0);
+	// 	}
+	//
+	// 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	// 	{
+	// 		EnhancedInputComponent->BindAction(IA_Widget_Interact_Left, ETriggerEvent::Started, this, &AVRWidgetActor::ClickWidgetLeft);
+	// 		EnhancedInputComponent->BindAction(IA_Widget_Interact_Right, ETriggerEvent::Started, this, &AVRWidgetActor::ClickWidgetRight);
+	//
+	// 		EnhancedInputComponent->BindAction(IA_Widget_Interact_Left, ETriggerEvent::Completed, this, &AVRWidgetActor::UnclickWidgetLeft);
+	// 		EnhancedInputComponent->BindAction(IA_Widget_Interact_Right, ETriggerEvent::Completed, this, &AVRWidgetActor::UnclickWidgetRight);
+	// 	}
+	//
+	// 	if (pc->GetPawn())
+	// 	{
+	// 		TArray<UActorComponent*> comps = pc->GetPawn()->K2_GetComponentsByClass(UWidgetInteractionComponent::StaticClass());
+	// 		if (comps.Num() == 2)
+	// 		{
+	// 			WidgetInteractRefLeft = Cast<UWidgetInteractionComponent>(comps[0]);
+	// 			WidgetInteractRefRight = Cast<UWidgetInteractionComponent>(comps[1]);
+	// 		}
+	// 	}
+	// }
 }
 
 // Called every frame

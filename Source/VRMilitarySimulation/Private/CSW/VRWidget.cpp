@@ -22,12 +22,13 @@ void UVRWidget::SpawnKeyboardWidgetActor()
 {
 	APlayerCameraManager* playerCam = GetOwningPlayerCameraManager();
 	FRotator rot = (playerCam->GetActorForwardVector() * -1).Rotation();
-	FVector loc = playerCam->K2_GetActorLocation() + playerCam->GetActorForwardVector() * 50;
+	rot.Pitch += 20;
+	FVector loc = playerCam->K2_GetActorLocation() + playerCam->GetActorForwardVector() * 70 + FVector(0, 0, -35);
 	
 	auto* keyboardActor = Cast<AKeyboardWidgetActor>(GetWorld()->SpawnActor(KeyboardWidgetFactory, &loc, &rot));
 	if (keyboardActor)
 	{
-		keyboardActor->SetActorScale3D(FVector(0.1));
+		keyboardActor->SetActorScale3D(FVector(0.05));
 		keyboardActor->SetScreenWidget(this);
 	}
 }
