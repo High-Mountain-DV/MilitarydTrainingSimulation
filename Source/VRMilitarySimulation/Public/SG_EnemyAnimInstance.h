@@ -49,5 +49,11 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_CoupleMagazine();
+
+	UFUNCTION()
+	void AnimNotify_GrabGrenede();
+
+	UFUNCTION()
+	void AnimNotify_ThrowGrenede();
 };
 

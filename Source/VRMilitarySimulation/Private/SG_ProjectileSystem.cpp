@@ -79,7 +79,6 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		if (bHit)
 		{
 			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
-			APawn* hitPawn = Cast<APawn>(OutHit.GetActor());
 			ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
 			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
 			// 캐릭터가 맞았을 때
@@ -114,33 +113,6 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 						// 출혈 이펙트
 						MulticastRPC_SpawnEmitterAtLocation(BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
 
-					}
-					// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
-					else
-					{
-						check(MyBullet); if (nullptr == MyBullet) return;
-						MyBullet->SetActorLocation(NextLocation);
-						BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
-						return;
-					}
-				}
-				else if (hitPawn)
-				{
-					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
-					if (bBodyHit)
-					{
-						UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
-						if (MyBullet->HasAuthority())
-						{
-							// 플레이어에게 데미지 처리
-							APlayerVRCharacter* Player = Cast<APlayerVRCharacter>(hitPawn);
-							if (Player)
-							{
-								Player->DamageProcess(BulletDamage);
-							}
-						}
-						// 출혈 이펙트
-						MulticastRPC_SpawnEmitterAtLocation(BloodVFXFactory, FTransform(FRotator(0), OutHit.ImpactPoint, FVector(.1)), true);
 					}
 					// 캐릭터의 캡슐 컴포넌트만 스쳐갔다면 그냥 지나가게 하고싶음
 					else

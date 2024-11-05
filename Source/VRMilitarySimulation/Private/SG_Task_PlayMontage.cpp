@@ -21,7 +21,7 @@ EBTNodeResult::Type USG_Task_PlayMontage::ExecuteTask(UBehaviorTreeComponent& Ow
 	ASG_Enemy* Me = Cast<ASG_Enemy>(AIController->GetPawn());
 	if (!Me) return EBTNodeResult::Failed;
 
-	UAnimInstance* Anim = Me->GetMesh()->GetAnimInstance();
+	Anim = Me->GetMesh()->GetAnimInstance();
 	if (!Anim) return EBTNodeResult::Failed;
 
 	// 현재 BT 컴포넌트 저장
@@ -41,31 +41,21 @@ EBTNodeResult::Type USG_Task_PlayMontage::ExecuteTask(UBehaviorTreeComponent& Ow
 	return EBTNodeResult::InProgress;
 }
 
-void USG_Task_PlayMontage::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
-{
-	if (FinishHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(FinishHandle);
-	}
-
-	if (AAIController* AIController = OwnerComp.GetAIOwner())
-	{
-		if (ASG_Enemy* Me = Cast<ASG_Enemy>(AIController->GetPawn()))
-		{
-			if (UAnimInstance* Anim = Me->GetMesh()->GetAnimInstance())
-			{
-				Anim->OnPlayMontageNotifyEnd.RemoveDynamic(this, &USG_Task_PlayMontage::OnNotifyBegin);
-				Anim->OnMontageEnded.RemoveDynamic(this, &USG_Task_PlayMontage::OnMontageEnded);
-			}
-		}
-	}
-	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
-}
-
 void USG_Task_PlayMontage::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (CurrentOwnerComp && Montage == MontageToPlay)
 	{
+		if (FinishHandle.IsValid())
+		{
+			GetWorld()->GetTimerManager().ClearTimer(FinishHandle);
+		}
+
+		if (Anim)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UnBind"));
+			Anim->OnMontageEnded.RemoveDynamic(this, &USG_Task_PlayMontage::OnMontageEnded);
+		}
+
 		FinishLatentTask(*CurrentOwnerComp, EBTNodeResult::Succeeded);
 	}
 }
@@ -74,6 +64,12 @@ void USG_Task_PlayMontage::OnNotifyBegin(FName NotifyName, const FBranchingPoint
 {
 	if (CurrentOwnerComp && NotifyName == NotifyEndName)
 	{
+		if (Anim)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UnBind"));
+			Anim->OnPlayMontageNotifyEnd.RemoveDynamic(this, &USG_Task_PlayMontage::OnNotifyBegin);
+		}
+
 		FinishLatentTask(*CurrentOwnerComp, EBTNodeResult::Succeeded);
 	}
 }
