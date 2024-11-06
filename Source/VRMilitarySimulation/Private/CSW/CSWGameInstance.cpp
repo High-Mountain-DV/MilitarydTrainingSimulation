@@ -259,3 +259,18 @@ void UCSWGameInstance::SetUserToken(const FString& token)
 	GetWorld()->ServerTravel("/Game/MilitarySimulator/CSW/Maps/VRLobbyMap");
 }
 
+void UCSWGameInstance::StartRecording()
+{
+	StartRecordingReplay(RecordingName, FriendlyRecordingName);	
+}
+
+void UCSWGameInstance::StopRecording()
+{
+	StopRecordingReplay();
+}
+
+void UCSWGameInstance::ReplayRecording()
+{
+	PlayReplay(RecordingName, nullptr);
+}
+

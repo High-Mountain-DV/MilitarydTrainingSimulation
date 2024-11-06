@@ -92,6 +92,21 @@ public:
 	FString StringBase64Decode(const FString& str);
 
 	void SetUserToken(const FString& token);
+
+
+
+	// replay system ========================
+	FString RecordingName = "ExampleRecording";
+	FString FriendlyRecordingName = "Example Recording";
+	
+	UFUNCTION(BlueprintCallable)
+	void StartRecording();
+
+	UFUNCTION(BlueprintCallable)
+	void StopRecording();
+
+	UFUNCTION(BlueprintCallable)
+	void ReplayRecording();
 	
 private:
 	FString UserToken;
