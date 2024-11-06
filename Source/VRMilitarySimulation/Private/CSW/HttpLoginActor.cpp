@@ -8,15 +8,10 @@
 #include "CSW/JsonParseLib.h"
 #include "CSW/LoginWidget.h"
 #include "Interfaces/IHttpResponse.h"
-#include "Kismet/GameplayStatics.h"
+
 
 AHttpLoginActor::AHttpLoginActor()
 {
-	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
-	SetRootComponent(SceneComp);
-	
-	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("RootComp"));
-	WidgetComp->SetupAttachment(RootComponent);
 }
 
 void AHttpLoginActor::BeginPlay()

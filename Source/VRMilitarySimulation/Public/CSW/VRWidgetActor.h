@@ -46,7 +46,7 @@ protected:
 	USceneComponent* SceneComp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= Component, meta=(AllowPrivateAccess))
-	class UWidgetComponent* MainWidgetComp;
+	class UWidgetComponent* WidgetComp;
 
 private:
 	UPROPERTY()

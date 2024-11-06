@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VRWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "MissionLobbyWidget.generated.h"
 
@@ -10,7 +11,7 @@
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API UMissionLobbyWidget : public UUserWidget
+class VRMILITARYSIMULATION_API UMissionLobbyWidget : public UVRWidget
 {
 	GENERATED_BODY()
 
@@ -44,11 +45,17 @@ public:
 	UFUNCTION()
 	void CR_OnClickGoMenu();
 
+	UFUNCTION()
+	void CR_OnClickInputRoomName();
+
 	UPROPERTY(meta=(BindWidget))
 	class UButton* CR_Button_CreateRoom;
 
 	UPROPERTY(meta=(BindWidget))
-	class UEditableText* CR_Edit_RoomName;
+	class UButton* CR_Button_InputRoomName;
+
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* CR_Text_RoomName;
 
 	UPROPERTY(meta=(BindWidget))
 	class USlider* CR_Slider_PlayerCount;
