@@ -49,17 +49,20 @@ public:
 	UFUNCTION()
 	void Lg_OnClickInputId();
 
+	UFUNCTION()
+	void Lg_OnClickInputPassward();
+
 	
 	
 	// Register =============================================
 	UPROPERTY(meta=(BindWidget))
-	class UEditableText* Rg_Input_Id;
+	class UButton* Rg_Button_InputId;
 
 	UPROPERTY(meta=(BindWidget))
-	class UEditableText* Rg_Input_Nickname;
+	class UButton* Rg_Button_InputNickname;
 
 	UPROPERTY(meta=(BindWidget))
-	class UEditableText* Rg_Input_Passward;
+	class UButton* Rg_Button_InputPassward;
 
 	UPROPERTY(meta=(BindWidget))
 	class UButton* Rg_Button_Register;
@@ -67,11 +70,30 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UButton* Rg_Button_Cancel;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Rg_Text_Id;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Rg_Text_Nickname;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Rg_Text_Passward;
+
+
 	UFUNCTION()
 	void Rg_OnClickRegister();
 
 	UFUNCTION()
 	void Rg_OnClickCancel();
+
+	UFUNCTION()
+	void Rg_OnClickInputId();
+
+	UFUNCTION()
+	void Rg_OnClickInputNickname();
+
+	UFUNCTION()
+	void Rg_OnClickInputPassward();
 	
 	void SetHttpLoginActor(class AHttpLoginActor* actor);
 	

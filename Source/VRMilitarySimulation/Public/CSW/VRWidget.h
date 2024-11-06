@@ -18,6 +18,7 @@ public:
 	virtual void NativeConstruct() override;
 
 	void AppendSelectedInput(const FString& key);
+	void PopSelectedInput();
 	void SpawnKeyboardWidgetActor();
 
 	void SetVRWidgetActor(class AVRWidgetActor* actor);

@@ -20,7 +20,7 @@ public:
 	void SetScreenWidget(class UVRWidget* widget);
 
 	void PressKey(const FString& key);
-
+	void PressBackSpace();
 	void CloseKeyboard();
 
 private:

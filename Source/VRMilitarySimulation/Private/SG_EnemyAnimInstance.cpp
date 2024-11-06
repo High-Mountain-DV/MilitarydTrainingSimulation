@@ -69,3 +69,13 @@ void USG_EnemyAnimInstance::AnimNotify_CoupleMagazine()
 	GrabMagazine->Destroy();
 	Me->ShowWeaponMagazine();
 }
+
+void USG_EnemyAnimInstance::AnimNotify_GrabGrenede()
+{
+
+}
+
+void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()
+{
+
+}

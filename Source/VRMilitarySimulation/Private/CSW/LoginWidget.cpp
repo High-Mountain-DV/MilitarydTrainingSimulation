@@ -14,11 +14,17 @@ void ULoginWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	Lg_Button_InputId->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickInputId);
+	Lg_Button_InputPassward->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickInputPassward);
+	
 	Lg_Button_Login->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickLogin);
 	Lg_Button_GoRegister->OnClicked.AddDynamic(this, &ULoginWidget::Lg_OnClickGoRegister);
+
 	Rg_Button_Register->OnClicked.AddDynamic(this, &ULoginWidget::Rg_OnClickRegister);
 	Rg_Button_Cancel->OnClicked.AddDynamic(this, &ULoginWidget::Rg_OnClickCancel);
 
+	Rg_Button_InputId->OnClicked.AddDynamic(this, &ULoginWidget::Rg_OnClickInputId);
+	Rg_Button_InputNickname->OnClicked.AddDynamic(this, &ULoginWidget::Rg_OnClickInputNickname);
+	Rg_Button_InputPassward->OnClicked.AddDynamic(this, &ULoginWidget::Rg_OnClickInputPassward);
 }
 
 void ULoginWidget::Lg_OnClickLogin()
@@ -38,14 +44,43 @@ void ULoginWidget::Lg_OnClickInputId()
 	SpawnKeyboardWidgetActor();
 }
 
+void ULoginWidget::Lg_OnClickInputPassward()
+{
+	SelectedInput = Lg_Text_Passward;
+
+	SpawnKeyboardWidgetActor();
+}
+
 void ULoginWidget::Rg_OnClickRegister()
 {
-	HttpActor->RequestRegister(Rg_Input_Id->GetText().ToString(), Rg_Input_Nickname->GetText().ToString(), Rg_Input_Passward->GetText().ToString());
+	HttpActor->RequestRegister(Rg_Text_Id->GetText().ToString(), Rg_Text_Nickname->GetText().ToString(), Rg_Text_Passward->GetText().ToString());
 }
 
 void ULoginWidget::Rg_OnClickCancel()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(0);
+}
+
+void ULoginWidget::Rg_OnClickInputId()
+{
+	SelectedInput = Rg_Text_Id;
+
+	SpawnKeyboardWidgetActor();
+
+}
+
+void ULoginWidget::Rg_OnClickInputNickname()
+{
+	SelectedInput = Rg_Text_Nickname;
+
+	SpawnKeyboardWidgetActor();
+}
+
+void ULoginWidget::Rg_OnClickInputPassward()
+{
+	SelectedInput = Rg_Text_Passward;
+
+	SpawnKeyboardWidgetActor();
 }
 
 void ULoginWidget::SetHttpLoginActor(AHttpLoginActor* actor)

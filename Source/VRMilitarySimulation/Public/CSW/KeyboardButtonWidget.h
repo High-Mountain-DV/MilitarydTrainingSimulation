@@ -16,13 +16,32 @@ class VRMILITARYSIMULATION_API UKeyboardButtonWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString EnValue;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString KoValue;
 	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* Button;
 
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* Value;
-
+	
 	UFUNCTION()
 	void OnClickButton();
+
+	UFUNCTION()
+	void ToKorean();
+
+	UFUNCTION()
+	void ToUpper();
+
+	UFUNCTION()
+	void ToLower();
+
+private:
+	UPROPERTY()
+	class UKeyboardWidget* KeyboardWidget;
 };

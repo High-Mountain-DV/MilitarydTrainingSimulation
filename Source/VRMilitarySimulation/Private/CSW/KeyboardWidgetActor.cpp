@@ -11,7 +11,7 @@ void AKeyboardWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto* keyboardWidget = Cast<UKeyboardWidget>(MainWidgetComp->GetWidget());
+	auto* keyboardWidget = Cast<UKeyboardWidget>(WidgetComp->GetWidget());
 	if (keyboardWidget)
 		keyboardWidget->SetKeyboardActor(this);
 }
@@ -24,7 +24,11 @@ void AKeyboardWidgetActor::SetScreenWidget(UVRWidget* widget)
 void AKeyboardWidgetActor::PressKey(const FString& key)
 {
 	ScreenWidget->AppendSelectedInput(key);
-	
+}
+
+void AKeyboardWidgetActor::PressBackSpace()
+{
+	ScreenWidget->PopSelectedInput();
 }
 
 void AKeyboardWidgetActor::CloseKeyboard()

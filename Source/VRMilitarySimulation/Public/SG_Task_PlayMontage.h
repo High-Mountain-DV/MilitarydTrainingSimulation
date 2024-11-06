@@ -18,7 +18,6 @@ public:
 	USG_Task_PlayMontage();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
@@ -31,6 +30,9 @@ protected:
 	bool bWaitForNotify = false;
 
 private:
+	UPROPERTY()
+	class UAnimInstance* Anim;
+
 	FTimerHandle FinishHandle;
 	UBehaviorTreeComponent* CurrentOwnerComp;
 
