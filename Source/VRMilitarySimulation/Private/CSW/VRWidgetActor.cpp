@@ -3,8 +3,6 @@
 
 #include "CSW/VRWidgetActor.h"
 
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "CSW/VRWidget.h"
@@ -18,8 +16,8 @@ AVRWidgetActor::AVRWidgetActor()
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	SetRootComponent(SceneComp);
 
-	MainWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("MainWidgetComp"));
-	MainWidgetComp->SetupAttachment(SceneComp);
+	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("MainWidgetComp"));
+	WidgetComp->SetupAttachment(SceneComp);
 }
 
 // Called when the game starts or when spawned
@@ -66,7 +64,7 @@ void AVRWidgetActor::Tick(float DeltaTime)
 
 void AVRWidgetActor::AppendSelectedText(const FString& key)
 {
-	UVRWidget* widget = Cast<UVRWidget>(MainWidgetComp->GetWidget());
+	UVRWidget* widget = Cast<UVRWidget>(WidgetComp->GetWidget());
 
 	if (widget)
 		widget->AppendSelectedInput(key);

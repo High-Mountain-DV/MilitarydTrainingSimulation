@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VRWidgetActor.h"
 #include "CSW/HttpActor.h"
 #include "HttpLoginActor.generated.h"
 
@@ -10,7 +11,7 @@
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API AHttpLoginActor : public AHttpActor
+class VRMILITARYSIMULATION_API AHttpLoginActor : public AVRWidgetActor
 {
 	GENERATED_BODY()
 
@@ -29,9 +30,4 @@ private:
 	FString LoginPath = "/api/auth/login";
 	FString LoginMethod = "POST";
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	USceneComponent* SceneComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	class UWidgetComponent* WidgetComp;
 };
