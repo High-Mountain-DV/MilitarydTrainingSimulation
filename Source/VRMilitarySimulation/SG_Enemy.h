@@ -16,6 +16,7 @@ public:
 	// Sets default values for this character's properties
 	ASG_Enemy();
 
+	void SpawnAndGrabGrenede();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -23,6 +24,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class USkeletalMeshComponent* CustomMesh;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -103,7 +107,7 @@ public:
 	FVector NextTargetLocation;
 	float Speed;
 	bool StartMovement;
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Debug")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Debug")
 	bool PathFindDebug = true;
 
 	float AcceptableRadius = 50;

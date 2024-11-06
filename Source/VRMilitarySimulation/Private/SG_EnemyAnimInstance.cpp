@@ -72,7 +72,7 @@ void USG_EnemyAnimInstance::AnimNotify_CoupleMagazine()
 
 void USG_EnemyAnimInstance::AnimNotify_GrabGrenede()
 {
-
+	Me->SpawnAndGrabGrenede();
 }
 
 void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()

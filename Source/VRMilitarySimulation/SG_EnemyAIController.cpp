@@ -57,6 +57,8 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 	MyBlackboard = GetBlackboardComponent();
 	check(MyBlackboard); if (nullptr == MyBlackboard) return;
 	PRINTLOG(TEXT("%s"), *MyBlackboard->GetName());
+
+	MyBlackboard->ClearValue(TEXT("LastKnownLocation"));
 }
 
 void ASG_EnemyAIController::OnUnPossess()

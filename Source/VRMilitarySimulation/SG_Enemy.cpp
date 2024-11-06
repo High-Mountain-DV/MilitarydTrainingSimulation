@@ -20,6 +20,9 @@
 #include "SG_DummyEnemy.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "SG_Grenede.h"
+#include "Engine/EngineTypes.h"
 
 
 // Sets default values
@@ -27,6 +30,9 @@ ASG_Enemy::ASG_Enemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CustomMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CustomMesh"));
+	CustomMesh->SetupAttachment(GetMesh());
 
 	WeaponComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("WeaponComp"));
 	//WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229)); 
@@ -45,6 +51,17 @@ ASG_Enemy::ASG_Enemy()
 }
 
 
+
+void ASG_Enemy::SpawnAndGrabGrenede()
+{
+	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, GetMesh()->GetSocketTransform(TEXT("Enemy_Grenede_Socket")));
+	check(Grenede); if (nullptr == Grenede) return;
+
+	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	Grenede->AttachToComponent(GetMesh(), rules, TEXT("Enemy_Grenede_Socket"));
+
+	Grenede->CapsuleComp->SetSimulatePhysics(false);
+}
 
 // Called when the game starts or when spawned
 void ASG_Enemy::BeginPlay()
