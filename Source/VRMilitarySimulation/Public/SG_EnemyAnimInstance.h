@@ -51,7 +51,16 @@ public:
 	void AnimNotify_CoupleMagazine();
 
 	UFUNCTION()
+	void AnimNotify_AttachToRightHand();
+
+	UFUNCTION()
+	void AnimNotify_AttachToLeftHand();
+
+	UFUNCTION()
 	void AnimNotify_GrabGrenede();
+
+	UFUNCTION()
+	void AnimNotify_GrabGrenedeAtRightHand();
 
 	UFUNCTION()
 	void AnimNotify_ThrowGrenede();

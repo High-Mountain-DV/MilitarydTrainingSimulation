@@ -102,4 +102,7 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnEmitterAtLocation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy = true);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Destroy();
 };

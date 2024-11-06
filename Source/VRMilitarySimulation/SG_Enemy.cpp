@@ -52,17 +52,6 @@ ASG_Enemy::ASG_Enemy()
 
 
 
-void ASG_Enemy::SpawnAndGrabGrenede()
-{
-	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, GetMesh()->GetSocketTransform(TEXT("Enemy_Grenede_Socket")));
-	check(Grenede); if (nullptr == Grenede) return;
-
-	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-	Grenede->AttachToComponent(GetMesh(), rules, TEXT("Enemy_Grenede_Socket"));
-
-	Grenede->CapsuleComp->SetSimulatePhysics(false);
-}
-
 // Called when the game starts or when spawned
 void ASG_Enemy::BeginPlay()
 {
@@ -393,6 +382,42 @@ void ASG_Enemy::Recoil()
 	bAiming = true;
 	DestinationAimPitch = 0;
 	DestinationAimYaw = 0;
+}
+
+void ASG_Enemy::AttachWeapon(const FName& SocketName)
+{
+	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	WeaponComp->AttachToComponent(GetMesh(), Rules, SocketName);
+}
+
+void ASG_Enemy::SpawnAndGrabGrenede(const FName& SocketName)
+{
+	FActorSpawnParameters params;
+	params.Instigator = this;
+	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenede_Socket")), params);
+	check(Grenede); if (nullptr == Grenede) return;
+
+	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	Grenede->AttachToComponent(CustomMesh, rules, SocketName);
+
+	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Grenede->CapsuleComp->SetSimulatePhysics(false);
+	Grenede->SetOwner(this);
+}
+
+void ASG_Enemy::ThrowGrenede()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Velocity_ %s"), *Grenede->GetVelocity().ToString());
+	Grenede->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	Grenede->CapsuleComp->SetSimulatePhysics(true);
+	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Grenede->Active(this);
+
+	FVector GrenedeVelocity = (GetActorForwardVector() + GrenedeUpVector).GetSafeNormal() * GrenedeForce;
+	Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
+	UE_LOG(LogTemp, Warning, TEXT("Velocity_ %s"), *Grenede->GetVelocity().ToString());
+	Grenede = nullptr;
 }
 
 void ASG_Enemy::OnRep_CurrentWeapon()

@@ -164,6 +164,8 @@ void ASG_Grenede::ExplodeGrenede()
 	{
 		ApplyExplosionDamage(DamagedActors[i], Directions[i], Dists[i]);
 	}
+
+	MulticastRPC_Destroy();
 }
 
 void ASG_Grenede::ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist)
@@ -202,4 +204,9 @@ void ASG_Grenede::ApplyExplosionDamage(AActor* HitActor, const FVector& Directio
 void ASG_Grenede::MulticastRPC_SpawnEmitterAtLocation_Implementation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy /*= true*/)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleToSpawn, SpawnTransform, bAutoDestroy);
+}
+
+void ASG_Grenede::MulticastRPC_Destroy_Implementation()
+{
+	Destroy();
 }

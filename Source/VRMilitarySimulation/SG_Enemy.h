@@ -16,7 +16,6 @@ public:
 	// Sets default values for this character's properties
 	ASG_Enemy();
 
-	void SpawnAndGrabGrenede();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -127,6 +126,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Grenede")
+	float GrenedeForce = 3500;
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Grenede")
+	FVector GrenedeUpVector = FVector(0, 0, .5);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
 	float RecoilPitchMinOffset = 4;
 	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
@@ -169,4 +173,10 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnDummyEnemy(const FTransform& SpawnTransform, const FVector& ShotDirection);
 	void Recoil();
+public:
+	void AttachWeapon(const FName& SocketName);
+	void SpawnAndGrabGrenede(const FName& SocketName);
+	void ThrowGrenede();
+private:
+
 };
