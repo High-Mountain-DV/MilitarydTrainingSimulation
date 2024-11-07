@@ -18,6 +18,9 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl); 
+	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl);
+
+	UFUNCTION(BlueprintCallable)
+	void EndGame();
 
 };
