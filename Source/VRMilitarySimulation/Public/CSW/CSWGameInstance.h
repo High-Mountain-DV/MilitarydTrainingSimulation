@@ -117,9 +117,14 @@ public:
 	void GoBattleField();
 	
 	void GoReportRoom();
+
+	const FString& GetUserId() const;
 	
 private:
 	FString UserToken;
+	FString UserId;
+	FString UserNickname;
+	FString RecentCombatData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	FString LobbyURL = "/Game/MilitarySimulator/CSW/Maps/VRLobbyMap";

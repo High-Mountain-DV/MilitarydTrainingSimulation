@@ -24,8 +24,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-protected:
 	void Request(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& body, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback);
 
+protected:
 	FString ServerUrl = "http://125.132.216.190:8091";
 };
