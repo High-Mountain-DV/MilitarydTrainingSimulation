@@ -293,3 +293,9 @@ void UCSWGameInstance::GoReportRoom()
 	GetWorld()->ServerTravel(ReportRoomURL);
 }
 
+const FString& UCSWGameInstance::GetUserId() const
+{
+	return UserId;
+}
+
+
