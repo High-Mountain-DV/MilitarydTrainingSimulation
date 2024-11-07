@@ -80,6 +80,7 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCExitSession();
+	
 	// 방퇴장 응답
 	void OnMyDestroySessionComplete(FName SessionName , bool bWasSuccessful);
 
@@ -107,7 +108,28 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ReplayRecording();
+
+	// travel ============================
+	void GoLobby();
+	
+	void GoWaitingRoom();
+
+	void GoBattleField();
+	
+	void GoReportRoom();
 	
 private:
 	FString UserToken;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	FString LobbyURL = "/Game/MilitarySimulator/CSW/Maps/VRLobbyMap";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	FString WaitingRoomURL = "/Game/MilitarySimulator/CSW/Maps/VRWaitingMap";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	FString BattleFieldURL;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	FString ReportRoomURL = "/Game/MilitarySimulator/CSW/Maps/VRReportRoomMap";
 };
