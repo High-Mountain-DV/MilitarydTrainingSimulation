@@ -83,7 +83,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Default)
 	class UParticleSystem* ExplosionVFX;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Throw")
+	float MinNoise = -2;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Throw")
+	float MaxNoise = 2;
 	UPROPERTY()
 	TArray<AActor* > ActorsInRange;
 
@@ -95,6 +99,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Active(class ACharacter* GrenedeInstigator);
+
+	void Throw(const FVector& TargetLocation);
 private:
 	
 	void ExplodeGrenede();
@@ -105,4 +111,5 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_Destroy();
+	FVector GetThrowVelocityToTarget(const FVector& TargetLocation);
 };

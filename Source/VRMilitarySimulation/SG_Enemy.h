@@ -145,6 +145,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Default|Factory")
 	TSubclassOf<class ASG_DummyEnemy> BP_DummyEnemy;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FVector GrenedePoint;
+
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)

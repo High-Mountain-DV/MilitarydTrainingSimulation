@@ -407,7 +407,6 @@ void ASG_Enemy::SpawnAndGrabGrenede(const FName& SocketName)
 
 void ASG_Enemy::ThrowGrenede()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Velocity_ %s"), *Grenede->GetVelocity().ToString());
 	Grenede->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	Grenede->CapsuleComp->SetSimulatePhysics(true);
@@ -415,8 +414,8 @@ void ASG_Enemy::ThrowGrenede()
 	Grenede->Active(this);
 
 	FVector GrenedeVelocity = (GetActorForwardVector() + GrenedeUpVector).GetSafeNormal() * GrenedeForce;
-	Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
-	UE_LOG(LogTemp, Warning, TEXT("Velocity_ %s"), *Grenede->GetVelocity().ToString());
+	//Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
+	Grenede->Throw(GrenedePoint);
 	Grenede = nullptr;
 }
 

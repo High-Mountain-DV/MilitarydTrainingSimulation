@@ -9,6 +9,7 @@
 #include "../SG_Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AISense_Hearing.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 const float ExplosionRange = 600;
@@ -115,6 +116,14 @@ void ASG_Grenede::Active(class ACharacter* GrenedeInstigator)
 		GetWorld()->GetTimerManager().SetTimer(handle, this, &ASG_Grenede::ExplodeGrenede, DelayTime, false);
 	}
 }
+
+void ASG_Grenede::Throw(const FVector& TargetLocation)
+{
+	FVector Velocity = GetThrowVelocityToTarget(TargetLocation);
+	UE_LOG(LogTemp, Warning, TEXT("ThrowVelocity: %s"), *Velocity.ToString());
+	CapsuleComp->AddImpulse(Velocity);
+}
+
 void ASG_Grenede::ExplodeGrenede()
 {
 	MulticastRPC_SpawnEmitterAtLocation(ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation(), FVector(10)), true);
@@ -209,4 +218,36 @@ void ASG_Grenede::MulticastRPC_SpawnEmitterAtLocation_Implementation(UParticleSy
 void ASG_Grenede::MulticastRPC_Destroy_Implementation()
 {
 	Destroy();
+}
+
+FVector ASG_Grenede::GetThrowVelocityToTarget(const FVector& TargetLocation)
+{
+	FVector ret;
+
+	FVector Sub = TargetLocation - GetActorLocation();
+	Sub.Z = 0;
+
+	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetLocation);
+
+
+	// Horizontal Distance
+	float S = Sub.Length();
+	// Time
+	float t = (S / 1000);
+	// Gravity
+	float g = -490;
+	// Vertical Component of velocity
+	float v = -t * g * 0.5;
+
+	// Horizontal Component of velocity
+	float u = (S - (0.5 * g  * FMath::Square(t))) / t;
+
+	ret.X = DirectionUnitVector.X * u;
+	ret.Y = DirectionUnitVector.Y * u;
+	ret.Z = v;
+
+	
+	//ret += FVector(FMath::RandRange(MinNoise, MaxNoise), FMath::RandRange(MinNoise, MaxNoise), FMath::RandRange(MinNoise, MaxNoise));
+	//ret*= FMath::RandRange(0.8, 1.0);
+	return ret;
 }
