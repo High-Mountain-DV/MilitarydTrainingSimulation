@@ -6,6 +6,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Components/PrimitiveComponent.h"
 #include "UObject/CoreNet.h"
+#include "CSW/CSWGameInstance.h"
+#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystemTypes.h"
 
 // Sets default values
 APlayerVRCharacter::APlayerVRCharacter()
@@ -28,6 +30,16 @@ void APlayerVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 게임 인스턴스에서 ID 가져오기
+	UCSWGameInstance* GameInstance = Cast<UCSWGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		// 플레이어 ID를 액터 이름으로 설정
+		// GetUserId()의 반환값을 FString으로 변환
+		FString PlayerIdString(GameInstance->GetUserId());
+		SetActorLabel(PlayerIdString);
+	}
+
 	if (IsLocallyControlled())
 	{
 		// 타이머를 설정하여 주기적으로 컨트롤러 Transform을 업데이트
@@ -97,5 +109,10 @@ void APlayerVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+int APlayerVRCharacter::GetShootingCnt() const
+{
+	return ShootingCnt;
 }
 
