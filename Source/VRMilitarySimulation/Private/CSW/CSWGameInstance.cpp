@@ -204,9 +204,8 @@ void UCSWGameInstance::OnMyDestroySessionComplete(FName SessionName , bool bWasS
 {
 	if ( bWasSuccessful )
 	{
-		// 클라이언트가 로비로 여행을 가고싶다.
 		auto* pc = GetWorld()->GetFirstPlayerController();
-		pc->ClientTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRLobbyMap"), ETravelType::TRAVEL_Absolute);
+		pc->ClientTravel(ReportRoomURL, ETravelType::TRAVEL_Absolute);
 	}
 }
 
@@ -273,4 +272,30 @@ void UCSWGameInstance::ReplayRecording()
 {
 	PlayReplay(RecordingName, nullptr);
 }
+
+void UCSWGameInstance::GoLobby()
+{
+	GetWorld()->ServerTravel(LobbyURL);
+}
+
+void UCSWGameInstance::GoWaitingRoom()
+{
+	GetWorld()->ServerTravel(WaitingRoomURL + "?listen");
+}
+
+void UCSWGameInstance::GoBattleField()
+{
+	GetWorld()->ServerTravel(BattleFieldURL + "?listen");
+}
+
+void UCSWGameInstance::GoReportRoom()
+{
+	GetWorld()->ServerTravel(ReportRoomURL);
+}
+
+const FString& UCSWGameInstance::GetUserId() const
+{
+	return UserId;
+}
+
 
