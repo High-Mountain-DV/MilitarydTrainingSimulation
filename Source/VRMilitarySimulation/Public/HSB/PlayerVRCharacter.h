@@ -66,4 +66,11 @@ public:
 	float Max_hp = 40;
 	UPROPERTY(BlueprintReadWrite)
 	float p_hp = Max_hp;
+
+	// 쏘는 횟수 보내는 용
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int ShootingCnt; // 쏜 횟수
+
+	UFUNCTION()
+	int GetShootingCnt() const;
 };

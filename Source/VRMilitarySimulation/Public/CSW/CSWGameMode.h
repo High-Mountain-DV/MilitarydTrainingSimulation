@@ -18,6 +18,21 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl); 
+	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, FString id);
 
+
+	void AppendHitLog(const TMap<FString, std::pair<int, float>>& hitLog);
+
+	void AppendShootLog(const FString& id, int shootingCnt);
+
+	UFUNCTION(BlueprintCallable)
+	void EndGame();
+	
+	void CollectPlayerLog();
+	void CollectEnemyLog();
+	void PostCombatLog(const FString& id);
+private:
+	TArray<FString> UserIds;
+	TMap<FString, std::pair<int, float>> HitLog;
+	TMap<FString, int> ShootLog;
 };

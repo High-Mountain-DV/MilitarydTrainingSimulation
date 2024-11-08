@@ -96,7 +96,7 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 		UE_LOG(LogTemp, Warning, TEXT("%s\n"), *(IOnlineSubsystem::Get()->GetSubsystemName()).ToString())
 		// 서버가 여행을 떠나고싶다.
 		CurrentSessionName = MySessionName;
-		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/VRWaitingMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRWaitingMap?listen"));
 		// GetWorld()->ServerTravel(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap?listen"));
 	}
 	else
@@ -204,9 +204,8 @@ void UCSWGameInstance::OnMyDestroySessionComplete(FName SessionName , bool bWasS
 {
 	if ( bWasSuccessful )
 	{
-		// 클라이언트가 로비로 여행을 가고싶다.
 		auto* pc = GetWorld()->GetFirstPlayerController();
-		pc->ClientTravel(TEXT("/Game/MilitarySimulator/CSW/VRLobbyMap"), ETravelType::TRAVEL_Absolute);
+		pc->ClientTravel(ReportRoomURL, ETravelType::TRAVEL_Absolute);
 	}
 }
 
@@ -256,6 +255,47 @@ void UCSWGameInstance::SetUserToken(const FString& token)
 {
 	UserToken = token;
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *token);
-	GetWorld()->ServerTravel("/Game/MilitarySimulator/CSW/VRLobbyMap");
+	GetWorld()->ServerTravel("/Game/MilitarySimulator/CSW/Maps/VRLobbyMap");
 }
+
+void UCSWGameInstance::StartRecording()
+{
+	StartRecordingReplay(RecordingName, FriendlyRecordingName);	
+}
+
+void UCSWGameInstance::StopRecording()
+{
+	StopRecordingReplay();
+}
+
+void UCSWGameInstance::ReplayRecording()
+{
+	PlayReplay(RecordingName, nullptr);
+}
+
+void UCSWGameInstance::GoLobby()
+{
+	GetWorld()->ServerTravel(LobbyURL);
+}
+
+void UCSWGameInstance::GoWaitingRoom()
+{
+	GetWorld()->ServerTravel(WaitingRoomURL + "?listen");
+}
+
+void UCSWGameInstance::GoBattleField()
+{
+	GetWorld()->ServerTravel(BattleFieldURL + "?listen");
+}
+
+void UCSWGameInstance::GoReportRoom()
+{
+	GetWorld()->ServerTravel(ReportRoomURL);
+}
+
+const FString& UCSWGameInstance::GetUserId() const
+{
+	return UserId;
+}
+
 

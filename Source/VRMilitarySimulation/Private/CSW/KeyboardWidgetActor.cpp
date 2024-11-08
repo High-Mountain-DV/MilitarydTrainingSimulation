@@ -11,7 +11,7 @@ void AKeyboardWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto* keyboardWidget = Cast<UKeyboardWidget>(MainWidgetComp->GetWidget());
+	auto* keyboardWidget = Cast<UKeyboardWidget>(WidgetComp->GetWidget());
 	if (keyboardWidget)
 		keyboardWidget->SetKeyboardActor(this);
 }

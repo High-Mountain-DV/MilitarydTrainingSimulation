@@ -3,12 +3,11 @@
 
 #include "CSW/MissionLobbyWidget.h"
 
-#include <string>
-
 #include "Components/Button.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
 #include "Components/Slider.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "CSW/SessionSlotWidget.h"
 #include "CSW/CSWGameInstance.h"
@@ -26,6 +25,7 @@ void UMissionLobbyWidget::NativeConstruct()
 
 	CR_Button_CreateRoom->OnClicked.AddDynamic(this , &UMissionLobbyWidget::CR_OnClickCreateRoom);
 	CR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickGoMenu);
+	CR_Button_InputRoomName->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickInputRoomName);
 
 	FR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::FR_OnClickGoMenu);
 
@@ -67,7 +67,7 @@ FString UMissionLobbyWidget::GenerateRandomString(int32 Length)
 void UMissionLobbyWidget::CR_OnClickCreateRoom()
 {
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
-	FString roomName = CR_Edit_RoomName->GetText().ToString();
+	FString roomName = CR_Text_RoomName->GetText().ToString();
 
 	// roomName이 기재되지 않거나 공백이라면 방생성을 하지 않고싶다.
 	roomName = roomName.TrimStartAndEnd();
@@ -85,6 +85,13 @@ void UMissionLobbyWidget::CR_OnClickCreateRoom()
 void UMissionLobbyWidget::CR_OnClickGoMenu()
 {
 	WidgetSwitcher->SetActiveWidgetIndex(0);
+}
+
+void UMissionLobbyWidget::CR_OnClickInputRoomName()
+{
+	SelectedInput = CR_Text_RoomName;
+
+	SpawnKeyboardWidgetActor();
 }
 
 void UMissionLobbyWidget::FR_OnClickGoMenu()
