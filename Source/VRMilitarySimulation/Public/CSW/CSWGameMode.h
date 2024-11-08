@@ -21,7 +21,7 @@ public:
 	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, FString id);
 
 
-	void AppendHitLog(const TMap<FString, const struct TTuple<int32, float>>& hitLog);
+	void AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog);
 
 	void AppendShootLog(const FString& id, int shootingCnt);
 
