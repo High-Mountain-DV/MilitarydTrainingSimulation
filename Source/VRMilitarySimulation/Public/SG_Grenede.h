@@ -83,7 +83,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Default)
 	class UParticleSystem* ExplosionVFX;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Throw")
+	float TimeMultiplier = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Throw")
+	float MinNoise = -2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Throw")
+	float MaxNoise = 2;
 	UPROPERTY()
 	TArray<AActor* > ActorsInRange;
 
@@ -93,13 +100,21 @@ public:
 	UFUNCTION()
 	void OnExplosionRangeCompEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	void SetPhysicalOption();
+
 	UFUNCTION(BlueprintCallable)
 	void Active(class ACharacter* GrenedeInstigator);
+	bool CheckTrajectoryCollision(const FVector& TargetLocation, const FVector& Velocity);
+	bool ThrowWithCheck(const FVector& TargetLocation);
+	void Throw(const FVector& TargetLocation);
 private:
-	
+	FVector GetThrowVelocityToTarget(const FVector& TargetLocation);
 	void ExplodeGrenede();
 	void ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnEmitterAtLocation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy = true);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Destroy();
 };

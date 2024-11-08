@@ -57,13 +57,15 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 	MyBlackboard = GetBlackboardComponent();
 	check(MyBlackboard); if (nullptr == MyBlackboard) return;
 	PRINTLOG(TEXT("%s"), *MyBlackboard->GetName());
+
+	MyBlackboard->ClearValue(TEXT("LastKnownLocation"));
 }
 
 void ASG_EnemyAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
 
-	UE_LOG(LogTemp, Warning, TEXT("UnPossessed"));
+	//UE_LOG(LogTemp, Warning, TEXT("UnPossessed"));
 }
 
 void ASG_EnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
@@ -78,6 +80,8 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 {
 	if (!HasAuthority()) return;
 
+	
+
 	/*UAIPerceptionSystem* PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld());
 	check(PerceptionSystem); if (nullptr == PerceptionSystem) return;*/
 
@@ -91,29 +95,64 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 	{
 		HandleAudioStimuls(Actor, Stimulus);
 	}
-
+	FString output = TEXT("TargetActors: ");
+	for (auto targetActor : TargetActors)
+	{
+		output += targetActor->GetName() + TEXT("  /  ");
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, FString::Printf(TEXT("%s"), *output));
 }
 
 void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
-	/*if (Stimulus.WasSuccessfullySensed())
+	if (Stimulus.WasSuccessfullySensed())
 	{
-		PRINTLOG(TEXT("성공적으로 타겟 설정"));
-		MyBlackboard->SetValueAsObject(TEXT("TargetActor"), Actor);
+		PRINTLOG(TEXT("성공적으로 타겟 설정, %s"), *Actor->GetName());
+		TargetActors.Add(Actor);
 
-		if (MyBlackboard->GetValueAsBool(TEXT("bCanFocusOn")))
+		if (nullptr == MyBlackboard->GetValueAsObject(TEXT("TargetActor")))
 		{
-			SetFocus(Actor);
+			MyBlackboard->SetValueAsObject(TEXT("TargetActor"), Actor);
 		}
 	}
 	else
 	{
 		PRINTLOG(TEXT("타겟 놓침"));
-		auto* TargetActor = MyBlackboard->GetValueAsObject(TEXT("TargetActor"));
+		auto* CurrTargetActor = Cast<AActor>(MyBlackboard->GetValueAsObject(TEXT("TargetActor")));
+		check(CurrTargetActor); if (nullptr == CurrTargetActor) return;
 
-	}*/
+		// 제 1타겟으로 지정하고 있던 액터가 사라지면
+		if (CurrTargetActor == TargetActors[0])
+		{
+			TargetActors.RemoveAt(0);
+
+			// 시야내에 적이 없으면
+			if (TargetActors.IsEmpty())
+			{	
+				ClearFocus(EAIFocusPriority::Gameplay);
+				MyBlackboard->SetValueAsVector(TEXT("LastKnownLocation"), CurrTargetActor->GetActorLocation());
+				UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), CurrTargetActor->GetActorLocation(), 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
+				MyBlackboard->ClearValue(TEXT("TargetActor"));
+			}
+			// 다른 적들이 있다면
+			else
+			{
+				MyBlackboard->SetValueAsObject(TEXT("TargetActor"), TargetActors[0]);
+			}
+		}
+		
+		// 우선순위가 낮은 액터가 사라지면
+		else
+		{
+			TargetActors.Remove(CurrTargetActor);
+		}
+	}
 }
 
 void ASG_EnemyAIController::HandleAudioStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
+	MyBlackboard->SetValueAsVector(TEXT("TargetLocation"), Stimulus.StimulusLocation);
+	UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Stimulus.StimulusLocation, 15, 15, FRotator::ZeroRotator, FColor::Purple, 10, 1);
+
+	PRINTLOG(TEXT("소리 들림"));
 }

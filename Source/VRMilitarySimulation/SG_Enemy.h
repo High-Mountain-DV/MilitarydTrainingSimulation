@@ -24,6 +24,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class USkeletalMeshComponent* CustomMesh;
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -103,7 +106,7 @@ public:
 	FVector NextTargetLocation;
 	float Speed;
 	bool StartMovement;
-	UPROPERTY(EditDefaultsOnly, Category = "Default | Debug")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Debug")
 	bool PathFindDebug = true;
 
 	float AcceptableRadius = 50;
@@ -123,6 +126,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Grenede")
+	float GrenedeForce = 3500;
+	UPROPERTY(EditDefaultsOnly, Category = "Default|Grenede")
+	FVector GrenedeUpVector = FVector(0, 0, .5);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
 	float RecoilPitchMinOffset = 4;
 	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
@@ -137,7 +145,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Default|Factory")
 	TSubclassOf<class ASG_DummyEnemy> BP_DummyEnemy;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FVector GrenedePoint;
+	UPROPERTY()
+	class ASG_Grenede* Grenede;
 private:
+	UPROPERTY()
+	class ACSWGameMode* GM;
+	
+	class TMap<FString, struct TTuple<int32, float>> HitLog;
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
 	float hp = MaxHP;
@@ -146,8 +162,7 @@ private:
 	bool bDead;
 	void AI_Move_To(float DeltaTime);
 
-	UPROPERTY()
-	class ASG_Grenede* Grenede;
+	
 
 	UPROPERTY(Replicated)
 	float DestinationAimPitch;
@@ -165,4 +180,10 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnDummyEnemy(const FTransform& SpawnTransform, const FVector& ShotDirection);
 	void Recoil();
+public:
+	void AttachWeapon(const FName& SocketName);
+	void SpawnAndGrabGrenede(const FName& SocketName);
+	void ThrowGrenede();
+private:
+
 };

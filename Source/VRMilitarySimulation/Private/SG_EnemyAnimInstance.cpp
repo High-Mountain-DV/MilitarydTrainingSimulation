@@ -70,12 +70,27 @@ void USG_EnemyAnimInstance::AnimNotify_CoupleMagazine()
 	Me->ShowWeaponMagazine();
 }
 
+void USG_EnemyAnimInstance::AnimNotify_AttachToRightHand()
+{
+	Me->AttachWeapon(TEXT("Enemy_TwoHanded_Gun_Right_hand_socket"));
+}
+
+void USG_EnemyAnimInstance::AnimNotify_AttachToLeftHand()
+{
+	Me->AttachWeapon(TEXT("Enemy_TwoHandedGun_Socket"));
+}
+
 void USG_EnemyAnimInstance::AnimNotify_GrabGrenede()
 {
-
+	Me->SpawnAndGrabGrenede(TEXT("Enemy_Grenede_Left_Socket"));
 }
 
-void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()
+void USG_EnemyAnimInstance::AnimNotify_GrabGrenedeAtRightHand()
 {
-
+	Me->SpawnAndGrabGrenede(TEXT("Enemy_Grenede_Right_Socket"));
 }
+
+//void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()
+//{
+//	//Me->ThrowGrenede();
+//}

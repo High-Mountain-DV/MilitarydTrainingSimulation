@@ -20,6 +20,10 @@
 #include "SG_DummyEnemy.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "SG_Grenede.h"
+#include "Engine/EngineTypes.h"
+#include "CSW/CSWGameMode.h"
 
 
 // Sets default values
@@ -27,6 +31,9 @@ ASG_Enemy::ASG_Enemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CustomMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CustomMesh"));
+	CustomMesh->SetupAttachment(GetMesh());
 
 	WeaponComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("WeaponComp"));
 	//WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229)); 
@@ -51,14 +58,9 @@ void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//if (GEngine)
-	//{
-	//	// 모든 디버그 메시지 비활성화
-	//	GEngine->bEnableOnScreenDebugMessages = false;
+	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
+	check(GM); if (nullptr == GM) return;
 
-	//	// 기존 메시지 제거
-	//	GEngine->ClearOnScreenDebugMessages();
-	//}
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
@@ -71,6 +73,14 @@ void ASG_Enemy::BeginPlay()
 		DebugArrow->SetHiddenInGame(false);
 	}
 
+	//if (GEngine)
+	//{
+	//	// 모든 디버그 메시지 비활성화
+	//	GEngine->bEnableOnScreenDebugMessages = false;
+
+	//	// 기존 메시지 제거
+	//	GEngine->ClearOnScreenDebugMessages();
+	//}
 }
 
 // Called every frame
@@ -378,6 +388,40 @@ void ASG_Enemy::Recoil()
 	DestinationAimYaw = 0;
 }
 
+void ASG_Enemy::AttachWeapon(const FName& SocketName)
+{
+	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	WeaponComp->AttachToComponent(GetMesh(), Rules, SocketName);
+}
+
+void ASG_Enemy::SpawnAndGrabGrenede(const FName& SocketName)
+{
+	FActorSpawnParameters params;
+	params.Instigator = this;
+	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenede_Socket")), params);
+	check(Grenede); if (nullptr == Grenede) return;
+
+	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	Grenede->AttachToComponent(CustomMesh, rules, SocketName);
+
+	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Grenede->CapsuleComp->SetSimulatePhysics(false);
+	Grenede->SetOwner(this);
+}
+
+void ASG_Enemy::ThrowGrenede()
+{
+	Grenede->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	Grenede->CapsuleComp->SetSimulatePhysics(true);
+	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Grenede->Active(this);
+
+	//Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
+	bool bGrenedeThrow = Grenede->ThrowWithCheck(GrenedePoint);
+	Grenede = nullptr;
+}
+
 void ASG_Enemy::OnRep_CurrentWeapon()
 {
 	CurrentWeapon->SetOwner(this);
@@ -433,4 +477,21 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 	{
 		DieProcess(BoneName, ShotDirection, Shooter);
 	}
+
+	
+	FString ShooterID;
+	if (Shooter) ShooterID = Shooter->GetActorLabel();
+	UE_LOG(LogTemp, Warning, TEXT("ShooterID: %s"), *ShooterID);
+
+	if (TTuple<int32, float>* ExistingLog = HitLog.Find(ShooterID))
+	{
+		ExistingLog->Get<0>() += 1;
+		ExistingLog->Get<1>() += Damage;
+		UE_LOG(LogTemp, Warning, TEXT("HitLog Update! %d, %f"), ExistingLog->Get<0>(), ExistingLog->Get<1>());
+	}
+	else
+	{
+		HitLog.Add(ShooterID, TTuple<int32, float>(1, Damage));
+	}
+	GM->AppendHitLog(HitLog);
 }

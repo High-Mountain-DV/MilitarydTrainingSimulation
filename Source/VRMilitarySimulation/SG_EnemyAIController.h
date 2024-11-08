@@ -38,6 +38,8 @@ public:
 	UPROPERTY()
 	class UAIPerceptionComponent* PerceptionComp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<class AActor*> TargetActors;
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 

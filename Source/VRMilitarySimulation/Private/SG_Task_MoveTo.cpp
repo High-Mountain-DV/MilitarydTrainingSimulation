@@ -97,6 +97,12 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 			2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
 		);
 
+		if (!AIPawn)
+		{
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			return;
+		}
+
 		// 새로운 회전값 적용
 		AIPawn->SetActorRotation(NewRotation);
 	}
@@ -106,9 +112,8 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 	{
 		SpeedScale = FMath::Max(0.5, SpeedScale - 0.04);
 	}
-
-	AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-	//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *AIPawn->GetVelocity().ToString());
+	//AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
+	//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *Me->GetVelocity().ToString());
 	AIPawn->AddMovementInput(DirectionVector, SpeedScale);
 	if (AIPawn->GetVelocity().Equals(FVector(0), 100))
 	{
