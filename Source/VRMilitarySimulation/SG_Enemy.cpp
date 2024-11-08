@@ -126,6 +126,11 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	
 }
 
+const TMap<FString, struct TTuple<int32, float>> ASG_Enemy::GetHitLog() const
+{
+	return HitLog;
+}
+
 void ASG_Enemy::SetWeapon()
 {
 	if (!HasAuthority()) return;

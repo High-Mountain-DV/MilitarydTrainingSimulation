@@ -31,6 +31,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	const class TMap<FString, struct TTuple<int32, float>> GetHitLog() const;
+
 	void SetWeapon();
 
 	UFUNCTION()
