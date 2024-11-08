@@ -62,7 +62,7 @@ public:
 	UFUNCTION()
 	void AnimNotify_GrabGrenedeAtRightHand();
 
-	UFUNCTION()
-	void AnimNotify_ThrowGrenede();
+	/*UFUNCTION()
+	void AnimNotify_ThrowGrenede();*/
 };
 

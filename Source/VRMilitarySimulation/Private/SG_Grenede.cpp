@@ -107,6 +107,12 @@ void ASG_Grenede::OnExplosionRangeCompEndOverlap(UPrimitiveComponent* Overlapped
 	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, output);
 }
 
+void ASG_Grenede::SetPhysicalOption()
+{
+	CapsuleComp->SetSimulatePhysics(true);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
 void ASG_Grenede::Active(class ACharacter* GrenedeInstigator)
 {
 	if (HasAuthority())
@@ -117,10 +123,93 @@ void ASG_Grenede::Active(class ACharacter* GrenedeInstigator)
 	}
 }
 
+FVector ASG_Grenede::GetThrowVelocityToTarget(const FVector& TargetLocation)
+{
+	FVector ret;
+
+	FVector Sub = TargetLocation - GetActorLocation();
+	Sub.Z = 0;
+
+	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetLocation);
+
+	// Horizontal Distance
+	float S = Sub.Length();
+	// Time
+	float t = (S / 1000) * TimeMultiplier;
+	// Gravity
+	float g = -490;
+	// Vertical Component of velocity
+	float v = -t * g * 0.5;
+
+	// Horizontal Component of velocity
+	float u = (S - (0.5 * g * FMath::Square(t))) / t;
+
+	ret.X = DirectionUnitVector.X * u;
+	ret.Y = DirectionUnitVector.Y * u;
+	ret.Z = v;
+
+
+	//ret += FVector(FMath::RandRange(MinNoise, MaxNoise), FMath::RandRange(MinNoise, MaxNoise), FMath::RandRange(MinNoise, MaxNoise));
+	//ret*= FMath::RandRange(0.8, 1.0);
+	return ret;
+}
+
+bool ASG_Grenede::CheckTrajectoryCollision(const FVector& TargetLocation, const FVector& Velocity)
+{
+	FVector StartPos = GetActorLocation();
+	const float TimeStep = 0.1f;  // 0.1초 간격으로 체크
+	const float MaxTime = (TargetLocation - StartPos).Size() / 700.0f;  // 예상 도착 시간
+
+	for (float Time = 0; Time <= MaxTime; Time += TimeStep)
+	{
+		// 포물선 상의 점 계산
+		FVector Position = StartPos + Velocity * Time;
+		Position.Z += -490.0f * Time * Time * 0.5f;  // 중력 적용
+
+		// 장애물 체크
+		FHitResult HitResult;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);  // 자기 자신은 무시
+
+		// 이전 위치에서 현재 위치까지 LineTrace
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			StartPos,
+			Position,
+			ECC_Visibility,
+			QueryParams
+		);
+
+		if (bHit)
+		{
+			// 장애물이 있다면 true 반환
+			return true;
+		}
+
+		StartPos = Position;  // 다음 체크를 위해 시작점 업데이트
+	}
+
+	return false;  // 장애물이 없으면 false 반환
+}
+
+
+bool ASG_Grenede::ThrowWithCheck(const FVector& TargetLocation)
+{
+	FVector Velocity = GetThrowVelocityToTarget(TargetLocation);
+
+	if (CheckTrajectoryCollision(TargetLocation, Velocity))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("궤적상에 장애물로 수류탄 안던짐"));
+		return false;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("ThrowVelocity: %s"), *Velocity.ToString());
+	CapsuleComp->AddImpulse(Velocity);
+	return true;
+}
+
 void ASG_Grenede::Throw(const FVector& TargetLocation)
 {
 	FVector Velocity = GetThrowVelocityToTarget(TargetLocation);
-	UE_LOG(LogTemp, Warning, TEXT("ThrowVelocity: %s"), *Velocity.ToString());
 	CapsuleComp->AddImpulse(Velocity);
 }
 
@@ -132,13 +221,13 @@ void ASG_Grenede::ExplodeGrenede()
 	TArray<FVector> Directions;
 	TArray<float> Dists;
 
-	UE_LOG(LogTemp, Warning, TEXT("ExplodeGrenede, TargetNums: %d"), ActorsInRange.Num());
+	//UE_LOG(LogTemp, Warning, TEXT("ExplodeGrenede, TargetNums: %d"), ActorsInRange.Num());
 	FString output = TEXT("ActorsInRange: ");
 	for (int i = 0; i < ActorsInRange.Num(); i++)
 	{
 		output += FString::Printf(TEXT("%s / "), *ActorsInRange[i]->GetName());
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
 	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(TraceChannel);
 	FVector start = GetActorLocation();
 	TArray<AActor*>ActorsToIgnore;
@@ -220,34 +309,4 @@ void ASG_Grenede::MulticastRPC_Destroy_Implementation()
 	Destroy();
 }
 
-FVector ASG_Grenede::GetThrowVelocityToTarget(const FVector& TargetLocation)
-{
-	FVector ret;
 
-	FVector Sub = TargetLocation - GetActorLocation();
-	Sub.Z = 0;
-
-	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), TargetLocation);
-
-
-	// Horizontal Distance
-	float S = Sub.Length();
-	// Time
-	float t = (S / 1000);
-	// Gravity
-	float g = -490;
-	// Vertical Component of velocity
-	float v = -t * g * 0.5;
-
-	// Horizontal Component of velocity
-	float u = (S - (0.5 * g  * FMath::Square(t))) / t;
-
-	ret.X = DirectionUnitVector.X * u;
-	ret.Y = DirectionUnitVector.Y * u;
-	ret.Z = v;
-
-	
-	//ret += FVector(FMath::RandRange(MinNoise, MaxNoise), FMath::RandRange(MinNoise, MaxNoise), FMath::RandRange(MinNoise, MaxNoise));
-	//ret*= FMath::RandRange(0.8, 1.0);
-	return ret;
-}

@@ -90,7 +90,7 @@ void USG_EnemyAnimInstance::AnimNotify_GrabGrenedeAtRightHand()
 	Me->SpawnAndGrabGrenede(TEXT("Enemy_Grenede_Right_Socket"));
 }
 
-void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()
-{
-	Me->ThrowGrenede();
-}
+//void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()
+//{
+//	//Me->ThrowGrenede();
+//}

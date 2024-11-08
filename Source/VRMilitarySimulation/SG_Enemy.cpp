@@ -413,9 +413,8 @@ void ASG_Enemy::ThrowGrenede()
 	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Grenede->Active(this);
 
-	FVector GrenedeVelocity = (GetActorForwardVector() + GrenedeUpVector).GetSafeNormal() * GrenedeForce;
 	//Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
-	Grenede->Throw(GrenedePoint);
+	bool bGrenedeThrow = Grenede->ThrowWithCheck(GrenedePoint);
 	Grenede = nullptr;
 }
 

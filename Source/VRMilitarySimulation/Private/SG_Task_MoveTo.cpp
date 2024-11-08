@@ -112,8 +112,8 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 	{
 		SpeedScale = FMath::Max(0.5, SpeedScale - 0.04);
 	}
-	AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-	//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *AIPawn->GetVelocity().ToString());
+	//AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
+	//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *Me->GetVelocity().ToString());
 	AIPawn->AddMovementInput(DirectionVector, SpeedScale);
 	if (AIPawn->GetVelocity().Equals(FVector(0), 100))
 	{

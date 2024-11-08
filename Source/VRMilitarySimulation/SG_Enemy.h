@@ -147,7 +147,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FVector GrenedePoint;
-
+	UPROPERTY()
+	class ASG_Grenede* Grenede;
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -157,8 +158,7 @@ private:
 	bool bDead;
 	void AI_Move_To(float DeltaTime);
 
-	UPROPERTY()
-	class ASG_Grenede* Grenede;
+	
 
 	UPROPERTY(Replicated)
 	float DestinationAimPitch;

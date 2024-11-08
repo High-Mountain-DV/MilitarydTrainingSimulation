@@ -65,7 +65,7 @@ void ASG_EnemyAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
 
-	UE_LOG(LogTemp, Warning, TEXT("UnPossessed"));
+	//UE_LOG(LogTemp, Warning, TEXT("UnPossessed"));
 }
 
 void ASG_EnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
@@ -131,6 +131,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 			{	
 				ClearFocus(EAIFocusPriority::Gameplay);
 				MyBlackboard->SetValueAsVector(TEXT("LastKnownLocation"), CurrTargetActor->GetActorLocation());
+				UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), CurrTargetActor->GetActorLocation(), 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
 				MyBlackboard->ClearValue(TEXT("TargetActor"));
 			}
 			// 다른 적들이 있다면
@@ -139,7 +140,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 				MyBlackboard->SetValueAsObject(TEXT("TargetActor"), TargetActors[0]);
 			}
 		}
-
+		
 		// 우선순위가 낮은 액터가 사라지면
 		else
 		{
@@ -151,5 +152,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 void ASG_EnemyAIController::HandleAudioStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
 	MyBlackboard->SetValueAsVector(TEXT("TargetLocation"), Stimulus.StimulusLocation);
+	UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Stimulus.StimulusLocation, 15, 15, FRotator::ZeroRotator, FColor::Purple, 10, 1);
+
 	PRINTLOG(TEXT("소리 들림"));
 }
