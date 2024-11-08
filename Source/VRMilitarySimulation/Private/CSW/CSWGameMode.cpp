@@ -109,7 +109,7 @@ void ACSWGameMode::PostCombatLog(const FString& id)
 	);
 }
 
-void ACSWGameMode::AppendHitLog(const TMap<FString, const struct TTuple<int32, float>>& hitLog)
+void ACSWGameMode::AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog)
 {
 	for (auto nde : hitLog)
 	{
