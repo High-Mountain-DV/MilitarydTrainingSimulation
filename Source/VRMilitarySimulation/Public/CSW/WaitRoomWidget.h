@@ -30,13 +30,13 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* Txt_Users;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnClick_GoLobby();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnClick_GameStart();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnClick_GameReady();
 
 private:

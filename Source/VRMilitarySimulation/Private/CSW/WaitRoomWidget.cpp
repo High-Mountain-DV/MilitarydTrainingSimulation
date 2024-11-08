@@ -87,7 +87,7 @@ void UWaitRoomWidget::OnClick_GameStart()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
 		gm->bUseSeamlessTravel = true;
-		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/VRBattleMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
 	}
 }
 
