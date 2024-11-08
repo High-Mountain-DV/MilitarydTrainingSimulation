@@ -21,7 +21,7 @@ public:
 	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, FString id);
 
 
-	void AppendHitLog(const TMap<FString, std::pair<int, float>>& hitLog);
+	void AppendHitLog(const TMap<FString, const struct TTuple<int32, float>>& hitLog);
 
 	void AppendShootLog(const FString& id, int shootingCnt);
 
@@ -33,6 +33,6 @@ public:
 	void PostCombatLog(const FString& id);
 private:
 	TArray<FString> UserIds;
-	TMap<FString, std::pair<int, float>> HitLog;
+	TMap<FString, TTuple<int32, float>> HitLog;
 	TMap<FString, int> ShootLog;
 };

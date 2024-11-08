@@ -58,8 +58,8 @@ void ACSWGameMode::CollectPlayerLog()
 		APlayerVRCharacter* player = Cast<APlayerVRCharacter>(actor);
 
 		FString id = player->GetActorLabel();
-		// int shootingCnt = player->GetShootingCnt();
-		// ShootLog[id] += shootingCnt;
+		int shootingCnt = player->GetShootingCnt();
+		ShootLog[id] += shootingCnt;
 	}
 }
 
@@ -72,12 +72,12 @@ void ACSWGameMode::CollectEnemyLog()
 	{
 		ASG_Enemy* enemy = Cast<ASG_Enemy>(actor);
 
-		// TMap<FString, std::pair<int, float>> hitLog = enemy->GetHitLog();
-		// for (auto log : hitLog)
-		// {
-		// 	HitLog[log.Key].first += log.Value.first;
-		// 	HitLog[log.Key].second += log.Value.second;
-		// }
+		TMap<FString, TTuple<int32, float>> hitLog = enemy->GetHitLog();
+		for (auto log : hitLog)
+		{
+			HitLog[log.Key].Get<0>() += log.Value.Get<0>();
+			HitLog[log.Key].Get<1>() += log.Value.Get<1>();
+		}
 	}
 }
 
@@ -109,12 +109,12 @@ void ACSWGameMode::PostCombatLog(const FString& id)
 	);
 }
 
-void ACSWGameMode::AppendHitLog(const TMap<FString, std::pair<int, float>>& hitLog)
+void ACSWGameMode::AppendHitLog(const TMap<FString, const struct TTuple<int32, float>>& hitLog)
 {
 	for (auto nde : hitLog)
 	{
-		HitLog[nde.Key].first += nde.Value.first;
-		HitLog[nde.Key].second += nde.Value.second;
+		HitLog[nde.Key].Get<0>() += nde.Value.Get<0>();
+		HitLog[nde.Key].Get<1>() += nde.Value.Get<1>();
 	}
 }
 
