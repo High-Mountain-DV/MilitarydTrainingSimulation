@@ -43,17 +43,12 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	UPROPERTY(EditDefaultsOnly)
-	class UCapsuleComponent* CapsuleComp;
-
-	UPROPERTY(EditDefaultsOnly)
-	class USphereComponent* ExplosionRangeComp;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UStaticMeshComponent* GrenedeMeshComp;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* BaseMesh;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* ExplosionRangeComp;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* LeverMesh;

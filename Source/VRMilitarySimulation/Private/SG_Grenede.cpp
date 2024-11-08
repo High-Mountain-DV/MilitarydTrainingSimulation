@@ -19,27 +19,25 @@ ASG_Grenede::ASG_Grenede()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-	CapsuleComp->SetupAttachment(RootComponent);
-	CapsuleComp->SetCapsuleHalfHeight(12.5);
-	CapsuleComp->SetCapsuleRadius(6);
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetupAttachment(RootComponent);
+	BaseMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 
 	ExplosionRangeComp = CreateDefaultSubobject<USphereComponent>(TEXT("ExplosionRangeComp"));
-	ExplosionRangeComp->SetupAttachment(CapsuleComp);
+	ExplosionRangeComp->SetupAttachment(BaseMesh);
 	ExplosionRangeComp->SetSphereRadius(ExplosionRange);
 
-	GrenedeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GrenedeMeshComp"));
-	GrenedeMeshComp->SetupAttachment(CapsuleComp);
-	GrenedeMeshComp->SetRelativeScale3D(FVector(GrenedeSize));
-
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	BaseMesh->SetupAttachment(GrenedeMeshComp);
 	LeverMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeverMesh"));
-	LeverMesh->SetupAttachment(GrenedeMeshComp);
+	LeverMesh->SetupAttachment(BaseMesh);
+	LeverMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	PinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PinMesh"));
-	PinMesh->SetupAttachment(GrenedeMeshComp);
+	PinMesh->SetupAttachment(BaseMesh);
+	PinMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	RingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RingMesh"));
-	RingMesh->SetupAttachment(GrenedeMeshComp);
+	RingMesh->SetupAttachment(BaseMesh);
+	RingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	//FragmentMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FragmentMeshComp"));
 	//FragmentMeshComp->SetupAttachment(CapsuleComp);
@@ -89,8 +87,8 @@ void ASG_Grenede::OnExplosionRangeCompBeginOverlap(UPrimitiveComponent* Overlapp
 	{
 		output += FString::Printf(TEXT("%s / "), *ActorsInRange[i]->GetName());
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
-	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, output);
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
+	//GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, output);
 }
 
 void ASG_Grenede::OnExplosionRangeCompEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -103,14 +101,15 @@ void ASG_Grenede::OnExplosionRangeCompEndOverlap(UPrimitiveComponent* Overlapped
 	{
 		output += FString::Printf(TEXT("%s / "), *ActorsInRange[i]->GetName());
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
-	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, output);
+	/*UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
+	  GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, output);
+	*/
 }
 
 void ASG_Grenede::SetPhysicalOption()
 {
-	CapsuleComp->SetSimulatePhysics(true);
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BaseMesh->SetSimulatePhysics(true);
+	BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ASG_Grenede::Active(class ACharacter* GrenedeInstigator)
@@ -203,14 +202,14 @@ bool ASG_Grenede::ThrowWithCheck(const FVector& TargetLocation)
 		return false;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("ThrowVelocity: %s"), *Velocity.ToString());
-	CapsuleComp->AddImpulse(Velocity);
+	BaseMesh->AddImpulse(Velocity);
 	return true;
 }
 
 void ASG_Grenede::Throw(const FVector& TargetLocation)
 {
 	FVector Velocity = GetThrowVelocityToTarget(TargetLocation);
-	CapsuleComp->AddImpulse(Velocity);
+	BaseMesh->AddImpulse(Velocity);
 }
 
 void ASG_Grenede::ExplodeGrenede()
@@ -260,7 +259,11 @@ void ASG_Grenede::ExplodeGrenede()
 
 	for (int i = 0; i < DamagedActors.Num(); i++)
 	{
-		ApplyExplosionDamage(DamagedActors[i], Directions[i], Dists[i]);
+		if (DamagedActors[i])
+		{
+			UE_LOG(LogTemp, Warning, TEXT("DamagedActor: %s"), *DamagedActors[i]->GetName());
+			ApplyExplosionDamage(DamagedActors[i], Directions[i], Dists[i]);
+		}
 	}
 
 	MulticastRPC_Destroy();

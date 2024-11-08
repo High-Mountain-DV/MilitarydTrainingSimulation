@@ -21,16 +21,22 @@ public:
 	//virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
-	float TimeMultiplier = 1.0f;
+	float TimeMultiplier = 0.7f;
 
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AM_Throw_Grenede;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AM_Toss_Grenede;
+	
+	UPROPERTY(EditAnywhere)
+    bool bDebugBoxOn = false;
 
 	UPROPERTY()
 	class ASG_Enemy* Me;
 
 	UPROPERTY()
-	class UAnimInstance* Anim;
+	class USG_EnemyAnimInstance* Anim;
 
 private:
 	FVector GetThrowVelocityToTarget(const FVector& TargetLocation);
@@ -48,4 +54,6 @@ private:
 	UFUNCTION()
 	void ThrowGrenedeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
+	UPROPERTY()
+	class ASG_Grenede* Grenede;
 };

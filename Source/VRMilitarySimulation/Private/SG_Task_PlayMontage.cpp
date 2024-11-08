@@ -67,7 +67,7 @@ void USG_Task_PlayMontage::OnNotifyBegin(FName NotifyName, const FBranchingPoint
 		if (Anim)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("UnBind"));
-			Anim->OnPlayMontageNotifyEnd.RemoveDynamic(this, &USG_Task_PlayMontage::OnNotifyBegin);
+			Anim->OnPlayMontageNotifyBegin.RemoveDynamic(this, &USG_Task_PlayMontage::OnNotifyBegin);
 		}
 
 		FinishLatentTask(*CurrentOwnerComp, EBTNodeResult::Succeeded);

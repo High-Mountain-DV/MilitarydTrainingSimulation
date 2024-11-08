@@ -57,9 +57,10 @@ ASG_Enemy::ASG_Enemy()
 void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
-	check(GM); if (nullptr == GM) return;
+	HP = MaxHP;
+	SetActorLabel(TEXT("Enemy"));
+	/*GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
+	check(GM); if (nullptr == GM) return;*/
 
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
@@ -403,23 +404,23 @@ void ASG_Enemy::SpawnAndGrabGrenede(const FName& SocketName)
 {
 	FActorSpawnParameters params;
 	params.Instigator = this;
+	params.Owner= this;
 	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenede_Socket")), params);
 	check(Grenede); if (nullptr == Grenede) return;
 
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	Grenede->AttachToComponent(CustomMesh, rules, SocketName);
 
-	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Grenede->CapsuleComp->SetSimulatePhysics(false);
-	Grenede->SetOwner(this);
+	Grenede->BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Grenede->BaseMesh->SetSimulatePhysics(false);
 }
 
 void ASG_Enemy::ThrowGrenede()
 {
 	Grenede->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-	Grenede->CapsuleComp->SetSimulatePhysics(true);
-	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Grenede->BaseMesh->SetSimulatePhysics(true);
+	Grenede->BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Grenede->Active(this);
 
 	//Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
@@ -487,6 +488,7 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 	FString ShooterID;
 	if (Shooter) ShooterID = Shooter->GetActorLabel();
 	UE_LOG(LogTemp, Warning, TEXT("ShooterID: %s"), *ShooterID);
+	if (ShooterID == TEXT("Enemy")) return;
 
 	if (TTuple<int32, float>* ExistingLog = HitLog.Find(ShooterID))
 	{
@@ -498,5 +500,5 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 	{
 		HitLog.Add(ShooterID, TTuple<int32, float>(1, Damage));
 	}
-	GM->AppendHitLog(HitLog);
+	//GM->AppendHitLog(HitLog);
 }

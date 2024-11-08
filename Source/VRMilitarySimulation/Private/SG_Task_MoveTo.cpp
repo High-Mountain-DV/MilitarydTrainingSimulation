@@ -24,7 +24,7 @@ USG_Task_MoveTo::USG_Task_MoveTo()
 
 EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UE_LOG(LogTemp, Warning, TEXT("USG_Task_MoveTo::ExecuteTask"));
+	//UE_LOG(LogTemp, Warning, TEXT("USG_Task_MoveTo::ExecuteTask"));
 	const UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
 	EBTNodeResult::Type NodeResult = EBTNodeResult::InProgress;
 
@@ -68,7 +68,7 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		UE_LOG(LogTemp, Warning, TEXT("FindPathPoints(%s) is Failed"), *TargetLocation.ToString());
 		return EBTNodeResult::Failed;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("TargetLocation: %s"), *TargetLocation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("TargetLocation: %s"), *TargetLocation.ToString());
 	if (bRun)
 		SpeedScale = 1.0f;
 	return EBTNodeResult::InProgress;
