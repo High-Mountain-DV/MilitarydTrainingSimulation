@@ -148,7 +148,7 @@ bool USG_Task_ThrowGrenede::CheckTrajectoryCollision(const FVector& TargetLocati
 	//	}
 	//}
 
-	//return false;
+	return false;
 }
 
 void USG_Task_ThrowGrenede::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
