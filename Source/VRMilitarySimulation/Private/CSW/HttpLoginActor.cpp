@@ -40,6 +40,20 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 		if (bWasSuccessful && response.IsValid() && IsValid(gi))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
+
+			TSharedRef<TJsonReader<TCHAR>> reader = TJsonReaderFactory<TCHAR>::Create(*response->GetContentAsString());
+			TSharedPtr<FJsonObject> result = MakeShareable(new FJsonObject());
+			TMap<FString, FString> returnValue;
+		
+			if (FJsonSerializer::Deserialize(reader, result))
+			{
+				if (result->GetBoolField(TEXT("success")))
+				{
+					TSharedPtr<FJsonObject> data = result->GetObjectField(TEXT("response"));
+					gi->SetUserId(data->GetIntegerField(TEXT("id")));
+					gi->SetUserNickname(data->GetStringField(TEXT("nickname")));
+				}
+			}
 			gi->SetUserToken(response->GetHeader("Authorization"));
 		}
 		else
