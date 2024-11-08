@@ -23,6 +23,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "SG_Grenede.h"
 #include "Engine/EngineTypes.h"
+#include "CSW/CSWGameMode.h"
 
 
 // Sets default values
@@ -57,14 +58,9 @@ void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//if (GEngine)
-	//{
-	//	// 모든 디버그 메시지 비활성화
-	//	GEngine->bEnableOnScreenDebugMessages = false;
+	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
+	check(GM); if (nullptr == GM) return;
 
-	//	// 기존 메시지 제거
-	//	GEngine->ClearOnScreenDebugMessages();
-	//}
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
@@ -77,6 +73,14 @@ void ASG_Enemy::BeginPlay()
 		DebugArrow->SetHiddenInGame(false);
 	}
 
+	//if (GEngine)
+	//{
+	//	// 모든 디버그 메시지 비활성화
+	//	GEngine->bEnableOnScreenDebugMessages = false;
+
+	//	// 기존 메시지 제거
+	//	GEngine->ClearOnScreenDebugMessages();
+	//}
 }
 
 // Called every frame
@@ -473,4 +477,21 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 	{
 		DieProcess(BoneName, ShotDirection, Shooter);
 	}
+
+	
+	FString ShooterID;
+	if (Shooter) ShooterID = Shooter->GetActorLabel();
+	UE_LOG(LogTemp, Warning, TEXT("ShooterID: %s"), *ShooterID);
+
+	if (TTuple<int32, float>* ExistingLog = HitLog.Find(ShooterID))
+	{
+		ExistingLog->Get<0>() += 1;
+		ExistingLog->Get<1>() += Damage;
+		UE_LOG(LogTemp, Warning, TEXT("HitLog Update! %d, %f"), ExistingLog->Get<0>(), ExistingLog->Get<1>());
+	}
+	else
+	{
+		HitLog.Add(ShooterID, TTuple<int32, float>(1, Damage));
+	}
+	GM->AppendHitLog(HitLog);
 }

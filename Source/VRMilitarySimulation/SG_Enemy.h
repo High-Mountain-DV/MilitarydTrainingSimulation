@@ -150,6 +150,10 @@ public:
 	UPROPERTY()
 	class ASG_Grenede* Grenede;
 private:
+	UPROPERTY()
+	class ACSWGameMode* GM;
+	
+	class TMap<FString, struct TTuple<int32, float>> HitLog;
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
 	float hp = MaxHP;

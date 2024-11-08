@@ -12,6 +12,8 @@
 #include "Animation/AnimMontage.h"
 #include "SG_Grenede.h"
 #include <Kismet/KismetSystemLibrary.h>
+#include "Kismet/GameplayStaticsTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 USG_Task_ThrowGrenede::USG_Task_ThrowGrenede()
 {
@@ -117,55 +119,36 @@ FVector USG_Task_ThrowGrenede::GetThrowVelocityToTarget(const FVector& TargetLoc
 
 bool USG_Task_ThrowGrenede::CheckTrajectoryCollision(const FVector& TargetLocation, const FVector& Velocity)
 {
-	UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), TargetLocation, 20, 20, FRotator::ZeroRotator, FColor::Red, 10, 1);
+	//FVector StartPos = Me->GetActorLocation();
+	//// 가상의 물리 객체 생성
+	//FPredictProjectilePathParams PredictParams(
+	//	10.0f,             // 발사체 반지름
+	//	StartPos,          // 시작 위치
+	//	Velocity,          // 초기 속도
+	//	3.0f,             // 최대 시뮬레이션 시간
+	//	ECollisionChannel::ECC_GameTraceChannel9,  // 충돌 채널
+	//	Me                 // 무시할 액터
+	//);
 
-	FVector StartPos = Me->GetActorLocation();
-	FVector CurrVelocity = Velocity;
-	const float TimeStep = 0.1f;  // 0.1초 간격으로 체크
-	const float MaxTime = (TargetLocation - StartPos).Size() / Velocity.Size(); // 예상 도착 시간
-	const float G = -980;
-	const float AirResistanceCoeff = 0.01f; // 공기 저항 계수
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(Me);
-	for (float Time = 0; Time <= MaxTime; Time += TimeStep)
-	{
-		// 포물선 상의 점 계산
-		FVector Position = StartPos + CurrVelocity * Time;
-		Position.Z += G * Time * Time * 0.5f;  // 중력 적용
+	//PredictParams.bTraceComplex = true;
+	//PredictParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	//PredictParams.DrawDebugTime = 5.0f;
 
-		// Velocity 감소 (공기 저항 및 중력 적용)
-		CurrVelocity = CurrVelocity + FVector(0, 0, G * TimeStep); // 중력 가속도 적용
-		CurrVelocity = CurrVelocity - CurrVelocity.GetSafeNormal() * CurrVelocity.Size() * AirResistanceCoeff * TimeStep; // 공기 저항 감속
+	//FPredictProjectilePathResult PredictResult;
 
-		UKismetSystemLibrary::DrawDebugLine(GetWorld(), StartPos, Position, FColor::Purple, 10, 2);
-		// 장애물 체크
-		FHitResult HitResult;
-		// 이전 위치에서 현재 위치까지 LineTrace
-		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartPos, Position, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel9), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true, FColor::Red, FColor::Purple, 5);
-		/*bool bHit = GetWorld()->LineTraceSingleByChannel(
-			HitResult,
-			StartPos,
-			Position,
-			ECC_WorldStatic
-		);*/
+	//// 언리얼 엔진의 물리 기반 예측 사용
+	//bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PredictParams, PredictResult);
 
-		if (bHit)
-		{
-			// 장애물이 있다면 true 반환
-			UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), HitResult.ImpactPoint, 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
-			//UE_LOG(LogTemp, Warning, TEXT("OutHitActor: %s, OutHitComponent: %s"), *HitResult.GetActor()->GetName(), *HitResult.GetComponent()->GetName());
-			float dist = FVector::Dist(HitResult.ImpactPoint, TargetLocation);
-			if (dist >= 100) 
-			{
-				UE_LOG(LogTemp, Warning, TEXT("dist가 %f이라 장애물로 판정"), dist);
-				return true;
-			}
-		}
+	//if (bHit)
+	//{
+	//	float dist = FVector::Dist(PredictResult.HitResult.ImpactPoint, TargetLocation);
+	//	if (dist >= 500.0f)
+	//	{
+	//		return true; // 장애물 있음
+	//	}
+	//}
 
-		StartPos = Position; // 다음 체크를 위해 시작점 업데이트
-	}
-
-	return false; // 장애물이 없으면 false 반환
+	//return false;
 }
 
 void USG_Task_ThrowGrenede::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
