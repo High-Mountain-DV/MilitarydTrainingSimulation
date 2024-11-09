@@ -239,7 +239,7 @@ public:
 		FHitResult& OutHit,
 		const FVector& Start,
 		const FVector& End,
-		ECollisionChannel TraceChannel,
+		ECollisionChannel ExplosionTraceChannel,
 		const struct FCollisionShape& CollisionShape,
 		const struct FCollisionQueryParams& Params,
 		const struct FCollisionResponseParams& ResponseParam

@@ -6,6 +6,14 @@
 #include "GameFramework/Character.h"
 #include "SG_Enemy.generated.h"
 
+UENUM()
+enum class EEnemyAnimMontageType : uint8
+{
+	Reload,
+	Throw_Grenade,
+	Toss_Grenade
+};
+
 UCLASS()
 class VRMILITARYSIMULATION_API ASG_Enemy : public ACharacter
 {
@@ -20,12 +28,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class USkeletalMeshComponent* CustomMesh;
+
+	UPROPERTY()
+	class ASG_EnemyAIController* EnemyAIController;
+	UPROPERTY()
+	class UBehaviorTreeComponent* BehaviorComp;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -35,8 +48,8 @@ public:
 
 	void SetWeapon();
 
-	UFUNCTION()
-	void ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+	void ServerRPC_PlayAnimMontage(EEnemyAnimMontageType MontageType, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+	void ServerRPC_PlayAnimMontage(class UAnimMontage* MontageToPlay, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
@@ -49,13 +62,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* DebugArrow;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "----------------------------------------------Custom----------------------------------------------|Weapon")
 	TSubclassOf<class ASG_WeaponMaster> WeaponClass;
 
-	UPROPERTY(EditDefaultsOnly,	BlueprintReadOnly, Category = "Default|State")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "----------------------------------------------Custom----------------------------------------------|State")
 	float MaxHP = 100;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeapon)
 	class ASG_WeaponMaster* CurrentWeapon;
 
 	UFUNCTION()
@@ -76,13 +89,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DamageProcess(float Damage, const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Damage")
 	float HeadShotMultiplier = 10;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Damage")
 	float BodyShotMultiplier = 5;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Damage")
 	float ArmOrLegShotMultiplier = 4;
 
 	UFUNCTION(BlueprintCallable)
@@ -108,7 +121,7 @@ public:
 	FVector NextTargetLocation;
 	float Speed;
 	bool StartMovement;
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Debug")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Debug")
 	bool PathFindDebug = true;
 
 	float AcceptableRadius = 50;
@@ -128,33 +141,39 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ApplyImpactToBone(const FName& BoneName, const FVector& ShotDirection);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Grenede")
-	float GrenedeForce = 3500;
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Grenede")
-	FVector GrenedeUpVector = FVector(0, 0, .5);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Recoil")
 	float RecoilPitchMinOffset = 4;
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Recoil")
 	float RecoilPitchMaxOffset = 8;
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
-	float RecoilYawMinOffset= -2;
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Recoil")
+	float RecoilYawMinOffset = -2;
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Recoil")
 	float RecoilYawMaxOffset = -2;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Factory")
-	TSubclassOf<class ASG_Grenede> BP_Grenede;
-	UPROPERTY(EditDefaultsOnly, Category = "Default|Factory")
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Factory")
+	TSubclassOf<class ASG_Grenade> BP_Grenade;
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Factory")
 	TSubclassOf<class ASG_DummyEnemy> BP_DummyEnemy;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	FVector GrenedePoint;
 	UPROPERTY()
-	class ASG_Grenede* Grenede;
+	class ASG_Grenade* Grenade;
+
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Montage")
+	TArray<class UAnimMontage*> MontageArray;
+
+	class UBTTask_BlackboardBase* CurrTask;
+
+	FVector GrenadeTargetPoint;
+	float TimeMultiplier;
+	FVector GetThrowVelocityToTarget(const FVector& TargetLocation);
+	UFUNCTION()
+	void ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+	UFUNCTION()
+	void OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 private:
+	FVector GrenadePoint;
 	UPROPERTY()
 	class ACSWGameMode* GM;
-	
+
 	TMap<FString, struct TTuple<int32, float>> HitLog;
 
 	UPROPERTY(ReplicatedUsing = OnRep_HP)
@@ -164,7 +183,7 @@ private:
 	bool bDead;
 	void AI_Move_To(float DeltaTime);
 
-	
+
 
 	UPROPERTY(Replicated)
 	float DestinationAimPitch;
@@ -177,15 +196,12 @@ private:
 	void DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_DieProcess(const FName& BoneName, const FVector&ShotDirection, AActor* Shooter);
+	void ServerRPC_DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnDummyEnemy(const FTransform& SpawnTransform, const FVector& ShotDirection);
 	void Recoil();
 public:
 	void AttachWeapon(const FName& SocketName);
-	void SpawnAndGrabGrenede(const FName& SocketName);
-	void ThrowGrenede();
-private:
-
+	void SpawnAndGrabGrenade(const FName& SocketName);
 };

@@ -21,9 +21,10 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "SG_Grenede.h"
+#include "SG_Grenade.h"
 #include "Engine/EngineTypes.h"
 #include "CSW/CSWGameMode.h"
+#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 
 
 // Sets default values
@@ -49,6 +50,24 @@ ASG_Enemy::ASG_Enemy()
 
 	DebugArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DebugArrow"));
 	DebugArrow->SetupAttachment(RootComponent);
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> tempReloadMontage(TEXT("/Script/Engine.AnimMontage'/Game/MilitarySimulator/JSG/Animations/Weapon/AM_Rifle_Reload.AM_Rifle_Reload'"));
+	if (tempReloadMontage.Succeeded())
+	{
+		MontageArray.Add(tempReloadMontage.Object);
+	}
+	ConstructorHelpers::FObjectFinder<UAnimMontage> tempThrowGrenadeMontage(TEXT("/Script/Engine.AnimMontage'/Game/MilitarySimulator/JSG/Animations/Weapon/AM_Grenade_Throw.AM_Grenade_Throw'"));
+	if (tempThrowGrenadeMontage.Succeeded())
+	{
+		MontageArray.Add(tempThrowGrenadeMontage.Object);
+	}
+	ConstructorHelpers::FObjectFinder<UAnimMontage> tempTossGrenadeMontage(TEXT("/Script/Engine.AnimMontage'/Game/MilitarySimulator/JSG/Animations/Weapon/AM_Grenade_Toss.AM_Grenade_Toss'"));
+	if (tempTossGrenadeMontage.Succeeded())
+	{
+		MontageArray.Add(tempTossGrenadeMontage.Object);
+	}
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel9, ECR_Overlap);
 }
 
 
@@ -98,11 +117,7 @@ void ASG_Enemy::Tick(float DeltaTime)
 	{
 		LerpAimoffset(DeltaTime);
 	}
-	else
-	{
-		/*AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 5);
-		AimYaw = FMath::Lerp(AimYaw, 0, DeltaTime * 5);*/
-	}
+
 	//LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
 }
 
@@ -148,11 +163,20 @@ void ASG_Enemy::SetWeapon()
 	OnRep_CurrentWeapon();
 }
 
-void ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+void ASG_Enemy::ServerRPC_PlayAnimMontage(EEnemyAnimMontageType MontageType, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
 {
 	check(Anim); if (nullptr == Anim) return;
 
-	MulticastRPC_PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+	int32 MontageIdx = static_cast<int32>(MontageType);
+	UE_LOG(LogTemp, Warning, TEXT("MontageIdx: %d"), MontageIdx);
+	MulticastRPC_PlayAnimMontage(MontageArray[MontageIdx], InPlayRate, StartSectionName);
+}
+
+void ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* MontageToPlay, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+{
+	check(Anim); if (nullptr == Anim) return;
+	
+	MulticastRPC_PlayAnimMontage(MontageToPlay, InPlayRate, StartSectionName);
 }
 
 void ASG_Enemy::MulticastRPC_PlayAnimMontage_Implementation(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
@@ -280,6 +304,124 @@ void ASG_Enemy::ShowWeaponMagazine()
 	CurrentWeapon->ShowMagazine();
 }
 
+FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& TargetLocation)
+{
+	// 1. 입력 유효성 검사
+	if (!Grenade)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid actor references"));
+		return FVector::ZeroVector;
+	}
+
+	// 2. 시작 위치 결정
+	FVector CurLocation = Grenade ? Grenade->GetActorLocation() : GetActorLocation();
+
+	// 3. 전체 변위 계산 (높이 차이 포함)
+	FVector Displacement = TargetLocation - CurLocation;
+	float TotalDistance = Displacement.Size();
+
+	// 4. 최소 거리 체크
+	const float MinDistance = 10.0f;
+	if (TotalDistance < MinDistance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target too close, distance: %f"), TotalDistance);
+		return FVector::ZeroVector;
+	}
+
+	// 5. 수평 거리와 높이 차이 계산
+	float HorizontalDistance = FVector(Displacement.X, Displacement.Y, 0.0f).Size();
+	float HeightDifference = Displacement.Z;
+
+	// 6. 물리 상수
+	const float Gravity = -980.0f;  // 실제 중력 가속도 (cm/s^2)
+
+	// 7. 시간 계산 개선
+	float EstimatedTime;
+	if (TimeMultiplier > 0)
+	{
+		// 거리에 따른 비선형 시간 계산
+		EstimatedTime = FMath::Sqrt(2.0f * HorizontalDistance / FMath::Abs(Gravity)) * TimeMultiplier;
+		EstimatedTime = FMath::Clamp(EstimatedTime, 0.1f, 10.0f);  // 합리적인 범위로 제한
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid TimeMultiplier"));
+		return FVector::ZeroVector;
+	}
+
+	// 8. 속도 계산
+	float VerticalVelocity;
+	float HorizontalVelocity;
+
+	// 수직 속도 계산 (높이 차이 고려)
+	VerticalVelocity = (HeightDifference - (0.5f * Gravity * EstimatedTime * EstimatedTime)) / EstimatedTime;
+
+	// 수평 속도 계산
+	HorizontalVelocity = HorizontalDistance / EstimatedTime;
+
+
+	// 9. 최종 속도 벡터 계산
+	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(CurLocation, TargetLocation);
+	FVector HorizontalVelocityVector = FVector(
+		DirectionUnitVector.X * HorizontalVelocity,
+		DirectionUnitVector.Y * HorizontalVelocity,
+		VerticalVelocity
+	);
+
+	// 10. 속도 제한
+	const float MaxVelocity = 10000.0f;  // 최대 속도 제한 (cm/s)
+	if (HorizontalVelocityVector.Size() > MaxVelocity)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Velocity exceeded maximum limit, clamping"));
+		HorizontalVelocityVector = HorizontalVelocityVector.GetClampedToSize(0.0f, MaxVelocity);
+	}
+
+	// 11. 디버그 정보
+	UE_LOG(LogTemp, Log, TEXT("Throw Calculation: Distance=%f, Time=%f, Velocity=%s"),
+		TotalDistance, EstimatedTime, *HorizontalVelocityVector.ToString());
+
+	HorizontalVelocityVector *= FMath::RandRange(0.8f, 0.95f);
+
+	return HorizontalVelocityVector;
+}
+
+void ASG_Enemy::ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("ASG_Enemy::ThrowGrenadeNotifyBegin"));
+	if (NotifyName == TEXT("ThrowGrenade"))
+	{
+		check(Anim); if (nullptr == Anim) return;
+		check(Grenade); if (nullptr == Grenade) return;
+
+		Grenade->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		Grenade->SetPhysicalOption();
+		Grenade->Active(this);
+
+		FVector Velocity = ASG_Grenade::GetThrowVelocityToTarget(Grenade->GetActorLocation(), GrenadeTargetPoint, TimeMultiplier);
+		UE_LOG(LogTemp, Warning, TEXT("Real GrenadeVelocity: %s"), *Velocity.ToString());
+		Grenade->BaseMesh->AddAngularImpulseInDegrees(FVector(0, FMath::RandRange(-500.0f, 500.0f), 0));
+		Grenade->BaseMesh->AddImpulse(Velocity, NAME_None, true);
+		Anim->OnPlayMontageNotifyBegin.RemoveDynamic(this, &ASG_Enemy::ThrowGrenadeNotifyBegin);
+	}
+}
+
+void ASG_Enemy::OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnGrenadeMontageEnded"));
+	int32 ThrowGrenade = static_cast<int32>(EEnemyAnimMontageType::Throw_Grenade);
+	int32 TossGrenade = static_cast<int32>(EEnemyAnimMontageType::Toss_Grenade);
+	if (Montage == MontageArray[ThrowGrenade]|| Montage == MontageArray[TossGrenade])
+	{
+		check(Anim); if (nullptr == Anim) return;
+		Anim->OnMontageEnded.RemoveDynamic(this, &ASG_Enemy::OnGrenadeMontageEnded);
+		
+		check(CurrTask); if (nullptr == CurrTask) return;
+		//UE_LOG(LogTemp, Warning, TEXT("OnGrenadeMontageEnded, BehaviorComp: %s"), *BehaviorComp->GetName());
+		CurrTask->FinishLatentTask(*BehaviorComp, EBTNodeResult::Succeeded);
+		//CurrTask = nullptr;
+	}
+}
+
 void ASG_Enemy::AI_Move_To(float DeltaTime)
 {
 	AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 10);
@@ -400,32 +542,19 @@ void ASG_Enemy::AttachWeapon(const FName& SocketName)
 	WeaponComp->AttachToComponent(GetMesh(), Rules, SocketName);
 }
 
-void ASG_Enemy::SpawnAndGrabGrenede(const FName& SocketName)
+void ASG_Enemy::SpawnAndGrabGrenade(const FName& SocketName)
 {
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner= this;
-	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenede_Socket")), params);
-	check(Grenede); if (nullptr == Grenede) return;
+	Grenade = GetWorld()->SpawnActor<ASG_Grenade>(BP_Grenade, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenade_Socket")), params);
+	check(Grenade); if (nullptr == Grenade) return;
 
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-	Grenede->AttachToComponent(CustomMesh, rules, SocketName);
+	Grenade->AttachToComponent(CustomMesh, rules, SocketName);
 
-	Grenede->BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Grenede->BaseMesh->SetSimulatePhysics(false);
-}
-
-void ASG_Enemy::ThrowGrenede()
-{
-	Grenede->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-	Grenede->BaseMesh->SetSimulatePhysics(true);
-	Grenede->BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Grenede->Active(this);
-
-	//Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
-	bool bGrenedeThrow = Grenede->ThrowWithCheck(GrenedePoint);
-	Grenede = nullptr;
+	Grenade->BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Grenade->BaseMesh->SetSimulatePhysics(false);
 }
 
 void ASG_Enemy::OnRep_CurrentWeapon()

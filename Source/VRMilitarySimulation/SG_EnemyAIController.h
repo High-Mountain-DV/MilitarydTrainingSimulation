@@ -29,6 +29,10 @@ public:
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
+
+	UPROPERTY()
+	class ASG_Enemy* Me;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UBehaviorTree* BT_Enemy;
 
