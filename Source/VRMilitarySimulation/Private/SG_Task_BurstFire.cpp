@@ -8,8 +8,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 EBTNodeResult::Type USG_Task_BurstFire::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	OwnerController = OwnerComp.GetAIOwner();
-	ControlledPawn = Cast<ASG_Enemy>(OwnerController->GetPawn());
+	auto* OwnerController = OwnerComp.GetAIOwner();
+	auto* ControlledPawn = Cast<ASG_Enemy>(OwnerController->GetPawn());
 
 	bool bStopShooting = false;
 	bool bMagazineEmpty = !ControlledPawn->Fire(bStopShooting);

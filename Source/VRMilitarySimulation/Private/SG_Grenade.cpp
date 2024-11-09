@@ -158,10 +158,10 @@ void ASG_Grenade::Active(class ACharacter* GrenadeInstigator)
 	}
 }
 
-FVector ASG_Grenade::GetThrowVelocityToTarget(const FVector& StartLocation, const FVector& TargetLocation, const float TimeMultiplier /*= 0.7f*/)
+FVector ASG_Grenade::GetThrowVelocityToTarget(const FVector& StartLocation, const FVector& _GrenadeTargetPoint, const float TimeMultiplier /*= 0.7f*/)
 {
 	// 3. 전체 변위 계산 (높이 차이 포함)
-	FVector Displacement = TargetLocation - StartLocation;
+	FVector Displacement = _GrenadeTargetPoint - StartLocation;
 	float TotalDistance = Displacement.Size();
 
 	// 4. 최소 거리 체크
@@ -205,7 +205,7 @@ FVector ASG_Grenade::GetThrowVelocityToTarget(const FVector& StartLocation, cons
 
 
 	// 9. 최종 속도 벡터 계산
-	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(StartLocation, TargetLocation);
+	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(StartLocation, _GrenadeTargetPoint);
 	FVector HorizontalVelocityVector = FVector(
 		DirectionUnitVector.X * HorizontalVelocity,
 		DirectionUnitVector.Y * HorizontalVelocity,

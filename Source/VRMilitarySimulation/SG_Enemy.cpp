@@ -81,7 +81,6 @@ void ASG_Enemy::BeginPlay()
 	/*GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
 	check(GM); if (nullptr == GM) return;*/
 
-
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
 
@@ -117,6 +116,7 @@ void ASG_Enemy::Tick(float DeltaTime)
 	{
 		LerpAimoffset(DeltaTime);
 	}
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("SpeedScale: %f"), SpeedScale));
 
 	//LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
 }
@@ -193,11 +193,11 @@ bool ASG_Enemy::Fire(bool& OutStopShooting)
 	return bMagazineEmpty;
 }
 
-void ASG_Enemy::Aim(const FVector TargetLocation)
+void ASG_Enemy::Aim(const FVector& AimTargetLocation)
 {
 	bAiming = true;
 	FVector WeaponLocation = CurrentWeapon->FirePosition->GetComponentLocation();
-	FVector TargetDirection = (TargetLocation - WeaponLocation).GetSafeNormal();
+	FVector TargetDirection = (AimTargetLocation - WeaponLocation).GetSafeNormal();
 
 	// 현재 Actor의 Forward 방향을 기준으로 상대적인 회전값을 계산
 	FVector ActorForward = GetActorForwardVector();
@@ -233,11 +233,11 @@ void ASG_Enemy::MulticastRPC_SetAimOffsetAlpha_Implementation(float AimOffsetAlp
 	Anim->AimOffsetAlpha = AimOffsetAlpha;
 }
 
-bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation, float Radius)
+bool ASG_Enemy::FindPathPoints(const FVector& _TargetLocation, float Radius)
 {
 	PRINTLOG(TEXT(""));
 	PointIndex = 1;
-	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), GetActorLocation(), TargetLocation);
+	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), GetActorLocation(), _TargetLocation);
 	if (!Path)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("!Path"));
@@ -255,7 +255,6 @@ bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation, float Radius)
 	{
 		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Purple, FRotator::ZeroRotator, 10);
 	}
-	Speed = 0.95;
 	StartMovement = true;
 	AcceptableRadius = Radius;
 	if (PathFindDebug)
@@ -289,7 +288,6 @@ bool ASG_Enemy::ArriveAtLocation(FVector Location)
 
 void ASG_Enemy::StopMovement()
 {
-	Speed = 0;
 	StartMovement = false;
 	DirectionVector = GetActorForwardVector();
 }
@@ -304,7 +302,7 @@ void ASG_Enemy::ShowWeaponMagazine()
 	CurrentWeapon->ShowMagazine();
 }
 
-FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& TargetLocation)
+FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& _GrenadeTargetPoint)
 {
 	// 1. 입력 유효성 검사
 	if (!Grenade)
@@ -317,7 +315,7 @@ FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& TargetLocation)
 	FVector CurLocation = Grenade ? Grenade->GetActorLocation() : GetActorLocation();
 
 	// 3. 전체 변위 계산 (높이 차이 포함)
-	FVector Displacement = TargetLocation - CurLocation;
+	FVector Displacement = _GrenadeTargetPoint - CurLocation;
 	float TotalDistance = Displacement.Size();
 
 	// 4. 최소 거리 체크
@@ -361,7 +359,7 @@ FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& TargetLocation)
 
 
 	// 9. 최종 속도 벡터 계산
-	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(CurLocation, TargetLocation);
+	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(CurLocation, _GrenadeTargetPoint);
 	FVector HorizontalVelocityVector = FVector(
 		DirectionUnitVector.X * HorizontalVelocity,
 		DirectionUnitVector.Y * HorizontalVelocity,
@@ -447,7 +445,7 @@ void ASG_Enemy::AI_Move_To(float DeltaTime)
 	SetActorRotation(NewRotation);
 
 	DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-	AddMovementInput(DirectionVector, Speed);
+	AddMovementInput(DirectionVector, SpeedScale);
 	if (ArriveAtLocation(NextTargetLocation))
 	{
 		PointIndex += 1;

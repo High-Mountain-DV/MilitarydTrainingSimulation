@@ -28,26 +28,23 @@ public:
 
     UPROPERTY(EditAnywhere)
     bool bFaceToDirection = true;
-
-    class ASG_Enemy* AIPawn;
 private:
     void DebugPoints(const TArray<FVector>& Array);
-    bool FindPathPoints();
+    bool FindPathPoints(class ASG_Enemy* Me);
+    bool ArriveAtLocation(const FVector& CurrLocation, const FVector& TargetLocation, float _AcceptableRadius);
+    //TArray<FVector> PathPoints;
 
-    TArray<FVector> PathPoints;
+    //FVector TargetLocation;
+    //FVector DirectionVector;
+    //FVector NextTargetLocation;
 
-    FVector TargetLocation;
-    FVector DirectionVector;
-    FVector GetDirectionToTarget();
-    FVector NextTargetLocation;
+    //int32 ZeroVelocityCount = 0;
+    //int32 PointIndex;
 
-    int32 ZeroVelocityCount = 0;
-    int32 PointIndex;
+    //float TempAcceptableRadius = 5;
+    //float SpeedScale = 0.5f;
 
-    float TempAcceptableRadius = 5;
-    float SpeedScale = 0.5f;
-
-    bool ArriveAtLocation(FVector EndLocation, float& OutDist);
-    bool bCloseToTargetLocation = false;
-    bool bCannotMove;
+    //bool bCloseToTargetLocation = false;
+    //bool bCannotMove;
+    void InitEnemyVariables(class ASG_Enemy* Me);
 };

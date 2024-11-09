@@ -55,7 +55,7 @@ public:
 	void MulticastRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
 	bool Fire(bool& OutStopShooting);
-	void Aim(const FVector TargetLocation);
+	void Aim(const FVector& AimTargetLocation);
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UChildActorComponent* WeaponComp;
 
@@ -101,7 +101,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Reloading();
 
-	int32 PointIndex = 1;
 
 	UPROPERTY(BlueprintReadOnly)
 	FVector LeftHandPos;
@@ -116,15 +115,11 @@ public:
 	void MulticastRPC_SetAimOffsetAlpha(float AimOffsetAlpha);
 
 	UFUNCTION(BlueprintCallable)
-	bool FindPathPoints(const FVector& TargetLocation, float Radius);
-	TArray<FVector> PathPoints;
-	FVector NextTargetLocation;
-	float Speed;
-	bool StartMovement;
+	bool FindPathPoints(const FVector& _TargetLocation, float Radius);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Debug")
 	bool PathFindDebug = true;
 
-	float AcceptableRadius = 50;
 
 	UFUNCTION(BlueprintCallable)
 	void DebugPoints(const TArray<FVector>& Array);
@@ -164,11 +159,25 @@ public:
 
 	FVector GrenadeTargetPoint;
 	float TimeMultiplier;
-	FVector GetThrowVelocityToTarget(const FVector& TargetLocation);
+	FVector GetThrowVelocityToTarget(const FVector& _GrenadeTargetPoint);
 	UFUNCTION()
 	void ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 	UFUNCTION()
 	void OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// SG_Task_MoveTo
+	FVector TargetLocation;
+	float SpeedScale = 1.0f;
+	int32 ZeroVelocityCount = 0;
+	bool bCanMove = true;
+	int32 PointIndex = 1;
+	TArray<FVector> PathPoints;
+	FVector NextTargetLocation;
+	float AcceptableRadius = 50;
+	float TempAcceptableRadius;
+	bool StartMovement;
+	bool bDebugMoveTask;
+	bool bFaceToDirection = true;
 private:
 	FVector GrenadePoint;
 	UPROPERTY()
