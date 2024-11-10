@@ -187,13 +187,11 @@ void ASG_WeaponMaster::ShowMagazine()
 void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 {
 	check(FireVFX); if (nullptr == FireVFX) return;
-
-	//PRINTLOG(TEXT("FireVFX 소환"));
-	// 격발 이펙트 소환
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
-
 	check(FireSFX); if (nullptr == FireSFX) return;
 
+	PRINTLOG(TEXT("FireVFX 소환"));
+	// 격발 이펙트 소환
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime, FireAttenuationSetting);
 }
 

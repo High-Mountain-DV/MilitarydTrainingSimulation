@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "BehaviorTree/BTNode.h"
 #include "SG_Task_ThrowGrenade.generated.h"
 
 /**
@@ -18,7 +19,6 @@ public:
 	USG_Task_ThrowGrenade();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	//virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
 	float TimeMultiplier = 0.7f;

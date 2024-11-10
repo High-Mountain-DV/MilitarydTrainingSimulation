@@ -31,20 +31,5 @@ public:
 private:
     void DebugPoints(const TArray<FVector>& Array);
     bool FindPathPoints(class ASG_Enemy* Me);
-    bool ArriveAtLocation(const FVector& CurrLocation, const FVector& TargetLocation, float _AcceptableRadius);
-    //TArray<FVector> PathPoints;
-
-    //FVector TargetLocation;
-    //FVector DirectionVector;
-    //FVector NextTargetLocation;
-
-    //int32 ZeroVelocityCount = 0;
-    //int32 PointIndex;
-
-    //float TempAcceptableRadius = 5;
-    //float SpeedScale = 0.5f;
-
-    //bool bCloseToTargetLocation = false;
-    //bool bCannotMove;
     void InitEnemyVariables(class ASG_Enemy* Me);
 };

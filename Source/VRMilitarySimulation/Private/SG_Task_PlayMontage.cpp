@@ -10,6 +10,8 @@ USG_Task_PlayMontage::USG_Task_PlayMontage()
 {
 	NodeName = TEXT("Play Montage (With Notify)");
 	// Task가 Latent(비동기)임을 표시
+	
+	// 노드를 인스턴스화
 	bCreateNodeInstance = true;
 }
 

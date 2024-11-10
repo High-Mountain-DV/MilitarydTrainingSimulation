@@ -39,7 +39,7 @@ ASG_Grenade::ASG_Grenade()
 	LeverMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeverMesh"));
 	LeverMesh->SetupAttachment(BaseMesh);
 	LeverMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempLeverMesh(TEXT("/Script/Engine.StaticMesh'/Game/MilitarySimulator/JSG/Assets/Grenede/mk2_Lever.mk2_Lever'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempLeverMesh(TEXT("/Script/Engine.StaticMesh'/Game/MilitarySimulator/JSG/Assets/Grenede/mk2_Lever.mk2_Lever'"));
 	if (tempLeverMesh.Succeeded())
 	{
 		LeverMesh->SetStaticMesh(tempLeverMesh.Object);
@@ -48,7 +48,7 @@ ASG_Grenade::ASG_Grenade()
 	PinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PinMesh"));
 	PinMesh->SetupAttachment(BaseMesh);
 	PinMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempPinMesh(TEXT("/Script/Engine.StaticMesh'/Game/MilitarySimulator/JSG/Assets/Grenede/mk2_Pin.mk2_Pin'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempPinMesh(TEXT("/Script/Engine.StaticMesh'/Game/MilitarySimulator/JSG/Assets/Grenede/mk2_Pin.mk2_Pin'"));
 	if (tempPinMesh.Succeeded())
 	{
 		PinMesh->SetStaticMesh(tempPinMesh.Object);
@@ -57,7 +57,7 @@ ASG_Grenade::ASG_Grenade()
 	RingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RingMesh"));
 	RingMesh->SetupAttachment(BaseMesh);
 	RingMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempRingMesh(TEXT("/Script/Engine.StaticMesh'/Game/MilitarySimulator/JSG/Assets/Grenede/mk2_Ring.mk2_Ring'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempRingMesh(TEXT("/Script/Engine.StaticMesh'/Game/MilitarySimulator/JSG/Assets/Grenede/mk2_Ring.mk2_Ring'"));
 	if (tempRingMesh.Succeeded())
 	{
 		RingMesh->SetStaticMesh(tempRingMesh.Object);
@@ -84,7 +84,7 @@ ASG_Grenade::ASG_Grenade()
 	LeverMesh->SetGenerateOverlapEvents(false);
 	PinMesh->SetGenerateOverlapEvents(false);
 	RingMesh->SetGenerateOverlapEvents(false);
-	ConstructorHelpers::FObjectFinder<UParticleSystem> tempExplosionVFX(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempExplosionVFX(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
 	if (tempExplosionVFX.Succeeded())
 	{
 		ExplosionVFX = tempExplosionVFX.Object;

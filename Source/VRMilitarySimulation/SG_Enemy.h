@@ -13,6 +13,21 @@ enum class EEnemyAnimMontageType : uint8
 	Throw_Grenade,
 	Toss_Grenade
 };
+//
+//USTRUCT()
+//struct FHitInfo
+//{
+//    GENERATED_BODY()
+//
+//    UPROPERTY()
+//    int32 Count;
+//
+//    UPROPERTY()
+//    float Value;
+//
+//    FHitInfo() : Count(0), Value(0.0f) {}
+//    FHitInfo(int32 InCount, float InValue) : Count(InCount), Value(InValue) {}
+//};
 
 UCLASS()
 class VRMILITARYSIMULATION_API ASG_Enemy : public ACharacter
@@ -68,7 +83,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "----------------------------------------------Custom----------------------------------------------|State")
 	float MaxHP = 100;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeapon)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	class ASG_WeaponMaster* CurrentWeapon;
 
 	UFUNCTION()
@@ -88,6 +103,8 @@ public:
 	void SetHP(float Value);
 	UFUNCTION(BlueprintCallable)
 	void DamageProcess(float Damage, const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DamageProcess(float Damage, const FVector& ShotDirection, const FString& ShooterID);
 
 	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------|Damage")
 	float HeadShotMultiplier = 10;
@@ -127,8 +144,7 @@ public:
 	FVector GetDirectionToTarget();
 	FVector DirectionVector;
 
-	bool ArriveAtLocation(FVector Location);
-	void StopMovement();
+	static bool ArriveAtLocation(const FVector& CurrLocation, const FVector& TargetLocation, float _AcceptableRadius);
 
 	void HideWeaponMagazine();
 	void ShowWeaponMagazine();
@@ -165,7 +181,11 @@ public:
 	UFUNCTION()
 	void OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
+	UFUNCTION(BlueprintCallable)
+	class ASG_WeaponMaster* GetWeapon();
+
 	// SG_Task_MoveTo
+	bool bAutoMoveActive;
 	FVector TargetLocation;
 	float SpeedScale = 1.0f;
 	int32 ZeroVelocityCount = 0;
@@ -175,7 +195,6 @@ public:
 	FVector NextTargetLocation;
 	float AcceptableRadius = 50;
 	float TempAcceptableRadius;
-	bool StartMovement;
 	bool bDebugMoveTask;
 	bool bFaceToDirection = true;
 private:
@@ -190,7 +209,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool bDead;
-	void AI_Move_To(float DeltaTime);
+	void MoveTo_AutoMove(float DeltaTime);
 
 
 
@@ -202,10 +221,7 @@ private:
 	bool bAiming;
 
 	void LerpAimoffset(float DeltaTime);
-	void DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
-
-	UFUNCTION(Server, Reliable)
-	void ServerRPC_DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter);
+	void DieProcess(const FVector& ShotDirection, const FString& ShooterID);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnDummyEnemy(const FTransform& SpawnTransform, const FVector& ShotDirection);

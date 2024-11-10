@@ -63,7 +63,7 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	Me->TargetLocation = TargetLocation;
 	if (Me->bDebugMoveTask)
 		UKismetSystemLibrary::DrawDebugBox(GetWorld(), Me->TargetLocation, FVector(30), FColor::Red, FRotator(45, 45, 0), 7.5f);
-	if (ArriveAtLocation(Me->GetActorLocation(), Me->TargetLocation, Me->AcceptableRadius))
+	if (ASG_Enemy::ArriveAtLocation(Me->GetActorLocation(), Me->TargetLocation, Me->AcceptableRadius))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("이미 접근, MoveTo 노드 중단"));
 		return EBTNodeResult::Succeeded;
@@ -75,6 +75,8 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		UE_LOG(LogTemp, Warning, TEXT("FindPathPoints(%s) is Failed"), *TargetLocation.ToString());
 		return EBTNodeResult::Failed;
 	}
+
+	Me->bAutoMoveActive = false;
 	return EBTNodeResult::InProgress;
 }
 
@@ -138,7 +140,7 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 				UKismetSystemLibrary::DrawDebugBox(GetWorld(), Me->NextTargetLocation, FVector(30), FColor::Purple, FRotator::ZeroRotator, DeltaSeconds);
 		}
 	}
-	if (ArriveAtLocation(Me->GetActorLocation(), Me->NextTargetLocation, Me->TempAcceptableRadius))
+	if (ASG_Enemy::ArriveAtLocation(Me->GetActorLocation(), Me->NextTargetLocation, Me->TempAcceptableRadius))
 	{
 		Me->PointIndex += 1;
 		Me->ZeroVelocityCount = 0;
@@ -194,18 +196,11 @@ void USG_Task_MoveTo::DebugPoints(const TArray<FVector>& Array)
 	}
 }
 
-bool USG_Task_MoveTo::ArriveAtLocation(const FVector& CurrLocation, const FVector& TargetLocation, float _AcceptableRadius)
-{
-	float Dist = FVector::Distance(CurrLocation, FVector(TargetLocation.X, TargetLocation.Y, CurrLocation.Z));
-	return (Dist <= _AcceptableRadius);
-}
 void USG_Task_MoveTo::InitEnemyVariables(class ASG_Enemy* Me)
 {
 	Me->TargetLocation = FVector::ZeroVector;
 
-	//테스트를 위해 잠시 SpeedScale을 1로 고정
 	Me->SpeedScale = bRun ? 1.0f : 0.75f;
-	//Me->SpeedScale = .75f;
 	Me->ZeroVelocityCount = 0;
 	Me->bCanMove = true;
 	Me->PointIndex = 1;
