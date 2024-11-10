@@ -92,7 +92,6 @@ public:
 	FString StringBase64Encode(const FString& str);
 	FString StringBase64Decode(const FString& str);
 
-	void SetUserToken(const FString& token);
 
 
 
@@ -118,11 +117,20 @@ public:
 	
 	void GoReportRoom();
 
-	const FString& GetUserId() const;
+	// setter, getter ====================
+	void SetUserToken(const FString& token);
+	void SetUserId(int32 id);
+	void SetUserNickname(const FString& nickname);
 	
+	const int32& GetUserId() const;
+
+	UFUNCTION(BlueprintCallable)
+	const FString& GetNickname() const;
+
+	const FString& GetUserToken() const;
 private:
 	FString UserToken;
-	FString UserId;
+	int32 UserId;
 	FString UserNickname;
 	FString RecentCombatData;
 

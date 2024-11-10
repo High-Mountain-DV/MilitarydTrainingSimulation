@@ -16,6 +16,7 @@ class VRMILITARYSIMULATION_API UJsonParseLib : public UBlueprintFunctionLibrary
 
 public:
 	static FString ParseJson(const FString& json);
+	
 
 	static FString MakeJson(const TMap<FString, FString>& source);
 };
