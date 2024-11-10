@@ -9,16 +9,16 @@ FString UJsonParseLib::ParseJson(const FString& json)
 	TSharedPtr<FJsonObject> result = MakeShareable(new FJsonObject());
 	FString returnValue;
 
-	// if (FJsonSerializer::Deserialize(reader, result))
-	// {
-	// 	TArray<TSharedPtr<FJsonValue>> parseDataList = result->GetArrayField(TEXT("items"));
-	// 	for (TSharedPtr<FJsonValue> data : parseDataList)
-	// 	{
-	// 		FString bookName = data->AsObject()->GetStringField("bk_nm");
-	// 		FString authorName = data->AsObject()->GetStringField("aut_nm");
-	// 		returnValue.Append(FString::Printf(TEXT("BookName : %s / AuthorName : %s\n"), *bookName, *authorName));
-	// 	}
-	// }
+	if (FJsonSerializer::Deserialize(reader, result))
+	{
+		TArray<TSharedPtr<FJsonValue>> parseDataList = result->GetArrayField(TEXT("items"));
+		for (TSharedPtr<FJsonValue> data : parseDataList)
+		{
+			FString bookName = data->AsObject()->GetStringField("bk_nm");
+			FString authorName = data->AsObject()->GetStringField("aut_nm");
+			returnValue.Append(FString::Printf(TEXT("BookName : %s / AuthorName : %s\n"), *bookName, *authorName));
+		}
+	}
 
 	return returnValue;
 }

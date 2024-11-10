@@ -9,6 +9,24 @@
 /**
  * 
  */
+USTRUCT()
+struct FReportData
+{
+	GENERATED_BODY()
+
+	FString nickname;
+	float playTime;
+	float accuracy;
+	int32 kill;
+	int32 injuredPlayer;
+	int32 deadPlayer;
+
+	FReportData()
+		: playTime(0), accuracy(0), kill(0), injuredPlayer(0), deadPlayer(0)
+	{
+	}
+};
+
 UCLASS()
 class VRMILITARYSIMULATION_API UReportWidget : public UUserWidget
 {
@@ -23,9 +41,29 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UButton* ButtonReplay;
 
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* Text_Nickname;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_PlayTime;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_Accuracy;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_Kill;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_Injured;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_Dead;
+
 	UFUNCTION()
 	void OnClickGoLobby();
 
 	UFUNCTION()
 	void OnClickReplay();
+
+	void SetReportData(const FReportData& data);
 };

@@ -9,6 +9,44 @@
 /**
  * 
  */
+USTRUCT(BlueprintType)
+struct FUserLog
+{
+	GENERATED_BODY()
+
+	float damageDealt;
+	int32 assist;
+	int32 kill;
+	int32 hitBullet;
+	int32 shootBullet;
+	int32 awareness;
+	
+	FUserLog()
+		: damageDealt(0), assist(0), kill(0), hitBullet(0), shootBullet(0), awareness(0)
+	{
+	}
+
+	float GetAccuracy()
+	{
+		return shootBullet == 0 ? 0 : (float)hitBullet / (float)shootBullet;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FGameLog
+{
+	GENERATED_BODY()
+
+	int32 injuredPlayer;
+	int32 deadPlayer;
+	float playTime;
+
+	FGameLog()
+		: injuredPlayer(0), deadPlayer(0), playTime(0)
+	{
+	}
+};
+
 UCLASS()
 class VRMILITARYSIMULATION_API ACSWGameMode : public AGameModeBase
 {
@@ -18,21 +56,28 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, FString id);
-
-
-	void AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog);
+	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname);
+	
+	void AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog, const FString& killer = "");
 
 	void AppendShootLog(const FString& id, int shootingCnt);
 
+	void AppendAwareLog(const TArray<FString>& encounter, const TArray<FString>& damaged);
+
 	UFUNCTION(BlueprintCallable)
 	void EndGame();
+
+	void OnCompleteEndGame();
 	
 	void CollectPlayerLog();
 	void CollectEnemyLog();
-	void PostCombatLog(const FString& id);
+	
+	void PostCombatLog(const FString& nickname);
 private:
-	TArray<FString> UserIds;
-	TMap<FString, TTuple<int32, float>> HitLog;
-	TMap<FString, int> ShootLog;
+	TArray<FString> UserNicknames;
+	TMap<FString, FUserLog> UserLogs;
+	FGameLog GameLog;
+
+	int32 EndPlayerCnt = 0;
+	int32 PlayTime;
 };
