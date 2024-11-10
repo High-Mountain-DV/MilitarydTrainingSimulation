@@ -258,6 +258,16 @@ void UCSWGameInstance::SetUserToken(const FString& token)
 	GetWorld()->ServerTravel("/Game/MilitarySimulator/CSW/Maps/VRLobbyMap");
 }
 
+void UCSWGameInstance::SetUserId(int32 id)
+{
+	UserId = id;
+}
+
+void UCSWGameInstance::SetUserNickname(const FString& nickname)
+{
+	UserNickname = nickname;
+}
+
 void UCSWGameInstance::StartRecording()
 {
 	StartRecordingReplay(RecordingName, FriendlyRecordingName);	
@@ -293,9 +303,19 @@ void UCSWGameInstance::GoReportRoom()
 	GetWorld()->ServerTravel(ReportRoomURL);
 }
 
-const FString& UCSWGameInstance::GetUserId() const
+const int32& UCSWGameInstance::GetUserId() const
 {
 	return UserId;
+}
+
+const FString& UCSWGameInstance::GetNickname() const
+{
+	return UserNickname;
+}
+
+const FString& UCSWGameInstance::GetUserToken() const
+{
+	return UserToken;
 }
 
 
