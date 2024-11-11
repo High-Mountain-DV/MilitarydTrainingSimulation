@@ -30,11 +30,11 @@ void ACSWGameMode::BeginPlay()
 
 
 	// tmp
-	  FTimerHandle handle;
-	  GetWorld()->GetTimerManager().SetTimer(handle, [this]()
-	  {
-		this->EndGame();
-  }, 10.f, false);
+	 //  FTimerHandle handle;
+	 //  GetWorld()->GetTimerManager().SetTimer(handle, [this]()
+	 //  {
+		// this->EndGame();
+  // }, 10.f, false);
 }
 
 void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname)
