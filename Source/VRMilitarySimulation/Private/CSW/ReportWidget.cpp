@@ -39,7 +39,7 @@ void UReportWidget::SetReportData(const FReportData& data)
 {
 	Text_Nickname->SetText(FText::FromString(data.nickname));
 	Text_PlayTime->SetText(FText::FromString(FString::SanitizeFloat(data.playTime)));
-	Text_Accuracy->SetText(FText::FromString(FString::SanitizeFloat(data.playTime)));
+	Text_Accuracy->SetText(FText::FromString(FString::SanitizeFloat(data.accuracy)));
 	Text_Kill->SetText(FText::FromString(FString::FromInt(data.kill)));
 	Text_Injured->SetText(FText::FromString(FString::FromInt(data.injuredPlayer)));
 	Text_Dead->SetText(FText::FromString(FString::FromInt(data.injuredPlayer)));

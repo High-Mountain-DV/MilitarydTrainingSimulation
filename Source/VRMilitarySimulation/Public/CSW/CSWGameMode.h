@@ -26,7 +26,7 @@ struct FUserLog
 	{
 	}
 
-	float GetAccuracy()
+	float GetAccuracy() const
 	{
 		return shootBullet == 0 ? 0 : (float)hitBullet / (float)shootBullet;
 	}
@@ -72,12 +72,18 @@ public:
 	void CollectPlayerLog();
 	void CollectEnemyLog();
 	
-	void PostCombatLog(const FString& nickname);
+	void PostCombatLog(const FString& nickname, const FUserLog& userLog);
 private:
-	TArray<FString> UserNicknames;
+	UPROPERTY()
+	class AHttpActor* HttpActor;
+
 	TMap<FString, FUserLog> UserLogs;
 	FGameLog GameLog;
 
 	int32 EndPlayerCnt = 0;
+	int32 DeadPlayerCnt = 0;
+	int32 DeadEnemyCnt = 0;
+	int32 EnemyCnt = 0;
+	int32 PlayerCnt = 0;
 	int32 PlayTime;
 };

@@ -19,7 +19,22 @@ void ACSWGameMode::BeginPlay()
 	auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	if (gi)
 		gi->StartRecording();
+
 	GameLog.playTime = GetWorld()->GetTimeSeconds();
+
+	HttpActor = Cast<AHttpActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AHttpActor::StaticClass()));
+
+	TArray<AActor *> outActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASG_Enemy::StaticClass(), outActors);
+	EnemyCnt = outActors.Num();
+
+
+	// tmp
+	  FTimerHandle handle;
+	  GetWorld()->GetTimerManager().SetTimer(handle, [this]()
+	  {
+		this->EndGame();
+  }, 10.f, false);
 }
 
 void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname)
@@ -27,7 +42,8 @@ void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, co
 	auto* CommenderScreen = Cast<ACommenderScreen>(UGameplayStatics::GetActorOfClass(GetWorld(), ACommenderScreen::StaticClass()));
 	if (CommenderScreen)
 		CommenderScreen->AddPlayerScreen(CamMtl);
-	UserNicknames.Add(nickname);
+	UserLogs.Add(nickname, FUserLog());
+	PlayerCnt++;
 }
 
 void ACSWGameMode::EndGame()
@@ -35,8 +51,9 @@ void ACSWGameMode::EndGame()
 	CollectPlayerLog();
 	CollectEnemyLog();
 	GameLog.playTime = GetWorld()->GetTimeSeconds() - GameLog.playTime;
-	for (auto nickname : UserNicknames)
-		PostCombatLog(nickname);
+	GameLog.deadPlayer = DeadPlayerCnt;
+	for (auto nde : UserLogs)
+		PostCombatLog(nde.Key, nde.Value);
 
 
 	//tmp
@@ -52,7 +69,7 @@ void ACSWGameMode::EndGame()
 
 void ACSWGameMode::OnCompleteEndGame()
 {
-	if (++EndPlayerCnt == UserNicknames.Num())
+	if (++EndPlayerCnt == UserLogs.Num())
 	{
 		auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 
@@ -111,12 +128,9 @@ void ACSWGameMode::CollectEnemyLog()
 
 
 
-void ACSWGameMode::PostCombatLog(const FString& nickname)
+void ACSWGameMode::PostCombatLog(const FString& nickname, const FUserLog& userLog)
 {
-	AHttpActor actor;
-	
 	TMap<FString, FString> header;
-	TMap<FString, FString> body;
 
 	//make header
 	auto gi = Cast<UCSWGameInstance>(GetGameInstance());
@@ -126,43 +140,44 @@ void ACSWGameMode::PostCombatLog(const FString& nickname)
 	// make body
 	TSharedPtr<FJsonObject> jsonObject = MakeShareable(new FJsonObject());
 
-	auto userLog = UserLogs.Find(nickname); 
-
-	jsonObject->SetNumberField("damage_dealt", userLog->damageDealt);
-	jsonObject->SetNumberField("assist", userLog->assist);
-	jsonObject->SetNumberField("play_time", GameLog.playTime);
-	jsonObject->SetNumberField("accuracy", userLog->GetAccuracy());
+	jsonObject->SetNumberField("damageDealt", userLog.damageDealt);
+	jsonObject->SetNumberField("assists", userLog.assist);
+	jsonObject->SetNumberField("playTime", GameLog.playTime);
+	jsonObject->SetNumberField("accuracy", userLog.GetAccuracy());
 	jsonObject->SetNumberField("score", 0);
 	jsonObject->SetStringField("nickname", nickname);
-	jsonObject->SetNumberField("awareness", userLog->awareness);
-	jsonObject->SetNumberField("ally_injuries", GameLog.injuredPlayer);
-	jsonObject->SetNumberField("ally_deaths", GameLog.deadPlayer);
-	jsonObject->SetNumberField("kills", userLog->kill);
+	jsonObject->SetNumberField("awareness", userLog.awareness);
+	jsonObject->SetNumberField("allyInjuries", GameLog.injuredPlayer);
+	jsonObject->SetNumberField("allyDeaths", GameLog.deadPlayer);
+	jsonObject->SetNumberField("kills", userLog.kill);
 
 	FString json;
 	TSharedRef<TJsonWriter<TCHAR>> writer = TJsonWriterFactory<TCHAR>::Create(&json);
 	FJsonSerializer::Serialize(jsonObject.ToSharedRef(), writer);
 	
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *UJsonParseLib::MakeJson(body));
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *json);
 	//post
-	actor.Request(
-		"/api/combat",
-		"POST",
-		header,
-		UJsonParseLib::MakeJson(body),
-		[this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
-		{
-			if (bWasSuccessful && response.IsValid())
+	if (IsValid(HttpActor))
+	{
+		HttpActor->Request(
+			"/api/combats",
+			"POST",
+			header,
+			*json,
+			[this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
-				OnCompleteEndGame();
+				if (bWasSuccessful && response.IsValid())
+				{
+					UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
+					OnCompleteEndGame();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Request failed"));
+				}
 			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Request failed"));
-			}
-		}
-	);
+		);
+	}
 }
 
 void ACSWGameMode::AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog, const FString& killer)
@@ -182,13 +197,20 @@ void ACSWGameMode::AppendHitLog(const TMap<FString, struct TTuple<int32, float>>
 				userLog->assist++;
 		}
 	}
+	if (++DeadEnemyCnt == EnemyCnt)
+		EndGame();
 }
 
 void ACSWGameMode::AppendShootLog(const FString& nickname, int shootingCnt)
 {
 	auto* userLog = UserLogs.Find(nickname);
 
+	if (!userLog)
+		userLog = &UserLogs.Add(nickname, FUserLog());
 	userLog->shootBullet += shootingCnt;
+
+	if (++DeadPlayerCnt == PlayerCnt)
+		EndGame();
 }
 
 void ACSWGameMode::AppendAwareLog(const TArray<FString>& encounter, const TArray<FString>& damaged)
