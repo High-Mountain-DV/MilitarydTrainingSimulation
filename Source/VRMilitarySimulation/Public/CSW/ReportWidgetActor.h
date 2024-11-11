@@ -19,7 +19,7 @@ public:
 	void RequestReport();
 
 private:
-	FString RegisterPath = "/api/combat/";
+	FString RegisterPath = "/api/combats/user";
 	FString RegisterMethod = "GET";
 
 	

@@ -74,6 +74,9 @@ public:
 	
 	void PostCombatLog(const FString& nickname);
 private:
+	UPROPERTY()
+	class AHttpActor* HttpActor;
+
 	TArray<FString> UserNicknames;
 	TMap<FString, FUserLog> UserLogs;
 	FGameLog GameLog;
