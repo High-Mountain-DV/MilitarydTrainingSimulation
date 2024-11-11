@@ -178,6 +178,10 @@ public:
 	FVector GetThrowVelocityToTarget(const FVector& _GrenadeTargetPoint);
 	UFUNCTION()
 	void ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_ThrowGrenade(const FVector& GrenadeVelocity);
+
 	UFUNCTION()
 	void OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 

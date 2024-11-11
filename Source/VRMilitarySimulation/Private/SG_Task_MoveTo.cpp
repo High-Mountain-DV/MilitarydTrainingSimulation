@@ -96,7 +96,7 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 
 	if (Me->bFaceToDirection)
 	{
-		// 현재 액터의 rotation을 구합니다
+		// 현재 액터의 rotation을 구함
 		FRotator CurrentRotation = Me->GetActorRotation();
 
 		// DirectionVector를 회전값으로 변환
