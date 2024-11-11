@@ -44,6 +44,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	static bool CheckTrajectoryCollision(const UObject* WorldContextObject, const FVector& StartLocation, const FVector& TargetLocation, const FVector& Velocity, class AActor* ActorToIgnore = nullptr, bool bDebugBoxOn = false);
+	static FVector GetThrowVelocityToTarget(const FVector& StartLocation, const FVector& TargetLocation, const float TimeMultiplier = 0.7f);
+
+	// Component
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* BaseMesh;
 
@@ -59,6 +63,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* RingMesh;
 
+	// Custom Variables
 	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------")
 	float DelayTime = 5.0f;
 
@@ -71,29 +76,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------")
 	float ExplosionRangeRadius = 600;
 
+	// Inner Variables
 	UPROPERTY()
 	TArray<AActor* > ActorsInRange;
+
+	void Active(class ACharacter* GrenadeInstigator);
+	
+private:
+	void Explode();
+	void ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist);
 
 	UFUNCTION()
 	void OnExplosionRangeCompBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnExplosionRangeCompEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	void SetPhysicalOption();
-
-	UFUNCTION(BlueprintCallable)
-	void Active(class ACharacter* GrenadeInstigator);
-	static bool CheckTrajectoryCollision(const UObject* WorldContextObject, const FVector& StartLocation, const FVector& TargetLocation, const FVector& Velocity, class AActor* ActorToIgnore = nullptr, bool bDebugBoxOn = false);
-	void Throw(const FVector& TargetLocation);
-	static FVector GetThrowVelocityToTarget(const FVector& StartLocation, const FVector& TargetLocation, const float TimeMultiplier = 0.7f);
-private:
-	void ExplodeGrenade();
-	void ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_SpawnEmitterAtLocation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy = true);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_Destroy();
 };

@@ -386,22 +386,28 @@ FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& _GrenadeTargetPoint)
 
 void ASG_Enemy::ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("ASG_Enemy::ThrowGrenadeNotifyBegin"));
+	UE_LOG(LogTemp, Warning, TEXT("ASG_Enemy::ThrowGrenadeNotifyBegin"));
 	if (NotifyName == TEXT("ThrowGrenade"))
 	{
 		check(Anim); if (nullptr == Anim) return;
 		check(Grenade); if (nullptr == Grenade) return;
 
-		Grenade->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		Grenade->SetPhysicalOption();
-		Grenade->Active(this);
-
 		FVector Velocity = ASG_Grenade::GetThrowVelocityToTarget(Grenade->GetActorLocation(), GrenadeTargetPoint, TimeMultiplier);
-		UE_LOG(LogTemp, Warning, TEXT("Real GrenadeVelocity: %s"), *Velocity.ToString());
-		Grenade->BaseMesh->AddAngularImpulseInDegrees(FVector(0, FMath::RandRange(-500.0f, 500.0f), 0));
-		Grenade->BaseMesh->AddImpulse(Velocity, NAME_None, true);
+		MulticastRPC_ThrowGrenade(Velocity);
+
 		Anim->OnPlayMontageNotifyBegin.RemoveDynamic(this, &ASG_Enemy::ThrowGrenadeNotifyBegin);
 	}
+}
+
+void ASG_Enemy::MulticastRPC_ThrowGrenade_Implementation(const FVector& GrenadeVelocity)
+{
+	check(Grenade); if (nullptr == Grenade) return;
+	
+	Grenade->Active(this);
+	Grenade->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	PRINTLOG(TEXT("GrenadeVelocity: %s"), *GrenadeVelocity.ToString());
+	Grenade->BaseMesh->AddImpulse(GrenadeVelocity, NAME_None, true);
 }
 
 void ASG_Enemy::OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -412,12 +418,11 @@ void ASG_Enemy::OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	if (Montage == MontageArray[ThrowGrenade] || Montage == MontageArray[TossGrenade])
 	{
 		check(Anim); if (nullptr == Anim) return;
-		Anim->OnMontageEnded.RemoveDynamic(this, &ASG_Enemy::OnGrenadeMontageEnded);
-
 		check(CurrTask); if (nullptr == CurrTask) return;
-		//UE_LOG(LogTemp, Warning, TEXT("OnGrenadeMontageEnded, BehaviorComp: %s"), *BehaviorComp->GetName());
+		
+		Anim->OnMontageEnded.RemoveDynamic(this, &ASG_Enemy::OnGrenadeMontageEnded);
 		CurrTask->FinishLatentTask(*BehaviorComp, EBTNodeResult::Succeeded);
-		//CurrTask = nullptr;
+		CurrTask = nullptr;
 	}
 }
 
@@ -540,12 +545,11 @@ void ASG_Enemy::SpawnAndGrabGrenade(const FName& SocketName)
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner = this;
-	Grenade = GetWorld()->SpawnActor<ASG_Grenade>(BP_Grenade, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenade_Socket")), params);
+	FTransform GrenadeSocketTransform = CustomMesh->GetSocketTransform(TEXT("Enemy_Grenade_Socket"));
+	Grenade = GetWorld()->SpawnActor<ASG_Grenade>(BP_Grenade, GrenadeSocketTransform, params);
 	check(Grenade); if (nullptr == Grenade) return;
-
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	Grenade->AttachToComponent(CustomMesh, rules, SocketName);
-
 	Grenade->BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Grenade->BaseMesh->SetSimulatePhysics(false);
 }
@@ -653,7 +657,7 @@ void ASG_Enemy::DieProcess(const FVector& ShotDirection, const FString& ShooterI
 
 	MulticastRPC_SpawnDummyEnemy(spawnTransform, ShotDirection);
 
-	GM->AppendHitLog(HitLog);
+	if (GM)	GM->AppendHitLog(HitLog);
 	Destroy();
 }
 
