@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystem.h"
 #include "Components/ArrowComponent.h"
+#include "../VRMilitarySimulation.h"
 
 // Sets default values
 ASG_Grenade::ASG_Grenade()
@@ -96,8 +97,12 @@ void ASG_Grenade::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ExplosionRangeComp->OnComponentBeginOverlap.AddDynamic(this, &ASG_Grenade::OnExplosionRangeCompBeginOverlap);
-	ExplosionRangeComp->OnComponentEndOverlap.AddDynamic(this, &ASG_Grenade::OnExplosionRangeCompEndOverlap);
+	if (HasAuthority())
+	{
+		ExplosionRangeComp->OnComponentBeginOverlap.AddDynamic(this, &ASG_Grenade::OnExplosionRangeCompBeginOverlap);
+		ExplosionRangeComp->OnComponentEndOverlap.AddDynamic(this, &ASG_Grenade::OnExplosionRangeCompEndOverlap);
+		UE_LOG(LogTemp, Warning, TEXT("ASG_Grenade Has Ahthority"));
+	}
 }
 
 // Called every frame
@@ -136,19 +141,22 @@ void ASG_Grenade::OnExplosionRangeCompEndOverlap(UPrimitiveComponent* Overlapped
 
 }
 
-void ASG_Grenade::SetPhysicalOption()
-{
-	BaseMesh->SetSimulatePhysics(true);
-	BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-}
-
 void ASG_Grenade::Active(class ACharacter* GrenadeInstigator)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("!!!Grenade Active!!!")));
+
+	// Physical Setting
+	BaseMesh->SetSimulatePhysics(true);
+	BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	// Explosion Timer Setting
+	FTimerHandle ExplosionHandle;
+	GetWorld()->GetTimerManager().SetTimer(ExplosionHandle, this, &ASG_Grenade::Explode, DelayTime, false);
+
+	// If Server Grenade, Explosion Collision Setting
 	if (HasAuthority())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("!!!Grenade Active!!!")));
-		FTimerHandle ExplosionHandle, ExplosionRangeCollisionHandle;
-		GetWorld()->GetTimerManager().SetTimer(ExplosionHandle, this, &ASG_Grenade::ExplodeGrenade, DelayTime, false);
+		FTimerHandle ExplosionRangeCollisionHandle;
 		GetWorld()->GetTimerManager().SetTimer(ExplosionRangeCollisionHandle, [this]()
 			{
 				ExplosionRangeComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -276,21 +284,27 @@ bool ASG_Grenade::CheckTrajectoryCollision(const UObject* WorldContextObject, co
 	return false;
 }
 
-void ASG_Grenade::Throw(const FVector& TargetLocation)
+void ASG_Grenade::Explode()
 {
-	FVector Velocity = GetThrowVelocityToTarget(GetActorLocation(), TargetLocation);
-	BaseMesh->AddImpulse(Velocity);
-}
+	PRINTLOG(TEXT("Grenade's Location: %s"), *GetActorLocation().ToString());
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation()), true);
+	// 수류탄 폭발 소리를 출력할 코드
+	//UGameplayStatics::PlaySoundAtLocation()
 
-void ASG_Grenade::ExplodeGrenade()
-{
-	MulticastRPC_SpawnEmitterAtLocation(ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation(), FVector(10)), true);
+	// If Client Grenade, Destroy
+	if (!GetOwner()->HasAuthority())
+	{
+		Destroy();
+		return;
+	}
+
+	// If Server Grenade, Process to Apply Damage
 	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 10.0f, this, 3000, TEXT("Grenade"));
 	TArray<AActor*> DamagedActors;
 	TArray<FVector> Directions;
 	TArray<float> Dists;
 
-	//UE_LOG(LogTemp, Warning, TEXT("ExplodeGrenade, TargetNums: %d"), ActorsInRange.Num());
+	//UE_LOG(LogTemp, Warning, TEXT("Explode, TargetNums: %d"), ActorsInRange.Num());
 	FString output = TEXT("ActorsInRange: ");
 	for (int i = 0; i < ActorsInRange.Num(); i++)
 	{
@@ -299,8 +313,7 @@ void ASG_Grenade::ExplodeGrenade()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
 	ETraceTypeQuery tracechannel = UEngineTypes::ConvertToTraceType(ExplosionTraceChannel);
 	FVector start = GetActorLocation();
-	TArray<AActor*>ActorsToIgnore;
-	ActorsToIgnore.Add(this);
+	TArray<AActor*>ActorsToIgnore; ActorsToIgnore.Add(this);
 	FVector ReferenceLocation = GetActorLocation(); // 현재 액터의 위치
 	ActorsInRange.Sort(FActorDistanceSortPredicate(ReferenceLocation));
 	for (AActor* actorInRange : ActorsInRange)
@@ -347,8 +360,8 @@ void ASG_Grenade::ExplodeGrenade()
 			}
 		}
 
-		MulticastRPC_Destroy();
 	}
+	Destroy();
 }
 void ASG_Grenade::ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist)
 {
@@ -382,16 +395,3 @@ void ASG_Grenade::ApplyExplosionDamage(AActor* HitActor, const FVector& Directio
 		}
 	}
 }
-
-void ASG_Grenade::MulticastRPC_SpawnEmitterAtLocation_Implementation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy /*= true*/)
-{
-	UE_LOG(LogTemp, Warning, TEXT("MulticastRPC_SpawnEmitterAtLocation_Implementation, %s"), *ParticleToSpawn->GetName());
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleToSpawn, SpawnTransform, bAutoDestroy);
-}
-
-void ASG_Grenade::MulticastRPC_Destroy_Implementation()
-{
-	Destroy();
-}
-
-
