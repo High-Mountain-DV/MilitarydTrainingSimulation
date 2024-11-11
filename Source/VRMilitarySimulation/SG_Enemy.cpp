@@ -653,7 +653,7 @@ void ASG_Enemy::DieProcess(const FVector& ShotDirection, const FString& ShooterI
 
 	MulticastRPC_SpawnDummyEnemy(spawnTransform, ShotDirection);
 
-	//GM->AppendHitLog(HitLog);
+	GM->AppendHitLog(HitLog);
 	Destroy();
 }
 
