@@ -37,6 +37,17 @@ void ACSWGameMode::EndGame()
 	GameLog.playTime = GetWorld()->GetTimeSeconds() - GameLog.playTime;
 	for (auto nickname : UserNicknames)
 		PostCombatLog(nickname);
+
+
+	//tmp
+	auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+
+	if (gi)
+	{
+		gi->StopRecording();
+		gi->ExitSession();
+		gi->GoReportRoom();
+	}
 }
 
 void ACSWGameMode::OnCompleteEndGame()

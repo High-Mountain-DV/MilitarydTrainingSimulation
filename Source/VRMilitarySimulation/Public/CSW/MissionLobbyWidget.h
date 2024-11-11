@@ -40,7 +40,7 @@ public:
 
 	// Create Room=========================================
 	UFUNCTION()
-	void CR_OnClickCreateRoom();
+	void CR_OnClickGoNext();
 
 	UFUNCTION()
 	void CR_OnClickGoMenu();
@@ -49,7 +49,7 @@ public:
 	void CR_OnClickInputRoomName();
 
 	UPROPERTY(meta=(BindWidget))
-	class UButton* CR_Button_CreateRoom;
+	class UButton* CR_Button_GoNext;
 
 	UPROPERTY(meta=(BindWidget))
 	class UButton* CR_Button_InputRoomName;
@@ -65,6 +65,19 @@ public:
 
 	UPROPERTY(meta=(BindWidget))
 	class UButton* CR_Button_GoMenu;
+
+	// Room Option ===========================
+	UFUNCTION()
+	void RO_OnClickCreateRoom();
+
+	UFUNCTION()
+	void RO_OnClickGoBack();
+
+	UPROPERTY(meta=(BindWidget))
+	UButton* RO_Button_GoBack;
+
+	UPROPERTY(meta=(BindWidget))
+	UButton* RO_Button_CreateRoom;
 
 	
 	// Find Session===================================
@@ -82,4 +95,10 @@ public:
 	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* FR_Button_GoMenu;
+
+private:
+	const int32 MENU_IDX = 0;
+	const int32 CR_IDX = 1;
+	const int32 RO_IDX = 2;
+	const int32 FR_IDX = 3;
 };
