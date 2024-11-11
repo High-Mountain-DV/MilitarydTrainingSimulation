@@ -21,24 +21,37 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "SG_Grenede.h"
+#include "SG_Grenade.h"
 #include "Engine/EngineTypes.h"
 #include "CSW/CSWGameMode.h"
+#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 
 
 // Sets default values
 ASG_Enemy::ASG_Enemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CustomMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CustomMesh"));
 	CustomMesh->SetupAttachment(GetMesh());
 
+	static ConstructorHelpers::FClassFinder<ASG_WeaponMaster>tempWeaponClass(TEXT("/Game/MilitarySimulator/JSG/Blueprints/BP_AssaultRifle"));
+	if (tempWeaponClass.Succeeded())
+	{
+		WeaponClass = tempWeaponClass.Class;
+		UE_LOG(LogTemp, Warning, TEXT("WeaponClass load Success"));
+	}
 	WeaponComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("WeaponComp"));
-	//WeaponComp->SetRelativeLocation(FVector(62.589846, 0.000002, 36.728229)); 
+	if (WeaponClass)
+	{
+		WeaponComp->SetChildActorClass(WeaponClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponClass is nullptr"));
+	}
 	WeaponComp->SetupAttachment(GetMesh(), TEXT("Enemy_TwoHandedGun_Socket"));
-
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/MilitarySimulator/SHN/Assets/Character/NorthKorean/sol_8_low.sol_8_low'"));
 	if (tempMesh.Succeeded())
 	{
@@ -49,6 +62,24 @@ ASG_Enemy::ASG_Enemy()
 
 	DebugArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DebugArrow"));
 	DebugArrow->SetupAttachment(RootComponent);
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempReloadMontage(TEXT("/Script/Engine.AnimMontage'/Game/MilitarySimulator/JSG/Animations/Weapon/AM_Rifle_Reload.AM_Rifle_Reload'"));
+	if (tempReloadMontage.Succeeded())
+	{
+		MontageArray.Add(tempReloadMontage.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempThrowGrenadeMontage(TEXT("/Script/Engine.AnimMontage'/Game/MilitarySimulator/JSG/Animations/Weapon/AM_Grenade_Throw.AM_Grenade_Throw'"));
+	if (tempThrowGrenadeMontage.Succeeded())
+	{
+		MontageArray.Add(tempThrowGrenadeMontage.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempTossGrenadeMontage(TEXT("/Script/Engine.AnimMontage'/Game/MilitarySimulator/JSG/Animations/Weapon/AM_Grenade_Toss.AM_Grenade_Toss'"));
+	if (tempTossGrenadeMontage.Succeeded())
+	{
+		MontageArray.Add(tempTossGrenadeMontage.Object);
+	}
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel9, ECR_Overlap);
 }
 
 
@@ -57,10 +88,16 @@ ASG_Enemy::ASG_Enemy()
 void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
-	check(GM); if (nullptr == GM) return;
+	//if (GEngine)
+	//{
+	//	// 모든 디버그 메시지 비활성화
+	//	GEngine->bEnableOnScreenDebugMessages = false;
 
+	//	// 기존 메시지 제거
+	//	GEngine->ClearOnScreenDebugMessages();
+	//}
+	HP = MaxHP;
+	SetActorLabel(TEXT("Enemy"));
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
@@ -73,35 +110,26 @@ void ASG_Enemy::BeginPlay()
 		DebugArrow->SetHiddenInGame(false);
 	}
 
-	//if (GEngine)
-	//{
-	//	// 모든 디버그 메시지 비활성화
-	//	GEngine->bEnableOnScreenDebugMessages = false;
-
-	//	// 기존 메시지 제거
-	//	GEngine->ClearOnScreenDebugMessages();
-	//}
+	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
+	if (nullptr == GM) return;
 }
 
 // Called every frame
 void ASG_Enemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	if (StartMovement)
+
+	if (bAutoMoveActive)
 	{
-		AI_Move_To(DeltaTime);
+		MoveTo_AutoMove(DeltaTime);
 	}
 
 	if (bAiming)
 	{
 		LerpAimoffset(DeltaTime);
 	}
-	else
-	{
-		/*AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 5);
-		AimYaw = FMath::Lerp(AimYaw, 0, DeltaTime * 5);*/
-	}
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("SpeedScale: %f"), SpeedScale));
+
 	//LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
 }
 
@@ -116,14 +144,14 @@ void ASG_Enemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ASG_Enemy, hp);
 	DOREPLIFETIME(ASG_Enemy, CurrentWeapon);
+	DOREPLIFETIME(ASG_Enemy, hp);
 	DOREPLIFETIME(ASG_Enemy, DestinationAimPitch);
 	DOREPLIFETIME(ASG_Enemy, DestinationAimYaw);
 	DOREPLIFETIME(ASG_Enemy, bAiming);
 	DOREPLIFETIME(ASG_Enemy, AimYaw);
 	DOREPLIFETIME(ASG_Enemy, AimPitch);
-	
+
 }
 
 const TMap<FString, struct TTuple<int32, float>> ASG_Enemy::GetHitLog() const
@@ -134,24 +162,26 @@ const TMap<FString, struct TTuple<int32, float>> ASG_Enemy::GetHitLog() const
 void ASG_Enemy::SetWeapon()
 {
 	if (!HasAuthority()) return;
-	FActorSpawnParameters param;
-	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-	WeaponComp->AttachToComponent(GetMesh(), Rules, TEXT("Enemy_TwoHandedGun_Socket"));
-	if (WeaponClass) WeaponComp->SetChildActorClass(WeaponClass);
-
-	WeaponComp->CreateChildActor();
 	CurrentWeapon = Cast<ASG_WeaponMaster>(WeaponComp->GetChildActor());
 
+	PRINTLOG(TEXT("WeaponComp->GetChildActor's Name: {%s}"), *CurrentWeapon->GetName());
 	OnRep_CurrentWeapon();
 }
 
-void ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+void ASG_Enemy::ServerRPC_PlayAnimMontage(EEnemyAnimMontageType MontageType, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
 {
 	check(Anim); if (nullptr == Anim) return;
 
-	MulticastRPC_PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+	int32 MontageIdx = static_cast<int32>(MontageType);
+	UE_LOG(LogTemp, Warning, TEXT("MontageIdx: %d"), MontageIdx);
+	MulticastRPC_PlayAnimMontage(MontageArray[MontageIdx], InPlayRate, StartSectionName);
+}
+
+void ASG_Enemy::ServerRPC_PlayAnimMontage(class UAnimMontage* MontageToPlay, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
+{
+	check(Anim); if (nullptr == Anim) return;
+
+	MulticastRPC_PlayAnimMontage(MontageToPlay, InPlayRate, StartSectionName);
 }
 
 void ASG_Enemy::MulticastRPC_PlayAnimMontage_Implementation(class UAnimMontage* AnimMontage, float InPlayRate /*= 1.f*/, FName StartSectionName /*= NAME_None*/)
@@ -164,15 +194,15 @@ bool ASG_Enemy::Fire(bool& OutStopShooting)
 	bool bMagazineEmpty = CurrentWeapon->Fire(OutStopShooting);
 
 	Recoil();
-	
+
 	return bMagazineEmpty;
 }
 
-void ASG_Enemy::Aim(const FVector TargetLocation)
+void ASG_Enemy::Aim(const FVector& AimTargetLocation)
 {
 	bAiming = true;
 	FVector WeaponLocation = CurrentWeapon->FirePosition->GetComponentLocation();
-	FVector TargetDirection = (TargetLocation - WeaponLocation).GetSafeNormal();
+	FVector TargetDirection = (AimTargetLocation - WeaponLocation).GetSafeNormal();
 
 	// 현재 Actor의 Forward 방향을 기준으로 상대적인 회전값을 계산
 	FVector ActorForward = GetActorForwardVector();
@@ -200,7 +230,7 @@ void ASG_Enemy::SetAimOffsetAlpha(float AimOffsetAlpha)
 
 void ASG_Enemy::MulticastRPC_SetAimOffsetAlpha_Implementation(float AimOffsetAlpha)
 {
-	if (nullptr == Anim) 
+	if (nullptr == Anim)
 	{
 		PRINTLOG(TEXT("이거뜨면 Anim이 없어지는 버그인듯"));
 		return;
@@ -208,11 +238,11 @@ void ASG_Enemy::MulticastRPC_SetAimOffsetAlpha_Implementation(float AimOffsetAlp
 	Anim->AimOffsetAlpha = AimOffsetAlpha;
 }
 
-bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation, float Radius)
+bool ASG_Enemy::FindPathPoints(const FVector& _TargetLocation, float Radius)
 {
 	PRINTLOG(TEXT(""));
 	PointIndex = 1;
-	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), GetActorLocation(), TargetLocation);
+	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), GetActorLocation(), _TargetLocation);
 	if (!Path)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("!Path"));
@@ -230,8 +260,7 @@ bool ASG_Enemy::FindPathPoints(const FVector& TargetLocation, float Radius)
 	{
 		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Purple, FRotator::ZeroRotator, 10);
 	}
-	Speed = 0.95;
-	StartMovement = true;
+	bAutoMoveActive = true;
 	AcceptableRadius = Radius;
 	if (PathFindDebug)
 	{
@@ -256,65 +285,223 @@ FVector ASG_Enemy::GetDirectionToTarget()
 	return UKismetMathLibrary::GetDirectionUnitVector(fromLocation, ToLocation);
 }
 
-bool ASG_Enemy::ArriveAtLocation(FVector Location)
+bool ASG_Enemy::ArriveAtLocation(const FVector& CurrLocation, const FVector& TargetLocation, float _AcceptableRadius)
 {
-	float Dist = FVector::Distance(GetActorLocation(), FVector(Location.X, Location.Y, GetActorLocation().Z));
-	return (Dist <= AcceptableRadius);
-}
-
-void ASG_Enemy::StopMovement()
-{
-	Speed = 0;
-	StartMovement = false;
-	DirectionVector = GetActorForwardVector();
+	float Dist = FVector::Distance(CurrLocation, FVector(TargetLocation.X, TargetLocation.Y, CurrLocation.Z));
+	return (Dist <= _AcceptableRadius);
 }
 
 void ASG_Enemy::HideWeaponMagazine()
 {
+	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
 	CurrentWeapon->HideMagazine();
 }
 
 void ASG_Enemy::ShowWeaponMagazine()
 {
+	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
 	CurrentWeapon->ShowMagazine();
 }
 
-void ASG_Enemy::AI_Move_To(float DeltaTime)
+FVector ASG_Enemy::GetThrowVelocityToTarget(const FVector& _GrenadeTargetPoint)
 {
-	AimPitch = FMath::Lerp(AimPitch, 0, DeltaTime * 10);
-	AimYaw = FMath::Lerp(AimYaw, 0, DeltaTime * 10);
+	// 1. 입력 유효성 검사
+	if (!Grenade)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid actor references"));
+		return FVector::ZeroVector;
+	}
 
-	DirectionVector = GetDirectionToTarget();
+	// 2. 시작 위치 결정
+	FVector CurLocation = Grenade ? Grenade->GetActorLocation() : GetActorLocation();
 
-	// 현재 액터의 rotation을 구합니다
-	FRotator CurrentRotation = GetActorRotation();
+	// 3. 전체 변위 계산 (높이 차이 포함)
+	FVector Displacement = _GrenadeTargetPoint - CurLocation;
+	float TotalDistance = Displacement.Size();
 
-	// DirectionVector를 회전값으로 변환
-	FRotator TargetRotation = DirectionVector.Rotation();
+	// 4. 최소 거리 체크
+	const float MinDistance = 10.0f;
+	if (TotalDistance < MinDistance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target too close, distance: %f"), TotalDistance);
+		return FVector::ZeroVector;
+	}
 
-	// 현재 회전값에서 목표 회전값으로 부드럽게 보간
-	FRotator NewRotation = FMath::RInterpTo(
-		CurrentRotation,    // 현재 회전값
-		TargetRotation,     // 목표 회전값
-		DeltaTime,         // 델타 타임
-		5.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
+	// 5. 수평 거리와 높이 차이 계산
+	float HorizontalDistance = FVector(Displacement.X, Displacement.Y, 0.0f).Size();
+	float HeightDifference = Displacement.Z;
+
+	// 6. 물리 상수
+	const float Gravity = -980.0f;  // 실제 중력 가속도 (cm/s^2)
+
+	// 7. 시간 계산 개선
+	float EstimatedTime;
+	if (TimeMultiplier > 0)
+	{
+		// 거리에 따른 비선형 시간 계산
+		EstimatedTime = FMath::Sqrt(2.0f * HorizontalDistance / FMath::Abs(Gravity)) * TimeMultiplier;
+		EstimatedTime = FMath::Clamp(EstimatedTime, 0.1f, 10.0f);  // 합리적인 범위로 제한
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid TimeMultiplier"));
+		return FVector::ZeroVector;
+	}
+
+	// 8. 속도 계산
+	float VerticalVelocity;
+	float HorizontalVelocity;
+
+	// 수직 속도 계산 (높이 차이 고려)
+	VerticalVelocity = (HeightDifference - (0.5f * Gravity * EstimatedTime * EstimatedTime)) / EstimatedTime;
+
+	// 수평 속도 계산
+	HorizontalVelocity = HorizontalDistance / EstimatedTime;
+
+
+	// 9. 최종 속도 벡터 계산
+	FVector DirectionUnitVector = UKismetMathLibrary::GetDirectionUnitVector(CurLocation, _GrenadeTargetPoint);
+	FVector HorizontalVelocityVector = FVector(
+		DirectionUnitVector.X * HorizontalVelocity,
+		DirectionUnitVector.Y * HorizontalVelocity,
+		VerticalVelocity
 	);
 
-	// 새로운 회전값 적용
-	SetActorRotation(NewRotation);
+	// 10. 속도 제한
+	const float MaxVelocity = 10000.0f;  // 최대 속도 제한 (cm/s)
+	if (HorizontalVelocityVector.Size() > MaxVelocity)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Velocity exceeded maximum limit, clamping"));
+		HorizontalVelocityVector = HorizontalVelocityVector.GetClampedToSize(0.0f, MaxVelocity);
+	}
 
-	DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-	AddMovementInput(DirectionVector, Speed);
-	if (ArriveAtLocation(NextTargetLocation))
+	// 11. 디버그 정보
+	UE_LOG(LogTemp, Log, TEXT("Throw Calculation: Distance=%f, Time=%f, Velocity=%s"),
+		TotalDistance, EstimatedTime, *HorizontalVelocityVector.ToString());
+
+	HorizontalVelocityVector *= FMath::RandRange(0.8f, 0.95f);
+
+	return HorizontalVelocityVector;
+}
+
+void ASG_Enemy::ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ASG_Enemy::ThrowGrenadeNotifyBegin"));
+	if (NotifyName == TEXT("ThrowGrenade"))
+	{
+		check(Anim); if (nullptr == Anim) return;
+		check(Grenade); if (nullptr == Grenade) return;
+
+		FVector Velocity = ASG_Grenade::GetThrowVelocityToTarget(Grenade->GetActorLocation(), GrenadeTargetPoint, TimeMultiplier);
+		MulticastRPC_ThrowGrenade(Velocity);
+
+		Anim->OnPlayMontageNotifyBegin.RemoveDynamic(this, &ASG_Enemy::ThrowGrenadeNotifyBegin);
+	}
+}
+
+void ASG_Enemy::MulticastRPC_ThrowGrenade_Implementation(const FVector& GrenadeVelocity)
+{
+	check(Grenade); if (nullptr == Grenade) return;
+	
+	Grenade->Active(this);
+	Grenade->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	PRINTLOG(TEXT("GrenadeVelocity: %s"), *GrenadeVelocity.ToString());
+	Grenade->BaseMesh->AddImpulse(GrenadeVelocity, NAME_None, true);
+}
+
+void ASG_Enemy::OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnGrenadeMontageEnded"));
+	int32 ThrowGrenade = static_cast<int32>(EEnemyAnimMontageType::Throw_Grenade);
+	int32 TossGrenade = static_cast<int32>(EEnemyAnimMontageType::Toss_Grenade);
+	if (Montage == MontageArray[ThrowGrenade] || Montage == MontageArray[TossGrenade])
+	{
+		check(Anim); if (nullptr == Anim) return;
+		check(CurrTask); if (nullptr == CurrTask) return;
+		
+		Anim->OnMontageEnded.RemoveDynamic(this, &ASG_Enemy::OnGrenadeMontageEnded);
+		CurrTask->FinishLatentTask(*BehaviorComp, EBTNodeResult::Succeeded);
+		CurrTask = nullptr;
+	}
+}
+
+ASG_WeaponMaster* ASG_Enemy::GetWeapon()
+{
+	return CurrentWeapon;
+}
+
+void ASG_Enemy::MoveTo_AutoMove(float DeltaTime)
+{
+	if (bDebugMoveTask)
+		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(30), FColor::Purple, FRotator::ZeroRotator, DeltaTime);
+	DirectionVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), NextTargetLocation);
+
+	if (bFaceToDirection)
+	{
+		// 현재 액터의 rotation을 구합니다
+		FRotator CurrentRotation = GetActorRotation();
+
+		// DirectionVector를 회전값으로 변환
+		FRotator TargetRotation = DirectionVector.Rotation();
+
+		// 현재 회전값에서 목표 회전값으로 부드럽게 보간
+		FRotator NewRotation = FMath::RInterpTo(
+			CurrentRotation,    // 현재 회전값
+			TargetRotation,     // 목표 회전값
+			DeltaTime,         // 델타 타임
+			2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
+		);
+		// 새로운 회전값 적용
+		NewRotation.Pitch = 0;
+		SetActorRotation(NewRotation);
+	}
+
+	if (SpeedScale < 0.75 && FVector::Dist(GetActorLocation(), TargetLocation) <= 75 + AcceptableRadius)
+	{
+		SpeedScale = FMath::Max(0.3, SpeedScale - 0.025);
+	}
+
+	AddMovementInput(DirectionVector, SpeedScale);
+	if (GetVelocity().Equals(FVector(0), 100))
+	{
+		ZeroVelocityCount++;
+		if (ZeroVelocityCount >= 60)
+		{
+			float randomRangeValue = 200;
+			float delta_x = FMath::RandRange(-randomRangeValue, randomRangeValue);
+			float delta_y = FMath::RandRange(-randomRangeValue, randomRangeValue);
+
+			NextTargetLocation.X = GetActorLocation().X + delta_x;
+			NextTargetLocation.Y = GetActorLocation().Y + delta_y;
+
+			if (false == bCanMove) PointIndex -= 1;
+			bCanMove = true;
+
+			ZeroVelocityCount = 0;
+			if (bDebugMoveTask)
+				UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(30), FColor::Purple, FRotator::ZeroRotator, DeltaTime);
+		}
+	}
+	if (ArriveAtLocation(GetActorLocation(), NextTargetLocation, TempAcceptableRadius))
 	{
 		PointIndex += 1;
+		ZeroVelocityCount = 0;
+		bCanMove = false;
 		if (PointIndex < PathPoints.Num())
 		{
 			NextTargetLocation = PathPoints[PointIndex];
+			if (PointIndex == PathPoints.Num() - 1)
+			{
+				TempAcceptableRadius = AcceptableRadius;
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("TempAcceptableRadius Set! : %f"), AcceptableRadius));
+			}
 		}
 		else
 		{
-			StopMovement();
+			UE_LOG(LogTemp, Warning, TEXT("Arrive at location"));
+			bAutoMoveActive = false;
+			DirectionVector = GetActorForwardVector();
 		}
 	}
 }
@@ -331,53 +518,7 @@ void ASG_Enemy::LerpAimoffset(float DeltaTime)
 	}
 }
 
-void ASG_Enemy::DieProcess(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter)
-{
-	ServerRPC_DieProcess(BoneName, ShotDirection, Shooter);
-}
 
-void ASG_Enemy::ServerRPC_DieProcess_Implementation(const FName& BoneName, const FVector& ShotDirection, AActor* Shooter)
-{
-	DetachFromControllerPendingDestroy();
-	{
-		AAIController* AIController = Cast<AAIController>(GetController());
-		if (AIController)
-		{
-			// BehaviorTreeComponent 가져오기
-			UBehaviorTreeComponent* BehaviorTreeComp = AIController->FindComponentByClass<UBehaviorTreeComponent>();
-			if (BehaviorTreeComp)
-			{
-				// Blackboard 가져오기
-				UBlackboardComponent* Blackboard = BehaviorTreeComp->GetBlackboardComponent();
-				if (Blackboard)
-				{
-					// bDead 값을 true로 설정
-					Blackboard->SetValueAsBool(TEXT("bDead"), true);
-				}
-			}
-		}
-	}
-
-	WeaponComp->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
-	CurrentWeapon->Weapon->SetSimulatePhysics(true);
-	CurrentWeapon->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-
-	FTransform spawnTransform = GetActorTransform();
-	spawnTransform.SetLocation(spawnTransform.GetLocation() - FVector(0, 0, 5));
-
-	MulticastRPC_SpawnDummyEnemy(spawnTransform, ShotDirection);
-
-	Destroy();
-}
-
-void ASG_Enemy::MulticastRPC_SpawnDummyEnemy_Implementation(const FTransform& SpawnTransform, const FVector& ShotDirection)
-{
-	float force = 10000;
-	FActorSpawnParameters params;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	auto* dummyEnemy = GetWorld()->SpawnActor<ASG_DummyEnemy>(BP_DummyEnemy, SpawnTransform, params);
-	dummyEnemy->Mesh->AddImpulse(ShotDirection * force);
-}
 
 void ASG_Enemy::Recoil()
 {
@@ -399,36 +540,24 @@ void ASG_Enemy::AttachWeapon(const FName& SocketName)
 	WeaponComp->AttachToComponent(GetMesh(), Rules, SocketName);
 }
 
-void ASG_Enemy::SpawnAndGrabGrenede(const FName& SocketName)
+void ASG_Enemy::SpawnAndGrabGrenade(const FName& SocketName)
 {
 	FActorSpawnParameters params;
 	params.Instigator = this;
-	Grenede = GetWorld()->SpawnActor<ASG_Grenede>(BP_Grenede, CustomMesh->GetSocketTransform(TEXT("Enemy_Grenede_Socket")), params);
-	check(Grenede); if (nullptr == Grenede) return;
-
+	params.Owner = this;
+	FTransform GrenadeSocketTransform = CustomMesh->GetSocketTransform(TEXT("Enemy_Grenade_Socket"));
+	Grenade = GetWorld()->SpawnActor<ASG_Grenade>(BP_Grenade, GrenadeSocketTransform, params);
+	check(Grenade); if (nullptr == Grenade) return;
 	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-	Grenede->AttachToComponent(CustomMesh, rules, SocketName);
-
-	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Grenede->CapsuleComp->SetSimulatePhysics(false);
-	Grenede->SetOwner(this);
-}
-
-void ASG_Enemy::ThrowGrenede()
-{
-	Grenede->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-	Grenede->CapsuleComp->SetSimulatePhysics(true);
-	Grenede->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Grenede->Active(this);
-
-	//Grenede->CapsuleComp->AddImpulse(GrenedeVelocity);
-	bool bGrenedeThrow = Grenede->ThrowWithCheck(GrenedePoint);
-	Grenede = nullptr;
+	Grenade->AttachToComponent(CustomMesh, rules, SocketName);
+	Grenade->BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Grenade->BaseMesh->SetSimulatePhysics(false);
 }
 
 void ASG_Enemy::OnRep_CurrentWeapon()
 {
+	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
+
 	CurrentWeapon->SetOwner(this);
 	CurrentWeapon->SetInstigator(this);
 	CurrentWeapon->SetShooter();
@@ -473,21 +602,20 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 		UE_LOG(LogTemp, Warning, TEXT("BodyShot!"));
 		Damage *= BodyShotMultiplier;
 	}
-
-	ApplyImpactToBone(BoneName, ShotDirection);
-
-	HP -= Damage;
-
-	if (HP == 0)
-	{
-		DieProcess(BoneName, ShotDirection, Shooter);
-	}
-
-	
 	FString ShooterID;
 	if (Shooter) ShooterID = Shooter->GetActorLabel();
 	UE_LOG(LogTemp, Warning, TEXT("ShooterID: %s"), *ShooterID);
 
+	ServerRPC_DamageProcess(Damage, ShotDirection, ShooterID);
+}
+
+void ASG_Enemy::ServerRPC_DamageProcess_Implementation(float Damage, const FVector& ShotDirection, const FString& ShooterID)
+{
+	HP -= Damage;
+	if (HP == 0)
+	{
+		DieProcess(ShotDirection, ShooterID);
+	}
 	if (TTuple<int32, float>* ExistingLog = HitLog.Find(ShooterID))
 	{
 		ExistingLog->Get<0>() += 1;
@@ -498,5 +626,46 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 	{
 		HitLog.Add(ShooterID, TTuple<int32, float>(1, Damage));
 	}
-	GM->AppendHitLog(HitLog);
+}
+void ASG_Enemy::DieProcess(const FVector& ShotDirection, const FString& ShooterID)
+{
+	DetachFromControllerPendingDestroy();
+
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController)
+	{
+		// BehaviorTreeComponent 가져오기
+		UBehaviorTreeComponent* BehaviorTreeComp = AIController->FindComponentByClass<UBehaviorTreeComponent>();
+		if (BehaviorTreeComp)
+		{
+			// Blackboard 가져오기
+			UBlackboardComponent* Blackboard = BehaviorTreeComp->GetBlackboardComponent();
+			if (Blackboard)
+			{
+				// bDead 값을 true로 설정
+				Blackboard->SetValueAsBool(TEXT("bDead"), true);
+			}
+		}
+	}
+
+	WeaponComp->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	CurrentWeapon->Weapon->SetSimulatePhysics(true);
+	CurrentWeapon->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	FTransform spawnTransform = GetActorTransform();
+	spawnTransform.SetLocation(spawnTransform.GetLocation() - FVector(0, 0, 5));
+
+	MulticastRPC_SpawnDummyEnemy(spawnTransform, ShotDirection);
+
+	if (GM)	GM->AppendHitLog(HitLog);
+	Destroy();
+}
+
+void ASG_Enemy::MulticastRPC_SpawnDummyEnemy_Implementation(const FTransform& SpawnTransform, const FVector& ShotDirection)
+{
+	float force = 10000;
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	auto* dummyEnemy = GetWorld()->SpawnActor<ASG_DummyEnemy>(BP_DummyEnemy, SpawnTransform, params);
+	dummyEnemy->Mesh->AddImpulse(ShotDirection * force);
 }

@@ -8,6 +8,7 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Hearing.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "SG_Enemy.h"
 
 ASG_EnemyAIController::ASG_EnemyAIController()
 {
@@ -36,8 +37,6 @@ void ASG_EnemyAIController::UpdateControlRotation(float DeltaTime, bool bUpdateP
 
 	if (bUpdatePawn)
 	{
-		APawn* const Me = GetPawn();
-
 		const FRotator CurrentPawnRotation = Me->GetActorRotation();
 
 		SmoothTargetRotation = UKismetMathLibrary::RInterpTo_Constant(CurrentPawnRotation, ControlRotation, DeltaTime, SmoothFocusInterpSpeed);
@@ -54,6 +53,12 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	if(HasAuthority())	RunBehaviorTree(BT_Enemy);
+	Me = Cast<ASG_Enemy>(InPawn);
+	check(Me); if (nullptr == Me) return;
+
+	Me->EnemyAIController = this;
+	Me->BehaviorComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+
 	MyBlackboard = GetBlackboardComponent();
 	check(MyBlackboard); if (nullptr == MyBlackboard) return;
 	PRINTLOG(TEXT("%s"), *MyBlackboard->GetName());

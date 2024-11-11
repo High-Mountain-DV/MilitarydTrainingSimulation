@@ -8,6 +8,13 @@
 #include "CSW/ReportWidget.h"
 #include "Interfaces/IHttpResponse.h"
 
+void AReportWidgetActor::BeginPlay()
+{
+	Super::BeginPlay();
+
+	RequestReport();
+}
+
 void AReportWidgetActor::RequestReport()
 {
 	TMap<FString, FString> body;
@@ -20,8 +27,8 @@ void AReportWidgetActor::RequestReport()
 	header.Add("Content-Type","application/json");
 	header.Add(header.Add("Authorization", gi->GetUserToken()));
 
-	Request(RegisterPath + FString::FromInt(
-	gi->GetUserId()),
+	Request(
+		RegisterPath,
 		RegisterMethod,
 		header,
 		"",
@@ -39,11 +46,11 @@ void AReportWidgetActor::RequestReport()
 					FReportData data;
 
 					data.nickname = result->GetStringField(TEXT("nickname"));
-					data.playTime = result->GetNumberField(TEXT("play_time"));
+					data.playTime = result->GetNumberField(TEXT("playTime"));
 					data.accuracy = result->GetNumberField(TEXT("accuracy"));
 					data.kill = result->GetIntegerField(TEXT("kills"));
-					data.injuredPlayer = result->GetIntegerField(TEXT("ally_injuries"));
-					data.deadPlayer = result->GetIntegerField(TEXT("ally_dead"));
+					data.injuredPlayer = result->GetIntegerField(TEXT("allyInjuries"));
+					data.deadPlayer = result->GetIntegerField(TEXT("allyDeaths"));
 
 					widget->SetReportData(data);
 				}

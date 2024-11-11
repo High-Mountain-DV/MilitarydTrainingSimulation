@@ -8,8 +8,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 EBTNodeResult::Type USG_Task_Aim::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	OwnerController = OwnerComp.GetAIOwner();
-	ControlledPawn = Cast<ASG_Enemy>(OwnerController->GetPawn());
+	auto* OwnerController = OwnerComp.GetAIOwner();
+	auto* ControlledPawn = Cast<ASG_Enemy>(OwnerController->GetPawn());
 
 	auto* Blackboard = UAIBlueprintHelperLibrary::GetBlackboard(ControlledPawn);
 	check(Blackboard); if (nullptr == Blackboard) return EBTNodeResult::Failed;

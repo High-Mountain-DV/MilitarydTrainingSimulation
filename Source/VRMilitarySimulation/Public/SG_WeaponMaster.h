@@ -50,10 +50,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults|Bullet", BlueprintReadOnly)
 	int32 BulletCount = MaxBulletCount;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Defaults|VFX")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Default|VFX")
 	class UParticleSystem* FireVFX;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Defaults|SFX")
+	UPROPERTY(EditDefaultsOnly, Category = "Default|SFX")
 	USoundAttenuation* FireAttenuationSetting;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Recoil")

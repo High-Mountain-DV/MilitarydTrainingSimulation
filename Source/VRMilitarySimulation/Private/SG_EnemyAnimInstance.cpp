@@ -82,15 +82,15 @@ void USG_EnemyAnimInstance::AnimNotify_AttachToLeftHand()
 
 void USG_EnemyAnimInstance::AnimNotify_GrabGrenede()
 {
-	Me->SpawnAndGrabGrenede(TEXT("Enemy_Grenede_Left_Socket"));
+	Me->SpawnAndGrabGrenade(TEXT("Enemy_Grenade_Left_Socket"));
 }
 
 void USG_EnemyAnimInstance::AnimNotify_GrabGrenedeAtRightHand()
 {
-	Me->SpawnAndGrabGrenede(TEXT("Enemy_Grenede_Right_Socket"));
+	Me->SpawnAndGrabGrenade(TEXT("Enemy_Grenade_Right_Socket"));
 }
 
 //void USG_EnemyAnimInstance::AnimNotify_ThrowGrenede()
 //{
-//	//Me->ThrowGrenede();
+//	//Me->ThrowGrenade();
 //}

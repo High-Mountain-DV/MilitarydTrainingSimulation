@@ -16,9 +16,4 @@ class VRMILITARYSIMULATION_API USG_Task_Aim : public UBTTask_BlackboardBase
 	
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-	UPROPERTY()
-	class AAIController* OwnerController;	
-	UPROPERTY()
-	class ASG_Enemy* ControlledPawn;
 };

@@ -51,21 +51,21 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *names);
 	// 3. 출력하고싶다.
 	Txt_Users->SetText(FText::FromString(names));
-	if (users.Num() == MaxPlayerCnt && !GetWorld()->GetTimerManager().IsTimerActive(handle))
-	{
-		auto *pc = GetWorld()->GetFirstPlayerController();
-		if (pc->HasAuthority())
-		{
-			auto* gm = GetWorld()->GetAuthGameMode();
-			if (gm)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
-				gm->bUseSeamlessTravel = true;
-				// GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
-				GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
-			}
-		}
-	}
+	// if (users.Num() == MaxPlayerCnt && !GetWorld()->GetTimerManager().IsTimerActive(handle))
+	// {
+	// 	auto *pc = GetWorld()->GetFirstPlayerController();
+	// 	if (pc->HasAuthority())
+	// 	{
+	// 		auto* gm = GetWorld()->GetAuthGameMode();
+	// 		if (gm)
+	// 		{
+	// 			UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
+	// 			gm->bUseSeamlessTravel = true;
+	// 			// GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
+	// 			GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
+	// 		}
+	// 	}
+	// }
 }
 
 void UWaitRoomWidget::OnClick_GoLobby()
@@ -87,7 +87,7 @@ void UWaitRoomWidget::OnClick_GameStart()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
 		gm->bUseSeamlessTravel = true;
-		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRBattleMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
 	}
 }
 

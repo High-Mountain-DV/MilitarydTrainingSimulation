@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "BehaviorTree/BTTaskNode.h"
 #include "SG_Task_PlayMontage.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API USG_Task_PlayMontage : public UBTTask_BlackboardBase
+class VRMILITARYSIMULATION_API USG_Task_PlayMontage : public UBTTaskNode
 {
+	
 	GENERATED_BODY()
 	
 public:
@@ -42,5 +43,4 @@ private:
 	// 몽타주 종료 시 호출 될 함수
 	UFUNCTION()
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
 };

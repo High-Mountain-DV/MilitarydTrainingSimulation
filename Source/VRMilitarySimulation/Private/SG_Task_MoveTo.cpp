@@ -24,7 +24,7 @@ USG_Task_MoveTo::USG_Task_MoveTo()
 
 EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UE_LOG(LogTemp, Warning, TEXT("USG_Task_MoveTo::ExecuteTask"));
+	//UE_LOG(LogTemp, Warning, TEXT("USG_Task_MoveTo::ExecuteTask"));
 	const UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
 	EBTNodeResult::Type NodeResult = EBTNodeResult::InProgress;
 
@@ -32,9 +32,14 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	if (!AIController)
 		return EBTNodeResult::Failed;
 
-	AIPawn = Cast<ASG_Enemy>(AIController->GetPawn());
-	if (!AIPawn)
+	auto* Me = Cast<ASG_Enemy>(AIController->GetPawn());
+	if (!Me)
 		return EBTNodeResult::Failed;
+
+	InitEnemyVariables(Me);
+
+	FVector TargetLocation;
+
 
 	if (BlackboardKey.SelectedKeyType == UBlackboardKeyType_Object::StaticClass())
 	{
@@ -55,36 +60,44 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		const FVector Location = MyBlackboard->GetValue<UBlackboardKeyType_Vector>(BlackboardKey.GetSelectedKeyID());
 		TargetLocation = Location;
 	}
-	float OutDist;
-	if (ArriveAtLocation(TargetLocation, OutDist))
+	Me->TargetLocation = TargetLocation;
+	if (Me->bDebugMoveTask)
+		UKismetSystemLibrary::DrawDebugBox(GetWorld(), Me->TargetLocation, FVector(30), FColor::Red, FRotator(45, 45, 0), 7.5f);
+	if (ASG_Enemy::ArriveAtLocation(Me->GetActorLocation(), Me->TargetLocation, Me->AcceptableRadius))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("이미 접근"));
+		UE_LOG(LogTemp, Warning, TEXT("이미 접근, MoveTo 노드 중단"));
 		return EBTNodeResult::Succeeded;
 	}
-	bool FindResult = FindPathPoints();
+	bool FindResult = FindPathPoints(Me);
 
 	if (!FindResult)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FindPathPoints(%s) is Failed"), *TargetLocation.ToString());
 		return EBTNodeResult::Failed;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("TargetLocation: %s"), *TargetLocation.ToString());
-	if (bRun)
-		SpeedScale = 1.0f;
+
+	Me->bAutoMoveActive = false;
 	return EBTNodeResult::InProgress;
 }
 
 void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	if (!AIPawn) return;
+	const UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
+	AAIController* AIController = OwnerComp.GetAIOwner();
+	if (!AIController)
+		return ;
 
+	auto* Me = Cast<ASG_Enemy>(AIController->GetPawn());
+	if (!Me)
+		return ;
+	if (Me->bDebugMoveTask)
+		UKismetSystemLibrary::DrawDebugBox(GetWorld(), Me->NextTargetLocation, FVector(30), FColor::Purple, FRotator::ZeroRotator, DeltaSeconds);
+	FVector DirectionVector = UKismetMathLibrary::GetDirectionUnitVector(Me->GetActorLocation(), Me->NextTargetLocation);
 
-	DirectionVector = GetDirectionToTarget();
-
-	if (bFaceToDirection)
+	if (Me->bFaceToDirection)
 	{
-		// 현재 액터의 rotation을 구합니다
-		FRotator CurrentRotation = AIPawn->GetActorRotation();
+		// 현재 액터의 rotation을 구함
+		FRotator CurrentRotation = Me->GetActorRotation();
 
 		// DirectionVector를 회전값으로 변환
 		FRotator TargetRotation = DirectionVector.Rotation();
@@ -96,59 +109,48 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 			DeltaSeconds,         // 델타 타임
 			2.0f              // 회전 속도 (이 값을 조절하여 회전 속도 변경)
 		);
-
-		if (!AIPawn)
-		{
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-			return;
-		}
-
 		// 새로운 회전값 적용
-		AIPawn->SetActorRotation(NewRotation);
+		NewRotation.Pitch = 0;
+		Me->SetActorRotation(NewRotation);
 	}
 	
-		
-	if (bCloseToTargetLocation)
+	if (!bRun && FVector::Dist(Me->GetActorLocation(), Me->TargetLocation) <= 75 + Me->AcceptableRadius)
 	{
-		SpeedScale = FMath::Max(0.5, SpeedScale - 0.04);
+		Me->SpeedScale = FMath::Max(0.3, Me->SpeedScale - 0.025);
 	}
-	//AIPawn->DebugArrow->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(DirectionVector));
-	//UE_LOG(LogTemp, Warning, TEXT("DirectionVector: {%s}, Speed: {%f}, Velocity: {%s}"), *DirectionVector.ToString(), SpeedScale, *Me->GetVelocity().ToString());
-	AIPawn->AddMovementInput(DirectionVector, SpeedScale);
-	if (AIPawn->GetVelocity().Equals(FVector(0), 100))
+	
+	Me->AddMovementInput(DirectionVector, Me->SpeedScale);
+	if (Me->GetVelocity().Equals(FVector(0), 100))
 	{
-		ZeroVelocityCount++;
-		if (ZeroVelocityCount >= 45)
+		Me->ZeroVelocityCount++;
+		if (Me->ZeroVelocityCount >= 60)
 		{
-			float randomRangeValue = 100;
+			float randomRangeValue = 200;
 			float delta_x = FMath::RandRange(-randomRangeValue, randomRangeValue);
 			float delta_y = FMath::RandRange(-randomRangeValue, randomRangeValue);
 
-			/*NextTargetLocation.X += delta_x;
-			NextTargetLocation.Y += delta_y;*/
+			Me->NextTargetLocation.X = Me->GetActorLocation().X + delta_x;
+			Me->NextTargetLocation.Y = Me->GetActorLocation().Y + delta_y;
 
-			NextTargetLocation.X = AIPawn->GetActorLocation().X + delta_x;
-			NextTargetLocation.Y = AIPawn->GetActorLocation().Y + delta_y;
+			if (false == Me->bCanMove) Me->PointIndex -= 1;
+			Me->bCanMove = true;
 
-			if (false == bCannotMove) PointIndex -= 1;
-			bCannotMove = true;
-
-			ZeroVelocityCount = 0;
-			if (bDebugBoxOn) UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Red, FRotator::ZeroRotator, 10);
+			Me->ZeroVelocityCount = 0;
+			if (Me->bDebugMoveTask)
+				UKismetSystemLibrary::DrawDebugBox(GetWorld(), Me->NextTargetLocation, FVector(30), FColor::Purple, FRotator::ZeroRotator, DeltaSeconds);
 		}
 	}
-	float OutDist;
-	if (ArriveAtLocation(NextTargetLocation, OutDist))
+	if (ASG_Enemy::ArriveAtLocation(Me->GetActorLocation(), Me->NextTargetLocation, Me->TempAcceptableRadius))
 	{
-		PointIndex += 1;
-		ZeroVelocityCount = 0;
-		bCannotMove = false;
-		if (PointIndex < PathPoints.Num())
+		Me->PointIndex += 1;
+		Me->ZeroVelocityCount = 0;
+		Me->bCanMove = false;
+		if (Me->PointIndex < Me->PathPoints.Num())
 		{
-			NextTargetLocation = PathPoints[PointIndex];
-			if (PointIndex == PathPoints.Num() - 1)
+			Me->NextTargetLocation = Me->PathPoints[Me->PointIndex];
+			if (Me->PointIndex == Me->PathPoints.Num() - 1)
 			{
-				TempAcceptableRadius = AcceptableRadius;
+				Me->TempAcceptableRadius = AcceptableRadius;
 				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("TempAcceptableRadius Set! : %f"), AcceptableRadius));
 			}
 		}
@@ -160,37 +162,29 @@ void USG_Task_MoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMem
 	}
 }
 
-bool USG_Task_MoveTo::FindPathPoints()
+bool USG_Task_MoveTo::FindPathPoints(ASG_Enemy* Me)
 {
-	if (!AIPawn) return false;
-
-	PRINTLOG(TEXT(""));
-	PointIndex = 1;
-	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), AIPawn->GetActorLocation(), TargetLocation);
+	Me->PointIndex = 1;
+	UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), Me->GetActorLocation(), Me->TargetLocation);
 	if (!Path)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("!Path"));
 		return false;
 	}
 
-	PathPoints = Path->PathPoints;
-	if (PathPoints.Num() <= 1)
+	Me->PathPoints = Path->PathPoints;
+	if (Me->PathPoints.Num() <= 1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Path is not exist"));
 		return false;
 	}
-	NextTargetLocation = PathPoints[PointIndex];
-	/*
-	if (bDebugBoxOn)
+	Me->NextTargetLocation = Me->PathPoints[Me->PointIndex];
+	if (Me->bDebugMoveTask)
 	{
-		UKismetSystemLibrary::DrawDebugBox(GetWorld(), NextTargetLocation, FVector(15), FColor::Purple, FRotator::ZeroRotator, 10);
-	}*/
-	if (bDebugBoxOn)
-	{
-		DebugPoints(PathPoints);
+		DebugPoints(Me->PathPoints);
 	}
 
-	if (PathPoints.Num() == 2) TempAcceptableRadius = AcceptableRadius;
+	if (Me->PathPoints.Num() == 2) Me->TempAcceptableRadius = Me->AcceptableRadius;
 	return true;
 }
 
@@ -198,23 +192,25 @@ void USG_Task_MoveTo::DebugPoints(const TArray<FVector>& Array)
 {
 	for (const FVector& point : Array)
 	{
-		UKismetSystemLibrary::DrawDebugBox(GetWorld(), point, FVector(10), FColor::Blue, FRotator::ZeroRotator, 1000);
+		UKismetSystemLibrary::DrawDebugBox(GetWorld(), point, FVector(10), FColor::Blue, FRotator::ZeroRotator, 10);
 	}
 }
 
-FVector USG_Task_MoveTo::GetDirectionToTarget()
+void USG_Task_MoveTo::InitEnemyVariables(class ASG_Enemy* Me)
 {
-	if (!AIPawn) return FVector(1, 0, 0);
-	FVector	fromLocation = AIPawn->GetActorLocation();
-	FVector ToLocation = FVector(NextTargetLocation.X, NextTargetLocation.Y, fromLocation.Z);
+	Me->TargetLocation = FVector::ZeroVector;
 
-	return UKismetMathLibrary::GetDirectionUnitVector(fromLocation, ToLocation);
-}
+	Me->SpeedScale = bRun ? 1.0f : 0.75f;
+	Me->ZeroVelocityCount = 0;
+	Me->bCanMove = true;
+	Me->PointIndex = 1;
+	Me->PathPoints.Empty();
+	Me->NextTargetLocation = FVector::ZeroVector;
+	Me->AcceptableRadius = AcceptableRadius;
+	Me->TempAcceptableRadius = 50;
 
-
-bool USG_Task_MoveTo::ArriveAtLocation(FVector EndLocation, float& OutDist)
-{
-	if (!AIPawn) return false;
-	OutDist = FVector::Distance(AIPawn->GetActorLocation(), FVector(EndLocation.X, EndLocation.Y, AIPawn->GetActorLocation().Z));
-	return (OutDist <= TempAcceptableRadius);
+	//테스트를 위해 잠시 Debug를 무조건 True로 설정
+	//Me->bDebugMoveTask = bDebugBoxOn;
+	Me->bDebugMoveTask = true;
+	Me->bFaceToDirection = bFaceToDirection;
 }
