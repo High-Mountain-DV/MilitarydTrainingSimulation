@@ -15,11 +15,11 @@ class VRMILITARYSIMULATION_API AReportWidgetActor : public AVRWidgetActor
 	GENERATED_BODY()
 	
 public:
-	
+	virtual void BeginPlay() override;
 	void RequestReport();
 
 private:
-	FString RegisterPath = "/api/combats/user";
+	FString RegisterPath = "/api/combats/user/latest";
 	FString RegisterMethod = "GET";
 
 	

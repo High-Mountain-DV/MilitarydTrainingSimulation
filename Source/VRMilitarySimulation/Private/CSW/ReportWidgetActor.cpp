@@ -8,6 +8,13 @@
 #include "CSW/ReportWidget.h"
 #include "Interfaces/IHttpResponse.h"
 
+void AReportWidgetActor::BeginPlay()
+{
+	Super::BeginPlay();
+
+	RequestReport();
+}
+
 void AReportWidgetActor::RequestReport()
 {
 	TMap<FString, FString> body;
@@ -21,7 +28,7 @@ void AReportWidgetActor::RequestReport()
 	header.Add(header.Add("Authorization", gi->GetUserToken()));
 
 	Request(
-		RegisterPath + FString::FromInt(gi->GetUserId()) + "/latest",
+		RegisterPath,
 		RegisterMethod,
 		header,
 		"",
