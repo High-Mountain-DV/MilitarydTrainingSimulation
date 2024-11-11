@@ -83,5 +83,7 @@ EBTNodeResult::Type USG_Task_ThrowGrenade::ExecuteTask(UBehaviorTreeComponent& O
 	else
 		Me->ServerRPC_PlayAnimMontage(EEnemyAnimMontageType::Toss_Grenade);
 
+	Me->bAutoMoveActive = false;
+
 	return NodeResult;
 }
