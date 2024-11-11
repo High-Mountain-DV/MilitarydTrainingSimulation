@@ -23,22 +23,24 @@ void UMissionLobbyWidget::NativeConstruct()
 	MENU_Button_GoCreateRoom->OnClicked.AddDynamic(this , &UMissionLobbyWidget::MENU_OnClickGoCreateRoom);
 	MENU_Button_GoFindSessions->OnClicked.AddDynamic(this , &UMissionLobbyWidget::MENU_OnClickGoFindSessions);
 
-	CR_Button_CreateRoom->OnClicked.AddDynamic(this , &UMissionLobbyWidget::CR_OnClickCreateRoom);
+	CR_Button_GoNext->OnClicked.AddDynamic(this , &UMissionLobbyWidget::CR_OnClickGoNext);
 	CR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickGoMenu);
 	CR_Button_InputRoomName->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickInputRoomName);
 
+	RO_Button_CreateRoom->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickCreateRoom);
+	RO_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoBack);
+	
 	FR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::FR_OnClickGoMenu);
-
 }
 
 void UMissionLobbyWidget::MENU_OnClickGoCreateRoom()
 {
-	WidgetSwitcher->SetActiveWidgetIndex(1);
+	WidgetSwitcher->SetActiveWidgetIndex(CR_IDX);
 }
 
 void UMissionLobbyWidget::MENU_OnClickGoFindSessions()
 {
-	WidgetSwitcher->SetActiveWidgetIndex(2);
+	WidgetSwitcher->SetActiveWidgetIndex(FR_IDX);
 
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	if ( gi )
@@ -64,12 +66,29 @@ FString UMissionLobbyWidget::GenerateRandomString(int32 Length)
 	return RandomString;
 }
 
-void UMissionLobbyWidget::CR_OnClickCreateRoom()
+void UMissionLobbyWidget::CR_OnClickGoNext()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(RO_IDX);
+	
+}
+
+void UMissionLobbyWidget::CR_OnClickGoMenu()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(MENU_IDX);
+}
+
+void UMissionLobbyWidget::CR_OnClickInputRoomName()
+{
+	SelectedInput = CR_Text_RoomName;
+
+	SpawnKeyboardWidgetActor();
+}
+
+void UMissionLobbyWidget::RO_OnClickCreateRoom()
 {
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	FString roomName = CR_Text_RoomName->GetText().ToString();
 
-	// roomName이 기재되지 않거나 공백이라면 방생성을 하지 않고싶다.
 	roomName = roomName.TrimStartAndEnd();
 	if ( roomName.IsEmpty() )
 	{
@@ -82,23 +101,15 @@ void UMissionLobbyWidget::CR_OnClickCreateRoom()
 	gi->CreateMySession(roomName , count);
 }
 
-void UMissionLobbyWidget::CR_OnClickGoMenu()
+void UMissionLobbyWidget::RO_OnClickGoBack()
 {
-	WidgetSwitcher->SetActiveWidgetIndex(0);
-}
-
-void UMissionLobbyWidget::CR_OnClickInputRoomName()
-{
-	SelectedInput = CR_Text_RoomName;
-
-	SpawnKeyboardWidgetActor();
+	WidgetSwitcher->SetActiveWidgetIndex(CR_IDX);
 }
 
 void UMissionLobbyWidget::FR_OnClickGoMenu()
 {
 	FS_ScrollBox->ClearChildren();
-	WidgetSwitcher->SetActiveWidgetIndex(0);
-
+	WidgetSwitcher->SetActiveWidgetIndex(MENU_IDX);
 }
 
 void UMissionLobbyWidget::AddSessionSlotWidget(const FRoomInfo& info)
