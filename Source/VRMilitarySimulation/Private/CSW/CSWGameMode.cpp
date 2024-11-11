@@ -20,6 +20,14 @@ void ACSWGameMode::BeginPlay()
 	if (gi)
 		gi->StartRecording();
 	GameLog.playTime = GetWorld()->GetTimeSeconds();
+	HttpActor = Cast<AHttpActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AHttpActor::StaticClass()));
+
+	//tmp
+	FTimerHandle handle;
+	GetWorld()->GetTimerManager().SetTimer(handle, [this]()
+	{
+		this->EndGame();
+	}, 10.f, false);
 }
 
 void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname)
@@ -113,8 +121,6 @@ void ACSWGameMode::CollectEnemyLog()
 
 void ACSWGameMode::PostCombatLog(const FString& nickname)
 {
-	AHttpActor actor;
-	
 	TMap<FString, FString> header;
 	TMap<FString, FString> body;
 
@@ -126,17 +132,22 @@ void ACSWGameMode::PostCombatLog(const FString& nickname)
 	// make body
 	TSharedPtr<FJsonObject> jsonObject = MakeShareable(new FJsonObject());
 
-	auto userLog = UserLogs.Find(nickname); 
+	auto* userLog = UserLogs.Find(nickname);
+	FUserLog tmp;
+	if (!userLog)
+	{
+		userLog = &tmp;
+	}
 
-	jsonObject->SetNumberField("damage_dealt", userLog->damageDealt);
-	jsonObject->SetNumberField("assist", userLog->assist);
-	jsonObject->SetNumberField("play_time", GameLog.playTime);
+	jsonObject->SetNumberField("damageDealt", userLog->damageDealt);
+	jsonObject->SetNumberField("assists", userLog->assist);
+	jsonObject->SetNumberField("playTime", GameLog.playTime);
 	jsonObject->SetNumberField("accuracy", userLog->GetAccuracy());
 	jsonObject->SetNumberField("score", 0);
 	jsonObject->SetStringField("nickname", nickname);
 	jsonObject->SetNumberField("awareness", userLog->awareness);
-	jsonObject->SetNumberField("ally_injuries", GameLog.injuredPlayer);
-	jsonObject->SetNumberField("ally_deaths", GameLog.deadPlayer);
+	jsonObject->SetNumberField("allyInjuries", GameLog.injuredPlayer);
+	jsonObject->SetNumberField("allyDeaths", GameLog.deadPlayer);
 	jsonObject->SetNumberField("kills", userLog->kill);
 
 	FString json;
@@ -145,24 +156,27 @@ void ACSWGameMode::PostCombatLog(const FString& nickname)
 	
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *UJsonParseLib::MakeJson(body));
 	//post
-	actor.Request(
-		"/api/combat",
-		"POST",
-		header,
-		UJsonParseLib::MakeJson(body),
-		[this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
-		{
-			if (bWasSuccessful && response.IsValid())
+	if (IsValid(HttpActor))
+	{
+		HttpActor->Request(
+			"/api/combats",
+			"POST",
+			header,
+			UJsonParseLib::MakeJson(body),
+			[this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
-				OnCompleteEndGame();
+				if (bWasSuccessful && response.IsValid())
+				{
+					UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
+					OnCompleteEndGame();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Request failed"));
+				}
 			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Request failed"));
-			}
-		}
-	);
+		);
+	}
 }
 
 void ACSWGameMode::AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog, const FString& killer)
