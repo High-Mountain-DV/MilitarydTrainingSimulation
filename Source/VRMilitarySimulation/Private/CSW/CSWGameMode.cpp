@@ -142,7 +142,8 @@ void ACSWGameMode::PostCombatLog(const FString& nickname)
 	FString json;
 	TSharedRef<TJsonWriter<TCHAR>> writer = TJsonWriterFactory<TCHAR>::Create(&json);
 	FJsonSerializer::Serialize(jsonObject.ToSharedRef(), writer);
-
+	
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *UJsonParseLib::MakeJson(body));
 	//post
 	actor.Request(
 		"/api/combat",
