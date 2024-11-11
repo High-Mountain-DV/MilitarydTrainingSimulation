@@ -88,10 +88,16 @@ ASG_Enemy::ASG_Enemy()
 void ASG_Enemy::BeginPlay()
 {
 	Super::BeginPlay();
+	//if (GEngine)
+	//{
+	//	// 모든 디버그 메시지 비활성화
+	//	GEngine->bEnableOnScreenDebugMessages = false;
+
+	//	// 기존 메시지 제거
+	//	GEngine->ClearOnScreenDebugMessages();
+	//}
 	HP = MaxHP;
 	SetActorLabel(TEXT("Enemy"));
-	/*GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
-	check(GM); if (nullptr == GM) return;*/
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
@@ -104,14 +110,8 @@ void ASG_Enemy::BeginPlay()
 		DebugArrow->SetHiddenInGame(false);
 	}
 
-	//if (GEngine)
-	//{
-	//	// 모든 디버그 메시지 비활성화
-	//	GEngine->bEnableOnScreenDebugMessages = false;
-
-	//	// 기존 메시지 제거
-	//	GEngine->ClearOnScreenDebugMessages();
-	//}
+	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
+	if (nullptr == GM) return;
 }
 
 // Called every frame
