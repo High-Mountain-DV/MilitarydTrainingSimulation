@@ -73,4 +73,8 @@ public:
 
 	UFUNCTION()
 	int GetShootingCnt() const;
+
+	// 플레이어 ID
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString PlayerId;
 };
