@@ -24,8 +24,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	void Request(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& body, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback);
+	void RequestToBackend(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& body, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback);
+	void RequestToAIServer(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& body, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback);
 
+	
 protected:
-	FString ServerUrl = "http://125.132.216.190:8091";
+	FString BackendUrl = "http://125.132.216.190:8091";
+	FString AIServerUrl = "https://husky-fun-ray.ngrok-free.app";
 };
