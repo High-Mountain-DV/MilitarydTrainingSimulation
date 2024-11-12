@@ -27,11 +27,11 @@ void AHttpActor::Tick(float DeltaTime)
 
 }
 
-void AHttpActor::Request(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& json, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback)
+void AHttpActor::RequestToBackend(const FString& path, const FString& method, const TMap<FString, FString>& header, const FString& body, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback)
 {
 	FHttpModule& httpModule = FHttpModule::Get();
 	TSharedRef<IHttpRequest> req = httpModule.CreateRequest();
-	FString url = ServerUrl + path;
+	FString url = BackendUrl + path;
 	
 	req->SetURL(url);
 	req->SetVerb(method);
@@ -39,7 +39,26 @@ void AHttpActor::Request(const FString& path, const FString& method, const TMap<
 	{
 		req->SetHeader(pair.Key, pair.Value);
 	}
-	req->SetContentAsString(json);
+	req->SetContentAsString(body);
+	req->OnProcessRequestComplete().BindLambda(callback);
+	req->ProcessRequest();
+}
+
+void AHttpActor::RequestToAIServer(const FString& path, const FString& method, const TMap<FString, FString>& header,
+	const FString& body, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback)
+{
+	FHttpModule& httpModule = FHttpModule::Get();
+	TSharedRef<IHttpRequest> req = httpModule.CreateRequest();
+	FString url = AIServerUrl + path;
+	
+	req->SetURL(url);
+	req->SetVerb(method);
+	req->SetTimeout(180);
+	for (auto pair : header)
+	{
+		req->SetHeader(pair.Key, pair.Value);
+	}
+	req->SetContentAsString(body);
 	req->OnProcessRequestComplete().BindLambda(callback);
 	req->ProcessRequest();
 }

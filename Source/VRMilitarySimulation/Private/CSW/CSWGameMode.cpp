@@ -37,12 +37,15 @@ void ACSWGameMode::BeginPlay()
   // }, 10.f, false);
 }
 
-void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname)
+void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, int32 id, const FString& nickname)
 {
 	auto* CommenderScreen = Cast<ACommenderScreen>(UGameplayStatics::GetActorOfClass(GetWorld(), ACommenderScreen::StaticClass()));
+	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+
 	if (CommenderScreen)
 		CommenderScreen->AddPlayerScreen(CamMtl);
 	UserLogs.Add(nickname, FUserLog());
+	gi->AppendTraineesId(id);
 	PlayerCnt++;
 }
 
@@ -159,7 +162,7 @@ void ACSWGameMode::PostCombatLog(const FString& nickname, const FUserLog& userLo
 	//post
 	if (IsValid(HttpActor))
 	{
-		HttpActor->Request(
+		HttpActor->RequestToBackend(
 			"/api/combats",
 			"POST",
 			header,

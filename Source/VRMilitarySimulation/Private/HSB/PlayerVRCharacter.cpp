@@ -36,8 +36,13 @@ void APlayerVRCharacter::BeginPlay()
 	{
 		// 플레이어 ID를 액터 이름으로 설정
 		// GetUserId()의 반환값을 FString으로 변환
-		FString PlayerIdString(GameInstance->GetNickname());
-		SetActorLabel(PlayerIdString);
+		FString PlayerNickNameString(GameInstance->GetNickname());
+		SetActorLabel(PlayerNickNameString);
+
+		PlayerNickName = PlayerNickNameString;
+
+		int32 PlayerIDString(GameInstance->GetUserId());
+		PlayerId = PlayerIDString;
 	}
 
 	if (IsLocallyControlled())

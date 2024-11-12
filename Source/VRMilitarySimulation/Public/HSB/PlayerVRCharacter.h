@@ -63,7 +63,7 @@ public:
 	void DamageProcess(float Damage);
 	
 	UPROPERTY(BlueprintReadWrite)
-	float Max_hp = 40;
+	float Max_hp = 100;
 	UPROPERTY(BlueprintReadWrite)
 	float p_hp = Max_hp;
 
@@ -73,4 +73,10 @@ public:
 
 	UFUNCTION()
 	int GetShootingCnt() const;
+
+	// 플레이어 ID
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 PlayerId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString PlayerNickName;
 };
