@@ -35,7 +35,7 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	if (gi == nullptr)
 		return ;
-	Request(LoginPath, LoginMethod, header, UJsonParseLib::MakeJson(body), [gi](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+	RequestToBackend(LoginPath, LoginMethod, header, UJsonParseLib::MakeJson(body), [gi](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 	{
 		if (bWasSuccessful && response.IsValid() && IsValid(gi))
 		{
@@ -75,7 +75,7 @@ void AHttpLoginActor::RequestRegister(const FString& id, const FString& nickname
 	Body.Add("nickname", nickname);
 
 	header.Add("Content-Type","application/json");
-	Request(RegisterPath, RegisterMethod, header, UJsonParseLib::MakeJson(Body), [](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+	RequestToBackend(RegisterPath, RegisterMethod, header, UJsonParseLib::MakeJson(Body), [](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 	{
 		if (bWasSuccessful && response.IsValid())
 		{
