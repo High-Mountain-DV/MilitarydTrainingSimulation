@@ -159,7 +159,7 @@ void ACSWGameMode::PostCombatLog(const FString& nickname, const FUserLog& userLo
 	//post
 	if (IsValid(HttpActor))
 	{
-		HttpActor->Request(
+		HttpActor->RequestToBackend(
 			"/api/combats",
 			"POST",
 			header,

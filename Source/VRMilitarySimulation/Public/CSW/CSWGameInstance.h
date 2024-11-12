@@ -129,9 +129,9 @@ public:
 
 	const FString& GetUserToken() const;
 private:
-	FString UserToken;
-	int32 UserId;
-	FString UserNickname;
+	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMxMzI1MDI5LCJleHAiOjE3MzE0MTE0Mjl9.EA9bvR7taldniSf_nwrvfLoEEdwJggZ0_E9HbTPUI-k";
+	int32 UserId = 3;
+	FString UserNickname = "1";
 	FString RecentCombatData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
