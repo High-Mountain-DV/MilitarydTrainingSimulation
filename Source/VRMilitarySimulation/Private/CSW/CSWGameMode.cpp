@@ -37,12 +37,15 @@ void ACSWGameMode::BeginPlay()
   // }, 10.f, false);
 }
 
-void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname)
+void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, int32 id, const FString& nickname)
 {
 	auto* CommenderScreen = Cast<ACommenderScreen>(UGameplayStatics::GetActorOfClass(GetWorld(), ACommenderScreen::StaticClass()));
+	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+
 	if (CommenderScreen)
 		CommenderScreen->AddPlayerScreen(CamMtl);
 	UserLogs.Add(nickname, FUserLog());
+	gi->AppendTraineesId(id);
 	PlayerCnt++;
 }
 
