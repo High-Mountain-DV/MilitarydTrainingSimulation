@@ -533,6 +533,20 @@ void ASG_Enemy::Recoil()
 	DestinationAimYaw = 0;
 }
 
+void ASG_Enemy::UpdateHitLog(const float Damage, const FString& ShooterID)
+{
+	if (TTuple<int32, float>* ExistingLog = HitLog.Find(ShooterID))
+	{
+		ExistingLog->Get<0>() += 1;
+		ExistingLog->Get<1>() += Damage;
+		UE_LOG(LogTemp, Warning, TEXT("HitLog Update! %d, %f"), ExistingLog->Get<0>(), ExistingLog->Get<1>());
+	}
+	else
+	{
+		HitLog.Add(ShooterID, TTuple<int32, float>(1, Damage));
+	}
+}
+
 void ASG_Enemy::AttachWeapon(const FName& SocketName)
 {
 	FAttachmentTransformRules const Rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
@@ -611,19 +625,11 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 void ASG_Enemy::ServerRPC_DamageProcess_Implementation(float Damage, const FVector& ShotDirection, const FString& ShooterID)
 {
 	HP -= Damage;
+	UpdateHitLog(Damage, ShooterID);
+	
 	if (HP == 0)
 	{
 		DieProcess(ShotDirection, ShooterID);
-	}
-	if (TTuple<int32, float>* ExistingLog = HitLog.Find(ShooterID))
-	{
-		ExistingLog->Get<0>() += 1;
-		ExistingLog->Get<1>() += Damage;
-		UE_LOG(LogTemp, Warning, TEXT("HitLog Update! %d, %f"), ExistingLog->Get<0>(), ExistingLog->Get<1>());
-	}
-	else
-	{
-		HitLog.Add(ShooterID, TTuple<int32, float>(1, Damage));
 	}
 }
 void ASG_Enemy::DieProcess(const FVector& ShotDirection, const FString& ShooterID)
@@ -656,7 +662,7 @@ void ASG_Enemy::DieProcess(const FVector& ShotDirection, const FString& ShooterI
 
 	MulticastRPC_SpawnDummyEnemy(spawnTransform, ShotDirection);
 
-	if (GM)	GM->AppendHitLog(HitLog);
+	if (GM)	GM->AppendHitLog(HitLog, ShooterID);
 	Destroy();
 }
 

@@ -83,11 +83,7 @@ public:
 	UPROPERTY()
 	TArray<AActor* > ActorsInRange;
 
-	TArray<FString> EncounterPlayerLabels;
-	TArray<FString> DamagedPlayerLabels;
-
 	void Active(class ACharacter* GrenadeInstigator);
-	
 private:
 	void Explode();
 	void ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist);
@@ -98,4 +94,7 @@ private:
 
 	UFUNCTION()
 	void OnExplosionRangeCompEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	TArray<FString> EncounterPlayerLabels;
+	TArray<FString> DamagedPlayerLabels;
 };

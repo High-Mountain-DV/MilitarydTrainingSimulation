@@ -230,6 +230,9 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnDummyEnemy(const FTransform& SpawnTransform, const FVector& ShotDirection);
 	void Recoil();
+
+	void UpdateHitLog(const float Damage, const FString& ShooterID);
+
 public:
 	void AttachWeapon(const FName& SocketName);
 	void SpawnAndGrabGrenade(const FName& SocketName);
