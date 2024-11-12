@@ -61,6 +61,12 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* Text_Dead;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_FeedBack;
+
+	UPROPERTY(meta=(BindWidget))
+	class UImage* Image_RadarGraph;
+
 	UFUNCTION()
 	void OnClickGoLobby();
 
@@ -68,4 +74,5 @@ public:
 	void OnClickReplay();
 
 	void SetReportData(const FReportData& data);
+	void SetRadarGraph(UTexture2D* texture);
 };

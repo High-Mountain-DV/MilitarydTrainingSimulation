@@ -3,6 +3,7 @@
 
 #include "CSW/ReportWidgetActor.h"
 
+#include "ImageUtils.h"
 #include "Components/WidgetComponent.h"
 #include "CSW/CSWGameInstance.h"
 #include "CSW/ReportWidget.h"
@@ -49,7 +50,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 		ReportMethod,
 		header,
 		"",
-		[Report](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+		[Report, this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 		{
 			if (bWasSuccessful && response.IsValid() && IsValid(Report))
 			{
@@ -70,7 +71,18 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 					data.deadPlayer = result->GetIntegerField(TEXT("allyDeaths"));
 					data.imageUrl = result->GetStringField(TEXT("imageUrl"));
 					data.analysisResult = result->GetStringField(TEXT("analysisResult"));
-					
+
+					RequestToS3Image(data.imageUrl, [Report](const FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+					{
+						if (bWasSuccessful && response.IsValid() && IsValid(Report))
+						{
+							TArray<uint8> data = response->GetContent();
+							FString imagePath = FPaths::ProjectPersistentDownloadDir()+"/RadarGraph.jpg";
+							FFileHelper::SaveArrayToFile(data, *imagePath);
+							UTexture2D* texture = FImageUtils::ImportBufferAsTexture2D(data);
+							Report->SetRadarGraph(texture);
+						}
+					});
 					Report->SetReportData(data);
 				}
 			}

@@ -30,6 +30,9 @@ public:
 	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* ButtonSkip;
+
+	UPROPERTY(meta=(BindWidget))
+	UButton* ButtonExit;
 	
 
 	UFUNCTION()
@@ -46,5 +49,8 @@ public:
 
 	UFUNCTION()
 	void OnClickSkip();
+
+	UFUNCTION()
+	void OnClickExit();
 	
 };
