@@ -624,8 +624,10 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 
 void ASG_Enemy::ServerRPC_DamageProcess_Implementation(float Damage, const FVector& ShotDirection, const FString& ShooterID)
 {
+	float DeltaHP = HP;
 	HP -= Damage;
-	UpdateHitLog(Damage, ShooterID);
+	DeltaHP -= HP;
+	UpdateHitLog(DeltaHP, ShooterID);
 	
 	if (HP == 0)
 	{

@@ -24,11 +24,16 @@ protected:
 	float SmoothFocusInterpSpeed = 30.0f;
 
 public:
+
+
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
+
+		UFUNCTION(BlueprintCallable)
+	void SetBehaviorTreeComponent(class UBehaviorTreeComponent* NewComp);
 
 	UPROPERTY()
 	class ASG_Enemy* Me;
@@ -52,4 +57,6 @@ public:
 private:
 	void HandleVisualStimuls(AActor* Actor, FAIStimulus Stimulus);
 	void HandleAudioStimuls(AActor* Actor, FAIStimulus Stimulus);
+
+
 };
