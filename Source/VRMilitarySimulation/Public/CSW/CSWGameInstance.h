@@ -121,18 +121,27 @@ public:
 	void SetUserToken(const FString& token);
 	void SetUserId(int32 id);
 	void SetUserNickname(const FString& nickname);
-	
 	const int32& GetUserId() const;
+
+
 
 	UFUNCTION(BlueprintCallable)
 	const FString& GetNickname() const;
-
+	
 	const FString& GetUserToken() const;
+
+	// report =================================
+	void AppendTraineesId(int32 id);
+	void ResetTraineesId();
+
+	bool IsCommender() const; 
+	const TArray<int32>& GetTraineesId() const;
+	
 private:
-	FString UserToken;
-	int32 UserId;
-	FString UserNickname;
-	FString RecentCombatData;
+	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMxMzI1MDI5LCJleHAiOjE3MzE0MTE0Mjl9.EA9bvR7taldniSf_nwrvfLoEEdwJggZ0_E9HbTPUI-k";
+	int32 UserId = 3;
+	FString UserNickname = "1";
+	TArray<int32> TraineesId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	FString LobbyURL = "/Game/MilitarySimulator/CSW/Maps/VRLobbyMap";
