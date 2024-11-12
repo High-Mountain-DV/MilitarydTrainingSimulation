@@ -53,18 +53,21 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	if(HasAuthority())	RunBehaviorTree(BT_Enemy);
 	Me = Cast<ASG_Enemy>(InPawn);
 	check(Me); if (nullptr == Me) return;
 
-	Me->EnemyAIController = this;
-	Me->BehaviorComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+	if(HasAuthority())	
+	{
+		RunBehaviorTree(BT_Enemy);
+		//Me->EnemyAIController = this;
+		//Me->BehaviorComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+		
+		MyBlackboard = GetBlackboardComponent();
+		check(MyBlackboard); if (nullptr == MyBlackboard) return;
+		PRINTLOG(TEXT("%s"), *MyBlackboard->GetName());
 
-	MyBlackboard = GetBlackboardComponent();
-	check(MyBlackboard); if (nullptr == MyBlackboard) return;
-	PRINTLOG(TEXT("%s"), *MyBlackboard->GetName());
-
-	MyBlackboard->ClearValue(TEXT("LastKnownLocation"));
+		MyBlackboard->ClearValue(TEXT("LastKnownLocation"));
+	}
 }
 
 void ASG_EnemyAIController::OnUnPossess()
@@ -72,6 +75,11 @@ void ASG_EnemyAIController::OnUnPossess()
 	Super::OnUnPossess();
 
 	//UE_LOG(LogTemp, Warning, TEXT("UnPossessed"));
+}
+
+void ASG_EnemyAIController::SetBehaviorTreeComponent(class UBehaviorTreeComponent* NewComp)
+{
+	Me->BehaviorComp = NewComp;
 }
 
 void ASG_EnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)

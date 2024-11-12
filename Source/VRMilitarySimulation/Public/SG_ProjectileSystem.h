@@ -45,7 +45,7 @@ private:
 	TArray<AActor*> ActorsToIgnore;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
-	float BulletDamage = 50;
+	float BulletDamage = 10;
 
 	UPROPERTY(EditDefaultsOnly, Category = Defaults)
 	float BulletSpeed = 37000;
