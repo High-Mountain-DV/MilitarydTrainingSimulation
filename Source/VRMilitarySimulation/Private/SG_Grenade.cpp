@@ -13,6 +13,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Components/ArrowComponent.h"
 #include "../VRMilitarySimulation.h"
+#include "CSW/CSWGameMode.h"
 
 // Sets default values
 ASG_Grenade::ASG_Grenade()
@@ -115,7 +116,11 @@ void ASG_Grenade::Tick(float DeltaTime)
 void ASG_Grenade::OnExplosionRangeCompBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("BeginOverlap")));
+
+	if (!OtherActor) return;
 	ActorsInRange.Add(OtherActor);
+	FString encounterLabel = OtherActor->GetActorLabel();
+	EncounterPlayerLabels.Add(encounterLabel);
 
 	FString output = TEXT("Grenade ActorsInRange: ");
 	for (int i = 0; i < ActorsInRange.Num(); i++)
@@ -157,12 +162,7 @@ void ASG_Grenade::Active(class ACharacter* GrenadeInstigator)
 	if (HasAuthority())
 	{
 		FTimerHandle ExplosionRangeCollisionHandle;
-		GetWorld()->GetTimerManager().SetTimer(ExplosionRangeCollisionHandle, [this]()
-			{
-				ExplosionRangeComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				ExplosionRangeComp->SetGenerateOverlapEvents(true);
-				//UE_LOG(LogTemp, Warning, TEXT("Grenade ExplosionRangeComp 콜리전 활성화"));
-			}, 2.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(ExplosionRangeCollisionHandle, this, &ASG_Grenade::SetCollisionExplosionRangeComp, 2.0f, false);
 	}
 }
 
@@ -287,9 +287,9 @@ bool ASG_Grenade::CheckTrajectoryCollision(const UObject* WorldContextObject, co
 void ASG_Grenade::Explode()
 {
 	PRINTLOG(TEXT("Grenade's Location: %s"), *GetActorLocation().ToString());
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation()), true);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation(), FVector(10)), true);
 	// 수류탄 폭발 소리를 출력할 코드
-	//UGameplayStatics::PlaySoundAtLocation()
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSFX, GetActorLocation(), 2.0f);
 
 	// If Client Grenade, Destroy
 	if (!GetOwner()->HasAuthority())
@@ -361,37 +361,61 @@ void ASG_Grenade::Explode()
 		}
 
 	}
+
+	ACSWGameMode* GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		GM->AppendAwareLog(EncounterPlayerLabels, DamagedPlayerLabels);
+	}
+	FString output1 = TEXT("Encounters: ");
+	for (auto en : EncounterPlayerLabels)
+	{
+		output1 += en + TEXT(" ");
+	}
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *output1);
+
+	output1 = TEXT("DamagedPlayerLabels: ");
+	for (auto dm : DamagedPlayerLabels)
+	{
+		output1 += dm + TEXT(" ");
+	}
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *output1);
 	Destroy();
 }
 void ASG_Grenade::ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist)
 {
 	ACharacter* hitCharacter = Cast<ACharacter>(HitActor);
-	check(hitCharacter); if (nullptr == hitCharacter) return;
-
-	if (GetInstigator()->HasAuthority())
+	if (hitCharacter)
 	{
-		if (hitCharacter)
+		APlayerVRCharacter* Player = Cast<APlayerVRCharacter>(hitCharacter);
+		if (Player)
 		{
-			APlayerVRCharacter* Player = Cast<APlayerVRCharacter>(hitCharacter);
-			if (Player)
-			{
-				Player->DamageProcess(100);
-			}
-			else
-			{
-				// 에너미에게 데미지 처리
-				ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
-				if (Enemy)
-				{
-					Enemy->DamageProcess(100, TEXT(""), Direction, GetInstigator());
-				}
-			}
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Player Get Damaged from Grenade!")));
+			Player->DamageProcess(100);
+			FString damagedLabel = Player->GetActorLabel();
+			DamagedPlayerLabels.Add(damagedLabel);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
-			TSubclassOf<USkeletalMeshComponent> SkeletalMesh;
-			Cast<USkeletalMeshComponent>(HitActor->GetComponentByClass(SkeletalMesh))->AddImpulse(FVector(1000));
+			// 에너미에게 데미지 처리
+			ASG_Enemy* Enemy = Cast<ASG_Enemy>(hitCharacter);
+			if (Enemy)
+			{
+				Enemy->DamageProcess(100, TEXT(""), Direction, GetInstigator());
+			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DummyEnemy Add Impulse"));
+		TSubclassOf<USkeletalMeshComponent> SkeletalMesh;
+		Cast<USkeletalMeshComponent>(HitActor->GetComponentByClass(SkeletalMesh))->AddImpulse(FVector(1000));
+	}
+
+}
+
+void ASG_Grenade::SetCollisionExplosionRangeComp()
+{
+	ExplosionRangeComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ExplosionRangeComp->SetGenerateOverlapEvents(true);
 }

@@ -16,16 +16,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "SG_EnemyAnimInstance.h"
+#include "SG_GrenadeManager.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 
 USG_Task_ThrowGrenade::USG_Task_ThrowGrenade()
 {
 	NodeName = TEXT("ThrowGrenade");
+	//bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type USG_Task_ThrowGrenade::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	FVector TargetPoint;
-	const UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
+	UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
 	EBTNodeResult::Type NodeResult = EBTNodeResult::InProgress;
 
 	AAIController* AIController = OwnerComp.GetAIOwner();
@@ -33,6 +36,23 @@ EBTNodeResult::Type USG_Task_ThrowGrenade::ExecuteTask(UBehaviorTreeComponent& O
 
 	auto* Me = Cast<ASG_Enemy>(AIController->GetPawn());
 	if (!Me) return EBTNodeResult::Failed;
+
+	UGameInstance* GI = Me->GetGameInstance();
+	check(GI); if (nullptr == GI) return EBTNodeResult::Failed;
+
+	USG_GrenadeManager* GrenadeManager = GI->GetSubsystem<USG_GrenadeManager>();
+	check(GrenadeManager); if (nullptr == GrenadeManager) return EBTNodeResult::Failed;
+
+	bool finalGrenadeThrow = false;
+	if (!GrenadeManager->TryThrowGrenade(finalGrenadeThrow))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Grenae Count is over!!"));
+		return EBTNodeResult::Failed;
+	}
+	if (finalGrenadeThrow)
+	{
+		MyBlackboard->SetValueAsBool(TEXT("bCanThrowGrenade"), false);
+	}
 
 	auto* Anim = Me->GetMesh()->GetAnimInstance();
 	if (!Anim) return EBTNodeResult::Failed;
