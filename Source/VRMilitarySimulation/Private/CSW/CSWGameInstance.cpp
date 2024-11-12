@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "GameFramework/GameModeBase.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Online/OnlineSessionNames.h"
 
@@ -96,8 +97,7 @@ void UCSWGameInstance::OnMyCreateSessionComplete(FName SessionName, bool bWasSuc
 		UE_LOG(LogTemp, Warning, TEXT("%s\n"), *(IOnlineSubsystem::Get()->GetSubsystemName()).ToString())
 		// 서버가 여행을 떠나고싶다.
 		CurrentSessionName = MySessionName;
-		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/CSW/Maps/VRWaitingMap?listen"));
-		// GetWorld()->ServerTravel(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap?listen"));
+		GoWaitingRoom();
 	}
 	else
 	{
@@ -255,7 +255,6 @@ void UCSWGameInstance::SetUserToken(const FString& token)
 {
 	UserToken = token;
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *token);
-	GetWorld()->ServerTravel("/Game/MilitarySimulator/CSW/Maps/VRLobbyMap");
 }
 
 void UCSWGameInstance::SetUserId(int32 id)
@@ -296,7 +295,13 @@ void UCSWGameInstance::GoWaitingRoom()
 
 void UCSWGameInstance::GoBattleField()
 {
-	GetWorld()->ServerTravel(BattleFieldURL + "?listen");
+	auto* gm = GetWorld()->GetAuthGameMode();
+
+	if (gm)
+	{
+		gm->bUseSeamlessTravel = true;
+		GetWorld()->ServerTravel(BattleFieldURL + "?listen");
+	}
 }
 
 void UCSWGameInstance::GoReportRoom()

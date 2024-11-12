@@ -9,6 +9,7 @@
 #include "Perception/AISense_Hearing.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "SG_Enemy.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ASG_EnemyAIController::ASG_EnemyAIController()
 {
@@ -84,9 +85,7 @@ void ASG_EnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedAc
 void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	if (!HasAuthority()) return;
-
 	
-
 	/*UAIPerceptionSystem* PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld());
 	check(PerceptionSystem); if (nullptr == PerceptionSystem) return;*/
 

@@ -16,7 +16,7 @@ class VRMILITARYSIMULATION_API USG_GrenadeManager : public UGameInstanceSubsyste
 	
 public:
 	// 수류탄 던지기 시도
-	bool TryThrowGrenade();
+	bool TryThrowGrenade(bool& OutFlag);
 
 private:
 	static const int32 MAX_GRENADE_THROWS = 2;

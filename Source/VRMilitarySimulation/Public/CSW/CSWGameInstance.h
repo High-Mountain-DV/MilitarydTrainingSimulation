@@ -150,7 +150,7 @@ private:
 	FString WaitingRoomURL = "/Game/MilitarySimulator/CSW/Maps/VRWaitingMap";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	FString BattleFieldURL;
+	FString BattleFieldURL = "/Game/MilitarySimulator/JSG/Maps/MAIN_MAP";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	FString ReportRoomURL = "/Game/MilitarySimulator/CSW/Maps/VRReportRoomMap";

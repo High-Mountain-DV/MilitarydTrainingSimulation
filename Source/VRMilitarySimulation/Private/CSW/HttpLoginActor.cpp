@@ -35,7 +35,7 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	if (gi == nullptr)
 		return ;
-	RequestToBackend(LoginPath, LoginMethod, header, UJsonParseLib::MakeJson(body), [gi](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
+	RequestToBackend(LoginPath, LoginMethod, header, UJsonParseLib::MakeJson(body), [gi, this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
 	{
 		if (bWasSuccessful && response.IsValid() && IsValid(gi))
 		{
@@ -55,6 +55,9 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 				}
 			}
 			gi->SetUserToken(response->GetHeader("Authorization"));
+			Open();
+			bLogin = true;
+			WidgetComp->SetVisibility(false);
 		}
 		else
 		{

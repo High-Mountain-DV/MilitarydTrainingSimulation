@@ -74,6 +74,9 @@ public:
 	class UParticleSystem* ExplosionVFX;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------")
+	class USoundBase* ExplosionSFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "----------------------------------------------Custom----------------------------------------------")
 	float ExplosionRangeRadius = 600;
 
 	// Inner Variables
@@ -81,14 +84,17 @@ public:
 	TArray<AActor* > ActorsInRange;
 
 	void Active(class ACharacter* GrenadeInstigator);
-	
 private:
 	void Explode();
 	void ApplyExplosionDamage(AActor* HitActor, const FVector& Direction, float Dist);
-
+	void SetCollisionExplosionRangeComp();
+		
 	UFUNCTION()
 	void OnExplosionRangeCompBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnExplosionRangeCompEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	TArray<FString> EncounterPlayerLabels;
+	TArray<FString> DamagedPlayerLabels;
 };
