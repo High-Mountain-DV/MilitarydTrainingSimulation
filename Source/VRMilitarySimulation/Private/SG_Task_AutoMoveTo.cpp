@@ -14,6 +14,10 @@
 USG_Task_AutoMoveTo::USG_Task_AutoMoveTo()
 {
 	NodeName = TEXT("AutoMoveTo");
+
+	// accept only actors and vectors
+	BlackboardKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(USG_Task_AutoMoveTo, BlackboardKey), AActor::StaticClass());
+	BlackboardKey.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USG_Task_AutoMoveTo, BlackboardKey));
 }
 void USG_Task_AutoMoveTo::InitEnemyVariables(ASG_Enemy* Me)
 {

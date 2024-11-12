@@ -24,8 +24,6 @@ protected:
 	float SmoothFocusInterpSpeed = 30.0f;
 
 public:
-
-
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;

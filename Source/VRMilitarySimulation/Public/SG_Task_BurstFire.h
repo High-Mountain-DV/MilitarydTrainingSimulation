@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "BehaviorTree/BTTaskNode.h"
 #include "SG_Task_BurstFire.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API USG_Task_BurstFire : public UBTTask_BlackboardBase
+class VRMILITARYSIMULATION_API USG_Task_BurstFire : public UBTTaskNode
 {
 	GENERATED_BODY()
 	

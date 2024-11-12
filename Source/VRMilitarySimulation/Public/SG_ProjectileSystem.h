@@ -23,11 +23,21 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* BulletFlybySound;
+
+	UPROPERTY(EditDefaultsOnly)
+	float FlybyDistance = 500.0f;
+
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnEmitterAtLocation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy = true);
 
 	FVector CalculateGravityAndDecelaration(FVector Velocity) const;
+
+	void PlayBulletFlyBySound();
+
 	UFUNCTION(BlueprintPure)
 	float DragForce() const;
 	UPROPERTY()
@@ -79,4 +89,6 @@ private:
 
 	ETraceTypeQuery tracechannel;
 	ETraceTypeQuery bodychannel;
+	TArray<AActor* >FoundPlayers;
+	TArray<bool> bHasPlayedSounds;
 };

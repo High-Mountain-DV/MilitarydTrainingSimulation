@@ -76,7 +76,13 @@ EBTNodeResult::Type USG_Task_MoveTo::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		return EBTNodeResult::Failed;
 	}
 
+	if (bRemoveTargetLocationKey)
+	{
+		Me->SetTargetLocationKeyName(BlackboardKey.GetSelectedKeyID());
+	}
+
 	Me->bAutoMoveActive = false;
+
 	return EBTNodeResult::InProgress;
 }
 
