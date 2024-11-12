@@ -79,15 +79,12 @@ void UWaitRoomWidget::OnClick_GoLobby()
 
 void UWaitRoomWidget::OnClick_GameStart()
 {
-	auto* gm = GetWorld()->GetAuthGameMode();
-
+	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	UE_LOG(LogTemp, Warning, TEXT("Click!"));
 
-	if (gm)
+	if (gi)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ServerTravelCall!"));
-		gm->bUseSeamlessTravel = true;
-		GetWorld()->ServerTravel(TEXT("/Game/MilitarySimulator/JSG/Maps/MAIN_MAP?listen"));
+		gi->GoBattleField();
 	}
 }
 

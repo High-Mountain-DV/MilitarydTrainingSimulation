@@ -5,6 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/Slider.h"
+#include "CSW/CSWGameInstance.h"
 #include "Engine/DemoNetDriver.h"
 
 void UReplayWidget::NativeConstruct()
@@ -23,20 +24,17 @@ void UReplayWidget::NativeConstruct()
 	ButtonRewind->OnPressed.AddDynamic(this, &UReplayWidget::OnClickRewind);
 	ButtonPlay->OnPressed.AddDynamic(this, &UReplayWidget::OnClickPlay);
 	ButtonSkip->OnPressed.AddDynamic(this, &UReplayWidget::OnClickSkip);
+	ButtonExit->OnPressed.AddDynamic(this, &UReplayWidget::OnClickExit);
 }
 
 void UReplayWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	// if (auto demo = GetWorld()->GetDemoNetDriver())
-	// {
-	// 	if (!demo->IsRecordingPaused())
-	// 	{
-	// 		TimeSlider->SetValue(demo->GetDemoCurrentTime());
-	// 	}
-	//
-	// }
+	if (auto demo = GetWorld()->GetDemoNetDriver())
+	{
+		TimeSlider->SetValue(demo->GetDemoCurrentTime());
+	}
 }
 
 void UReplayWidget::OnClickTimeSliderBegin()
@@ -60,17 +58,17 @@ void UReplayWidget::OnClickTimeSliderEnd()
 
 void UReplayWidget::OnClickPlay()
 {
-	if (auto demo = GetWorld()->GetDemoNetDriver())
-	{
-		auto settings = GetWorld()->GetWorldSettings(); 
-		if (settings)
-		{
-			if (settings->GetPauserPlayerState()) // isPaused
-				settings->SetPauserPlayerState(nullptr);
-			else
-				settings->SetPauserPlayerState(GetWorld()->GetFirstPlayerController()->PlayerState);
-		}
-	}
+	// if (auto demo = GetWorld()->GetDemoNetDriver())
+	// {
+	// 	auto settings = GetWorld()->GetWorldSettings(); 
+	// 	if (settings)
+	// 	{
+	// 		if (settings->GetPauserPlayerState()) // isPaused
+	// 			settings->SetPauserPlayerState(nullptr);
+	// 		else
+	// 			settings->SetPauserPlayerState(GetWorld()->GetFirstPlayerController()->PlayerState);
+	// 	}
+	// }
 }
 
 void UReplayWidget::OnClickRewind()
@@ -91,5 +89,12 @@ void UReplayWidget::OnClickSkip()
 		demo->SetDemoCurrentTime(std::clamp(demo->GetDemoCurrentTime() + 5.f, 0.f, demo->GetDemoTotalTime()));
 
 	}
+}
+
+void UReplayWidget::OnClickExit()
+{
+	auto gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+	if (gi)
+		gi->GoReportRoom();
 }
 

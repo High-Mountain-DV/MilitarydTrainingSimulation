@@ -17,6 +17,7 @@ class VRMILITARYSIMULATION_API AReportWidgetActor : public AVRWidgetActor
 public:
 	virtual void BeginPlay() override;
 	void RequestReport(int32 Id, const FString& Token, class UReportWidget* Report);
+	
 	// void RequestAnalize();
 
 private:
