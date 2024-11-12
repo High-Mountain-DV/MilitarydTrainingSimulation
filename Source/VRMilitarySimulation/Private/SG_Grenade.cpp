@@ -98,7 +98,7 @@ void ASG_Grenade::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
+	if (GetOwner()->HasAuthority())
 	{
 		ExplosionRangeComp->OnComponentBeginOverlap.AddDynamic(this, &ASG_Grenade::OnExplosionRangeCompBeginOverlap);
 		ExplosionRangeComp->OnComponentEndOverlap.AddDynamic(this, &ASG_Grenade::OnExplosionRangeCompEndOverlap);
@@ -119,9 +119,20 @@ void ASG_Grenade::OnExplosionRangeCompBeginOverlap(UPrimitiveComponent* Overlapp
 
 	if (!OtherActor) return;
 	ActorsInRange.Add(OtherActor);
+
+	if (OtherActor->ActorHasTag(TEXT("Enemy")))
+	{
+		ASG_Enemy* Enemy = Cast<ASG_Enemy>(OtherActor);
+		check(Enemy); if (nullptr == Enemy) return;
+
+		Enemy->OnEnemyDetectGrenade(GetActorLocation());
+	}
+
+	// To Log Encounters
 	FString encounterLabel = OtherActor->GetActorLabel();
 	EncounterPlayerLabels.Add(encounterLabel);
 
+	// Debug
 	FString output = TEXT("Grenade ActorsInRange: ");
 	for (int i = 0; i < ActorsInRange.Num(); i++)
 	{
@@ -286,7 +297,7 @@ bool ASG_Grenade::CheckTrajectoryCollision(const UObject* WorldContextObject, co
 
 void ASG_Grenade::Explode()
 {
-	PRINTLOG(TEXT("Grenade's Location: %s"), *GetActorLocation().ToString());
+	//PRINTLOG(TEXT("Grenade's Location: %s"), *GetActorLocation().ToString());
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation(), FVector(10)), true);
 	// 수류탄 폭발 소리를 출력할 코드
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSFX, GetActorLocation(), 2.0f);
@@ -322,7 +333,7 @@ void ASG_Grenade::Explode()
 		FHitResult outHit;
 		FVector end = actorInRange->ActorHasTag(TEXT("Dummy")) ? actorInRange->GetComponentByClass<UArrowComponent>()->GetComponentLocation() : actorInRange->GetActorLocation();
 		//end += (end - start);
-		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, outHit, true, FColor::Red, FColor::Green, 20);
+		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::None, outHit, true, FColor::Red, FColor::Green, 20);
 		if (bHit)
 		{
 			if (outHit.GetActor() == actorInRange)

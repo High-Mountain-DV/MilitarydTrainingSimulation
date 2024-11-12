@@ -42,7 +42,6 @@ void ASG_WeaponMaster::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 }
 
 // Called every frame
@@ -189,7 +188,7 @@ void ASG_WeaponMaster::MulticastRPC_SpawnFireVFX_Implementation()
 	check(FireVFX); if (nullptr == FireVFX) return;
 	check(FireSFX); if (nullptr == FireSFX) return;
 
-	PRINTLOG(TEXT("FireVFX 소환"));
+	//PRINTLOG(TEXT("FireVFX 소환"));
 	// 격발 이펙트 소환
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireVFX, MuzzlePosition->GetComponentTransform());
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSFX, GetActorLocation(), 1.0f, 1.0f, FireSFX_StartTime, FireAttenuationSetting);

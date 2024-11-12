@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "SG_DummyEnemy.h"
 #include "HSB/PlayerVRCharacter.h"
+#include "../VRMilitarySimulation.h"
 
 // Sets default values for this component's properties
 USG_ProjectileSystem::USG_ProjectileSystem()
@@ -53,6 +54,14 @@ void USG_ProjectileSystem::BeginPlay()
 				}
 			}, BulletLifeTime, false);
 	}
+
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), ACharacter::StaticClass(), TEXT("Player"), FoundPlayers);
+	bHasPlayedSounds.SetNum(FoundPlayers.Num());
+	for (bool& bSoundPlayed : bHasPlayedSounds)
+	{
+		bSoundPlayed = false;
+	}
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerVRCharacter::StaticClass(), FoundPlayers);
 }
 
 
@@ -63,6 +72,8 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	check(MyBullet); if (nullptr == MyBullet) return;
 	if (!bBulletInitialized) return;
+
+	PlayBulletFlyBySound();
 
 	StartLocation = MyBullet->GetActorLocation();
 	FVector NextLocation = StartLocation + BulletVelocity * DeltaTime;
@@ -80,6 +91,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 		{
 			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
 			ASG_DummyEnemy* dummyEnemy = Cast<ASG_DummyEnemy>(OutHit.GetActor());
+
 			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: {%s}"), *OutHit.GetActor()->GetName());
 			// 캐릭터가 맞았을 때
 			if (Shooter->HasAuthority())
@@ -144,7 +156,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			MyBullet->SetActorLocation(NextLocation);
 			BulletVelocity = CalculateGravityAndDecelaration(BulletVelocity);
 		}
-	}
+	} 
 	else
 	{
 		check(MyBullet); if (nullptr == MyBullet) return;
@@ -162,6 +174,50 @@ void USG_ProjectileSystem::MulticastRPC_SpawnEmitterAtLocation_Implementation(UP
 FVector USG_ProjectileSystem::CalculateGravityAndDecelaration(FVector Velocity) const
 {
 	return Velocity + FVector(0, 0, Gravity * 100 * BulletMass * -1 + DragForce()) * _DeltaTime;
+}
+
+void USG_ProjectileSystem::PlayBulletFlyBySound()
+{
+	FVector BulleLocation = MyBullet->GetActorLocation();
+
+	// 각 플레이어와의 거리 체크
+	for(int i = 0;i < FoundPlayers.Num(); i++)
+	//for (AActor* Player : FoundPlayers)
+	{
+		AActor* Player = FoundPlayers[i];
+		bool& bPlayedSound = bHasPlayedSounds[i];
+		//PRINTLOG(TEXT("Player: %s"), *Player->GetName())
+
+		if (IsValid(Player) && !bPlayedSound && Shooter != Player)
+		{
+			PRINTLOG(TEXT("		if (IsValid(Player) && !bPlayedSound && Shooter != Player)"))
+			FVector PlayerLocation = Player->GetActorLocation();
+			FVector BulletLocaiton = MyBullet->GetActorLocation();
+			float DistanceToPlayer = FVector::Dist(PlayerLocation, BulletLocaiton);
+
+			if (BulletFlybySound && DistanceToPlayer <= FlybyDistance)
+			{
+				PRINTLOG(TEXT("BulletFly Sound on"))
+				UGameplayStatics::PlaySoundAtLocation(
+					GetWorld(),
+					BulletFlybySound,
+					BulletLocaiton,
+					1.0f,
+					1.0f,
+					2.0f
+				);
+				bPlayedSound = true;
+			}
+			else
+			{
+				//PRINTLOG(TEXT("거리가 멀어서 총알 소리가 들리진 않음"))
+			}
+		}
+		else
+		{
+			//PRINTLOG(TEXT("이미 BulletFly 사운드 플레이함"))
+		}
+	}
 }
 
 float USG_ProjectileSystem::DragForce() const
