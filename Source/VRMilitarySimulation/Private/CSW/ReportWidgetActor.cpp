@@ -45,7 +45,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 	header.Add(header.Add("Authorization", Token));
 
 	RequestToBackend(
-		ReportPath,
+		ReportPath + FString::FromInt(Id) + "/latest",
 		ReportMethod,
 		header,
 		"",
@@ -68,7 +68,9 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 					data.kill = result->GetIntegerField(TEXT("kills"));
 					data.injuredPlayer = result->GetIntegerField(TEXT("allyInjuries"));
 					data.deadPlayer = result->GetIntegerField(TEXT("allyDeaths"));
-
+					data.imageUrl = result->GetStringField(TEXT("imageUrl"));
+					data.analysisResult = result->GetStringField(TEXT("analysisResult"));
+					
 					Report->SetReportData(data);
 				}
 			}
