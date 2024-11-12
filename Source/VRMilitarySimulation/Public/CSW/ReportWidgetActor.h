@@ -16,8 +16,8 @@ class VRMILITARYSIMULATION_API AReportWidgetActor : public AVRWidgetActor
 	
 public:
 	virtual void BeginPlay() override;
-	void RequestReport();
-	void RequestAnalize();
+	void RequestReport(int32 Id, const FString& Token, class UReportWidget* Report);
+	// void RequestAnalize();
 
 private:
 	FString ReportPath = "/api/combats/user/latest";
@@ -26,5 +26,7 @@ private:
 	FString AnalizePath = "/training/analyze";
 	FString AnalizeMethod = "POST";
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	TSubclassOf<UReportWidget> ReportWidgetFactory;
 	
 };
