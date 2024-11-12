@@ -285,6 +285,7 @@ void UCSWGameInstance::ReplayRecording()
 
 void UCSWGameInstance::GoLobby()
 {
+	ResetTraineesId();
 	GetWorld()->ServerTravel(LobbyURL);
 }
 
@@ -308,6 +309,7 @@ const int32& UCSWGameInstance::GetUserId() const
 	return UserId;
 }
 
+
 const FString& UCSWGameInstance::GetNickname() const
 {
 	return UserNickname;
@@ -316,6 +318,26 @@ const FString& UCSWGameInstance::GetNickname() const
 const FString& UCSWGameInstance::GetUserToken() const
 {
 	return UserToken;
+}
+
+void UCSWGameInstance::AppendTraineesId(int32 id)
+{
+	TraineesId.Add(id);
+}
+
+void UCSWGameInstance::ResetTraineesId()
+{
+	TraineesId.Empty();
+}
+
+bool UCSWGameInstance::IsCommender() const
+{
+	return !TraineesId.IsEmpty();	
+}
+
+const TArray<int32>& UCSWGameInstance::GetTraineesId() const
+{
+	return TraineesId;
 }
 
 

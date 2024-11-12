@@ -56,7 +56,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, const FString& nickname);
+	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, int32 id,const FString& nickname);
 	
 	void AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog, const FString& killer = "");
 
