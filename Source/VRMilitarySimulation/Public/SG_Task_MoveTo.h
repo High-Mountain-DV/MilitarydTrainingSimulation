@@ -28,6 +28,10 @@ public:
 
     UPROPERTY(EditAnywhere)
     bool bFaceToDirection = true;
+
+    UPROPERTY(EditAnywhere)
+    bool bRemoveTargetLocationKey = true;
+
 private:
     void DebugPoints(const TArray<FVector>& Array);
     bool FindPathPoints(class ASG_Enemy* Me);

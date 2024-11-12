@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "BehaviorTree/Blackboard/BlackboardKey.h"
 #include "SG_Enemy.generated.h"
 
 UENUM()
@@ -53,7 +54,11 @@ public:
 	UPROPERTY()
 	class ASG_EnemyAIController* EnemyAIController;
 	UPROPERTY()
-	class UBehaviorTreeComponent* BehaviorComp;
+	class UBehaviorTreeComponent* BehaviorTreeComp;
+	UPROPERTY()
+	class UBlackboardComponent* Blackboard;
+
+	void SetBehaviorTreeComponent(class UBehaviorTreeComponent* NewComp);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -236,4 +241,11 @@ private:
 public:
 	void AttachWeapon(const FName& SocketName);
 	void SpawnAndGrabGrenade(const FName& SocketName);
+	void SetTargetLocationKeyName(const FBlackboard::FKey KeyID);
+
+	void OnEnemyDetectGrenade(const FVector DetectedGrenadePoint);
+
+	bool bRemoveTargetLocationKey = false;
+private:
+	FBlackboard::FKey TargetLocationKeyID;
 };

@@ -60,7 +60,7 @@ void ASG_EnemyAIController::OnPossess(APawn* InPawn)
 	{
 		RunBehaviorTree(BT_Enemy);
 		//Me->EnemyAIController = this;
-		//Me->BehaviorComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+		//Me->BehaviorTreeComp = Cast<UBehaviorTreeComponent>(BrainComponent);
 		
 		MyBlackboard = GetBlackboardComponent();
 		check(MyBlackboard); if (nullptr == MyBlackboard) return;
@@ -79,15 +79,56 @@ void ASG_EnemyAIController::OnUnPossess()
 
 void ASG_EnemyAIController::SetBehaviorTreeComponent(class UBehaviorTreeComponent* NewComp)
 {
-	Me->BehaviorComp = NewComp;
+	Me->SetBehaviorTreeComponent(NewComp);
+	
 }
 
 void ASG_EnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
-	for (auto actor : UpdatedActors)
-	{
-		//PRINTLOG(TEXT("Actor: {%s}"), *actor->GetName());
-	}
+	//PRINTLOG(TEXT("UpdatedActors.SIze: %d"), UpdatedActors.Num());
+	//// 모든 감지된 타겟들을 새로 리스트에 넣음
+	//TArray<AActor*> NewTargetActors;
+
+	//for (AActor* Actor : UpdatedActors)
+	//{
+	//	PRINTLOG(TEXT("Actor: %s"), *Actor->GetName())
+	//	if (Actor) // 적인지 확인
+	//	{
+	//		FAIStimulus Stimulus;
+	//		FActorPerceptionBlueprintInfo Info;
+	//		GetAIPerceptionComponent()->GetActorsPerception(Actor, Info);
+	//		FAIStimulus LastSensedStimuli = Info.LastSensedStimuli.Num() > 0 ? Info.LastSensedStimuli[0] : FAIStimulus();
+	//		if (LastSensedStimuli.WasSuccessfullySensed())
+	//		{
+	//			NewTargetActors.Add(Actor); // 감지된 타겟을 새 타겟 리스트에 추가
+	//			PRINTLOG(TEXT("Add Target: %s"), *Actor->GetName());
+	//		}
+	//	}
+	//}
+
+	//// TargetActors 리스트 업데이트
+	//TargetActors = NewTargetActors;
+
+	//// 첫 번째 타겟을 블랙보드에 설정
+	//if (TargetActors.Num() > 0)
+	//{
+	//	MyBlackboard->SetValueAsObject(TEXT("TargetActor"), TargetActors[0]);
+	//}
+	//else
+	//{
+	//	// 타겟이 없으면 블랙보드에서 삭제
+	//	MyBlackboard->ClearValue(TEXT("TargetActor"));
+	//	ClearFocus(EAIFocusPriority::Gameplay);
+	//}
+
+	//// 로그 출력
+	//FString output = TEXT("TargetActors: ");
+	//for (AActor* targetActor : TargetActors)
+	//{
+	//	output += targetActor->GetName() + TEXT("  /  ");
+	//}
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("%s"), *output));
 }
 
 void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -112,6 +153,8 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 	{
 		output += targetActor->GetName() + TEXT("  /  ");
 	}
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
+	PRINTLOG(TEXT("%s"), *output)
 	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, FString::Printf(TEXT("%s"), *output));
 }
 
@@ -130,20 +173,19 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 	else
 	{
 		PRINTLOG(TEXT("타겟 놓침"));
-		auto* CurrTargetActor = Cast<AActor>(MyBlackboard->GetValueAsObject(TEXT("TargetActor")));
-		check(CurrTargetActor); if (nullptr == CurrTargetActor) return;
 
 		// 제 1타겟으로 지정하고 있던 액터가 사라지면
-		if (CurrTargetActor == TargetActors[0])
+		if (Actor == TargetActors[0])
 		{
 			TargetActors.RemoveAt(0);
 
 			// 시야내에 적이 없으면
 			if (TargetActors.IsEmpty())
 			{	
+				PRINTLOG(TEXT("Target actors is empty"));
 				ClearFocus(EAIFocusPriority::Gameplay);
-				MyBlackboard->SetValueAsVector(TEXT("LastKnownLocation"), CurrTargetActor->GetActorLocation());
-				UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), CurrTargetActor->GetActorLocation(), 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
+				MyBlackboard->SetValueAsVector(TEXT("LastKnownLocation"), Actor->GetActorLocation());
+				UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Actor->GetActorLocation(), 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
 				MyBlackboard->ClearValue(TEXT("TargetActor"));
 			}
 			// 다른 적들이 있다면
@@ -156,7 +198,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 		// 우선순위가 낮은 액터가 사라지면
 		else
 		{
-			TargetActors.Remove(CurrTargetActor);
+			TargetActors.Remove(Actor);
 		}
 	}
 }

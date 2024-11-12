@@ -132,6 +132,12 @@ void ASG_Enemy::Tick(float DeltaTime)
 	//LeftHandPos = CurrentWeapon->Weapon->GetSocketTransform(TEXT("LeftHandPosSocket")).GetLocation();
 }
 
+void ASG_Enemy::SetBehaviorTreeComponent(class UBehaviorTreeComponent* NewComp)
+{
+	BehaviorTreeComp = NewComp;
+	Blackboard = NewComp->GetBlackboardComponent();
+}
+
 // Called to bind functionality to input
 void ASG_Enemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -401,11 +407,11 @@ void ASG_Enemy::ThrowGrenadeNotifyBegin(FName NotifyName, const FBranchingPointN
 void ASG_Enemy::MulticastRPC_ThrowGrenade_Implementation(const FVector& GrenadeVelocity)
 {
 	check(Grenade); if (nullptr == Grenade) return;
-	
+
 	Grenade->Active(this);
 	Grenade->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-	PRINTLOG(TEXT("GrenadeVelocity: %s"), *GrenadeVelocity.ToString());
+	//PRINTLOG(TEXT("GrenadeVelocity: %s"), *GrenadeVelocity.ToString());
 	Grenade->BaseMesh->AddImpulse(GrenadeVelocity, NAME_None, true);
 }
 
@@ -418,9 +424,9 @@ void ASG_Enemy::OnGrenadeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	{
 		check(Anim); if (nullptr == Anim) return;
 		check(CurrTask); if (nullptr == CurrTask) return;
-		
+
 		Anim->OnMontageEnded.RemoveDynamic(this, &ASG_Enemy::OnGrenadeMontageEnded);
-		CurrTask->FinishLatentTask(*BehaviorComp, EBTNodeResult::Succeeded);
+		CurrTask->FinishLatentTask(*BehaviorTreeComp, EBTNodeResult::Succeeded);
 		CurrTask = nullptr;
 	}
 }
@@ -501,6 +507,14 @@ void ASG_Enemy::MoveTo_AutoMove(float DeltaTime)
 			UE_LOG(LogTemp, Warning, TEXT("Arrive at location"));
 			bAutoMoveActive = false;
 			DirectionVector = GetActorForwardVector();
+
+			if (bRemoveTargetLocationKey)
+			{
+				check(Blackboard); if (nullptr == Blackboard) return;
+
+				Blackboard->ClearValue(TargetLocationKeyID);
+				TargetLocationKeyID = FBlackboard::FKey();
+			}
 		}
 	}
 }
@@ -567,6 +581,21 @@ void ASG_Enemy::SpawnAndGrabGrenade(const FName& SocketName)
 	Grenade->BaseMesh->SetSimulatePhysics(false);
 }
 
+void ASG_Enemy::SetTargetLocationKeyName(const FBlackboard::FKey KeyID)
+{
+	TargetLocationKeyID = KeyID;
+}
+
+void ASG_Enemy::OnEnemyDetectGrenade(const FVector DetectedGrenadePoint)
+{
+	PRINTLOG(TEXT(""));
+	check(Blackboard); if (nullptr == Blackboard) return;
+
+	PRINTLOG(TEXT("수류탄 감지"));
+	Blackboard->SetValueAsBool(TEXT("bDetectGrenade"), true);
+	Blackboard->SetValueAsVector(TEXT("DetectedGrenadePoint"), DetectedGrenadePoint);
+}
+
 void ASG_Enemy::OnRep_CurrentWeapon()
 {
 	check(CurrentWeapon); if (nullptr == CurrentWeapon) return;
@@ -628,7 +657,7 @@ void ASG_Enemy::ServerRPC_DamageProcess_Implementation(float Damage, const FVect
 	HP -= Damage;
 	DeltaHP -= HP;
 	UpdateHitLog(DeltaHP, ShooterID);
-	
+
 	if (HP == 0)
 	{
 		DieProcess(ShotDirection, ShooterID);
@@ -638,21 +667,12 @@ void ASG_Enemy::DieProcess(const FVector& ShotDirection, const FString& ShooterI
 {
 	DetachFromControllerPendingDestroy();
 
-	AAIController* AIController = Cast<AAIController>(GetController());
-	if (AIController)
+	check(Blackboard); if (nullptr == Blackboard) return;
+
+	if (Blackboard)
 	{
-		// BehaviorTreeComponent 가져오기
-		UBehaviorTreeComponent* BehaviorTreeComp = AIController->FindComponentByClass<UBehaviorTreeComponent>();
-		if (BehaviorTreeComp)
-		{
-			// Blackboard 가져오기
-			UBlackboardComponent* Blackboard = BehaviorTreeComp->GetBlackboardComponent();
-			if (Blackboard)
-			{
-				// bDead 값을 true로 설정
-				Blackboard->SetValueAsBool(TEXT("bDead"), true);
-			}
-		}
+		// bDead 값을 true로 설정
+		Blackboard->SetValueAsBool(TEXT("bDead"), true);
 	}
 
 	WeaponComp->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
