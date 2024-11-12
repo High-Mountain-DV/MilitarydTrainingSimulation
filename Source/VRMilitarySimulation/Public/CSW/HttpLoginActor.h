@@ -23,11 +23,17 @@ public:
 	void RequestLogin(const FString& id, const FString& passward);
 	void RequestRegister(const FString& id, const FString& nickname, const FString& passward);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void Open();
+	
 private:
 	FString RegisterPath = "/api/auth/signup";
 	FString RegisterMethod = "POST";
 	
 	FString LoginPath = "/api/auth/login";
 	FString LoginMethod = "POST";
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
+	bool bLogin = false;
 
 };
