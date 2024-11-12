@@ -20,7 +20,7 @@ public:
 	// void RequestAnalize();
 
 private:
-	FString ReportPath = "/api/combats/user/latest";
+	FString ReportPath = "/api/combats/commander/user/";
 	FString ReportMethod = "GET";
 	
 	FString AnalizePath = "/training/analyze";
