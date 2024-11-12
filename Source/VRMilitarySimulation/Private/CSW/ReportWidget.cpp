@@ -4,6 +4,7 @@
 #include "CSW/ReportWidget.h"
 
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "CSW/CSWGameInstance.h"
 
@@ -43,4 +44,11 @@ void UReportWidget::SetReportData(const FReportData& data)
 	Text_Kill->SetText(FText::FromString(FString::FromInt(data.kill)));
 	Text_Injured->SetText(FText::FromString(FString::FromInt(data.injuredPlayer)));
 	Text_Dead->SetText(FText::FromString(FString::FromInt(data.injuredPlayer)));
+	
 }
+
+void UReportWidget::SetRadarGraph(UTexture2D* texture)
+{
+	Image_RadarGraph->SetBrushFromTexture(texture);
+}
+

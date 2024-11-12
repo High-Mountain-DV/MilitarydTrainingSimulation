@@ -20,6 +20,8 @@ struct FReportData
 	int32 kill;
 	int32 injuredPlayer;
 	int32 deadPlayer;
+	FString imageUrl;
+	FString analysisResult;
 
 	FReportData()
 		: playTime(0), accuracy(0), kill(0), injuredPlayer(0), deadPlayer(0)
@@ -59,6 +61,12 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* Text_Dead;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* Text_FeedBack;
+
+	UPROPERTY(meta=(BindWidget))
+	class UImage* Image_RadarGraph;
+
 	UFUNCTION()
 	void OnClickGoLobby();
 
@@ -66,4 +74,5 @@ public:
 	void OnClickReplay();
 
 	void SetReportData(const FReportData& data);
+	void SetRadarGraph(UTexture2D* texture);
 };

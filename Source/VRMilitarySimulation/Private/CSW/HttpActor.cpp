@@ -63,3 +63,16 @@ void AHttpActor::RequestToAIServer(const FString& path, const FString& method, c
 	req->ProcessRequest();
 }
 
+void AHttpActor::RequestToS3Image(const FString& url, TFunction<void(FHttpRequestPtr, FHttpResponsePtr, bool)> callback)
+{
+	FHttpModule& httpModule = FHttpModule::Get();
+	TSharedRef<IHttpRequest> req = httpModule.CreateRequest();
+
+	req->SetURL(url);
+	req->SetVerb(TEXT("GET"));
+	req->SetHeader(TEXT("content-type"), TEXT("image/jpeg"));
+
+	req->OnProcessRequestComplete().BindLambda(callback);
+	req->ProcessRequest();
+}
+

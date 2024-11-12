@@ -76,5 +76,7 @@ public:
 
 	// 플레이어 ID
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FString PlayerId;
+	int32 PlayerId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString PlayerNickName;
 };
