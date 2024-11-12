@@ -111,7 +111,6 @@ void ASG_Enemy::BeginPlay()
 	}
 
 	GM = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
-	if (nullptr == GM) return;
 }
 
 // Called every frame
