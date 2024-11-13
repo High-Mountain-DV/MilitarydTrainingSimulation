@@ -70,7 +70,7 @@ void AHttpActor::RequestToS3Image(const FString& url, TFunction<void(FHttpReques
 
 	req->SetURL(url);
 	req->SetVerb(TEXT("GET"));
-	req->SetHeader(TEXT("content-type"), TEXT("image/jpeg"));
+	req->SetHeader(TEXT("content-type"), TEXT("image/png"));
 
 	req->OnProcessRequestComplete().BindLambda(callback);
 	req->ProcessRequest();
