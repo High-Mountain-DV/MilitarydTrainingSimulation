@@ -77,7 +77,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 						if (bWasSuccessful && response.IsValid() && IsValid(Report))
 						{
 							TArray<uint8> data = response->GetContent();
-							FString imagePath = FPaths::ProjectPersistentDownloadDir()+"/RadarGraph.jpg";
+							FString imagePath = FPaths::ProjectPersistentDownloadDir()+"/RadarGraph.png";
 							FFileHelper::SaveArrayToFile(data, *imagePath);
 							UTexture2D* texture = FImageUtils::ImportBufferAsTexture2D(data);
 							Report->SetRadarGraph(texture);
