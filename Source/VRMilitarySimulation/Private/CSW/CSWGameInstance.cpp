@@ -300,7 +300,8 @@ void UCSWGameInstance::GoBattleField()
 	if (gm)
 	{
 		gm->bUseSeamlessTravel = true;
-		GetWorld()->ServerTravel(BattleFieldURL + "?listen");
+		FString path = TEXT("/Game/MilitarySimulator/SHN/MAIN_MAP");
+		GetWorld()->ServerTravel(path + "?listen");
 	}
 }
 
