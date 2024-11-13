@@ -60,14 +60,14 @@ void ACSWGameMode::EndGame()
 
 
 	//tmp
-	auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
-
-	if (gi)
-	{
-		gi->StopRecording();
-		gi->ExitSession();
-		gi->GoReportRoom();
-	}
+	// auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+	//
+	// if (gi)
+	// {
+	// 	gi->StopRecording();
+	// 	gi->ExitSession();
+	// 	gi->GoReportRoom();
+	// }
 }
 
 void ACSWGameMode::OnCompleteEndGame()
