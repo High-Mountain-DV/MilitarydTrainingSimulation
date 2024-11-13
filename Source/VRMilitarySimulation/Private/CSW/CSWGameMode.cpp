@@ -216,7 +216,7 @@ void ACSWGameMode::AppendShootLog(const FString& nickname, int shootingCnt)
 		EndGame();
 }
 
-void ACSWGameMode::AppendAwareLog(const TArray<FString>& encounter, const TArray<FString>& damaged)
+void ACSWGameMode::AppendAwareLog(	const TArray<FString>& encounter, const TArray<FString>& damaged)
 {
 	TMap<FString, int> awareMap;
 

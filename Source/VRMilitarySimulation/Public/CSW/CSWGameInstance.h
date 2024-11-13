@@ -113,6 +113,7 @@ public:
 	
 	void GoWaitingRoom();
 
+	UFUNCTION(BlueprintCallable)
 	void GoBattleField();
 	
 	void GoReportRoom();
