@@ -25,7 +25,7 @@ void AReportWidgetActor::BeginPlay()
 		{
 			auto* report = CreateWidget<UReportWidget>(GetWorld(), ReportWidgetFactory);
 			reportWrapper->AppendReport(report);
-			RequestReport(gi->GetUserId(), gi->GetUserToken(), report);
+			RequestReport(arr[i], gi->GetUserToken(), report);
 		}
 	}
 	else
