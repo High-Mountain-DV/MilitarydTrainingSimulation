@@ -220,13 +220,14 @@ void ACSWGameMode::AppendAwareLog(const TArray<FString>& encounter, const TArray
 {
 	TMap<FString, int> awareMap;
 
+
 	for (int i = 0; i < encounter.Num(); i++)
 	{
-		awareMap[encounter[i]]++;
+		awareMap.Add(encounter[i])++;
 	}
 	for (int i = 0; i < encounter.Num(); i++)
 	{
-		awareMap[damaged[i]]++;
+		awareMap.Add(damaged[i])++;
 	}
 
 	for (auto nde : awareMap)
