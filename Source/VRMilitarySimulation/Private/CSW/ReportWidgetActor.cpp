@@ -69,7 +69,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 					data.kill = result->GetIntegerField(TEXT("kills"));
 					data.injuredPlayer = result->GetIntegerField(TEXT("allyInjuries"));
 					data.deadPlayer = result->GetIntegerField(TEXT("allyDeaths"));
-					data.imageUrl = result->GetStringField(TEXT("imageUrl"));
+					data.imageUrl = result->GetStringField(TEXT("radarChart"));
 					data.feedback = result->GetStringField(TEXT("feedback"));
 
 					RequestToS3Image(data.imageUrl, [Report](const FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
@@ -77,7 +77,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 						if (bWasSuccessful && response.IsValid() && IsValid(Report))
 						{
 							TArray<uint8> data = response->GetContent();
-							FString imagePath = FPaths::ProjectPersistentDownloadDir()+"/RadarGraph.jpg";
+							FString imagePath = FPaths::ProjectPersistentDownloadDir()+"/RadarGraph.png";
 							FFileHelper::SaveArrayToFile(data, *imagePath);
 							UTexture2D* texture = FImageUtils::ImportBufferAsTexture2D(data);
 							Report->SetRadarGraph(texture);
