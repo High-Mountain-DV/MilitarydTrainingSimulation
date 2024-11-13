@@ -69,7 +69,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 					data.kill = result->GetIntegerField(TEXT("kills"));
 					data.injuredPlayer = result->GetIntegerField(TEXT("allyInjuries"));
 					data.deadPlayer = result->GetIntegerField(TEXT("allyDeaths"));
-					data.imageUrl = result->GetStringField(TEXT("imageUrl"));
+					data.imageUrl = result->GetStringField(TEXT("radarChart"));
 					data.feedback = result->GetStringField(TEXT("feedback"));
 
 					RequestToS3Image(data.imageUrl, [Report](const FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
