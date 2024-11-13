@@ -139,9 +139,9 @@ public:
 	const TArray<int32>& GetTraineesId() const;
 	
 private:
-	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMxNDkwNDk0LCJleHAiOjE3MzE1NzY4OTR9.j20TB5njQ1Mpv5otu1a5VWVypsOjX7SIdL5IdF4U9IE";
-	int32 UserId = 3;
-	FString UserNickname = "1";
+	FString UserToken;
+	int32 UserId;
+	FString UserNickname;
 	TArray<int32> TraineesId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
