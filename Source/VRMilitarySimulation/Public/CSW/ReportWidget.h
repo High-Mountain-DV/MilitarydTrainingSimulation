@@ -21,7 +21,7 @@ struct FReportData
 	int32 injuredPlayer;
 	int32 deadPlayer;
 	FString imageUrl;
-	FString analysisResult;
+	FString feedback;
 
 	FReportData()
 		: playTime(0), accuracy(0), kill(0), injuredPlayer(0), deadPlayer(0)
