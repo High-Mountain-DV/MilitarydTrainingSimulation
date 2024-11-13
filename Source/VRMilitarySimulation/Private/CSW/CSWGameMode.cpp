@@ -57,8 +57,8 @@ void ACSWGameMode::EndGame()
 	CollectEnemyLog();
 	GameLog.playTime = GetWorld()->GetTimeSeconds() - GameLog.playTime;
 	GameLog.deadPlayer = DeadPlayerCnt;
-	for (auto nde : UserLogs)
-		PostCombatLog(nde.Key, nde.Value);
+	// for (auto nde : UserLogs)
+	// 	PostCombatLog(nde.Key, nde.Value);
 
 
 	//tmp
