@@ -144,14 +144,14 @@ private:
 	TArray<int32> TraineesId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	FString LobbyURL = "/Game/MilitarySimulator/CSW/Maps/VRLobbyMap";
+	FString LobbyURL = "/Game/MilitarySimulator/CSW/Maps/Streaming/LobbyStreaming";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	FString WaitingRoomURL = "/Game/MilitarySimulator/CSW/Maps/VRWaitingMap";
+	FString WaitingRoomURL = "/Game/MilitarySimulator/CSW/Maps/Streaming/WaitingRoomStreaming";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	FString BattleFieldURL = "/Game/MilitarySimulator/JSG/Maps/MAIN_MAP";
+	FString BattleFieldURL = "/Game/MilitarySimulator/CSW/Maps/Streaming/BattleMapStreaming";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	FString ReportRoomURL = "/Game/MilitarySimulator/CSW/Maps/VRReportRoomMap";
+	FString ReportRoomURL = "/Game/MilitarySimulator/CSW/Maps/Streaming/ReportingRoomStreaming";
 };
