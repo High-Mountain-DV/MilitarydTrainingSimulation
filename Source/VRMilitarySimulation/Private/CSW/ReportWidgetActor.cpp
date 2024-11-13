@@ -23,6 +23,7 @@ void AReportWidgetActor::BeginPlay()
 		auto& arr = gi->GetTraineesId();
 		for (int i = 0; i < arr.Num(); i++)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("trainee ID: %d"), arr[i]);
 			auto* report = CreateWidget<UReportWidget>(GetWorld(), ReportWidgetFactory);
 			reportWrapper->AppendReport(report);
 			RequestReport(arr[i], gi->GetUserToken(), report);
@@ -40,7 +41,7 @@ void AReportWidgetActor::RequestReport(int32 Id, const FString& Token, UReportWi
 {
 	TMap<FString, FString> header;
 
-
+	UE_LOG(LogTemp, Warning, TEXT("%d"), Id);
 	// header
 	header.Add("Content-Type","application/json");
 	header.Add(header.Add("Authorization", Token));

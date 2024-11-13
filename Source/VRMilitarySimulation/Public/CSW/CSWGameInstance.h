@@ -122,6 +122,8 @@ public:
 	void SetUserToken(const FString& token);
 	void SetUserId(int32 id);
 	void SetUserNickname(const FString& nickname);
+
+	UFUNCTION(BlueprintCallable)
 	const int32& GetUserId() const;
 
 

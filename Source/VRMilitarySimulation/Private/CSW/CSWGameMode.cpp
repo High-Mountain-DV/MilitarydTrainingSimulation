@@ -46,6 +46,8 @@ void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, in
 		CommenderScreen->AddPlayerScreen(CamMtl);
 	UserLogs.Add(nickname, FUserLog());
 	gi->AppendTraineesId(id);
+	UE_LOG(LogTemp, Warning, TEXT("trainee ID: %d"), id);
+
 	PlayerCnt++;
 }
 
