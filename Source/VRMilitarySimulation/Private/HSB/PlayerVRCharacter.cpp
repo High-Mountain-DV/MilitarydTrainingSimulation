@@ -45,26 +45,7 @@ void APlayerVRCharacter::BeginPlay()
 		PlayerId = PlayerIDString;
 	}
 
-	if (IsLocallyControlled())
-	{
-		// 타이머를 설정하여 주기적으로 컨트롤러 Transform을 업데이트
-		GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle,
-			[this]()
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Has Not Controlled"));
-				if (RightCPPController && LeftCPPController)
-				{
-					Server_UpdateControllerTransform(
-						RightCPPController->GetComponentTransform(),
-						LeftCPPController->GetComponentTransform()
-					);
-					UE_LOG(LogTemp, Warning, TEXT("Has Controlled"));
-				}
-			},
-			0.1f, // 업데이트 주기 (초)
-			true
-		);
-	}
+	
 }
 
 void APlayerVRCharacter::Server_UpdateControllerTransform_Implementation(
@@ -106,6 +87,21 @@ void APlayerVRCharacter::Tick(float DeltaTime)
 		LeftLoc = LeftCPPController->GetComponentLocation();
 		
 //		UE_LOG(LogTemp, Warning, TEXT("X: %f , Y: %f, Z: %f"), RightLoc.X, RightLoc.Y, RightLoc.Z);
+	}
+
+	if (IsLocallyControlled())
+	{
+		// 타이머를 설정하여 주기적으로 컨트롤러 Transform을 업데이트
+		
+		UE_LOG(LogTemp, Warning, TEXT("Has Not Controlled"));
+		if (RightCPPController && LeftCPPController)
+		{
+			Server_UpdateControllerTransform(
+				RightCPPController->GetComponentTransform(),
+				LeftCPPController->GetComponentTransform()
+			);
+			UE_LOG(LogTemp, Warning, TEXT("Has Controlled"));
+		}
 	}
 }
 
