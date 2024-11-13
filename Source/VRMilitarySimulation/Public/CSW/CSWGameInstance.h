@@ -138,7 +138,7 @@ public:
 	const TArray<int32>& GetTraineesId() const;
 	
 private:
-	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMxMzI1MDI5LCJleHAiOjE3MzE0MTE0Mjl9.EA9bvR7taldniSf_nwrvfLoEEdwJggZ0_E9HbTPUI-k";
+	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMxNDc0ODA4LCJleHAiOjE3MzE1NjEyMDh9.P5KjbNS1SEyURHwzIFd_mWKAAylm75xhbhIl6NPrKGI";
 	int32 UserId = 3;
 	FString UserNickname = "1";
 	TArray<int32> TraineesId;
