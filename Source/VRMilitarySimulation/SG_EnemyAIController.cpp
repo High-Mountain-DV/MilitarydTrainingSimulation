@@ -186,7 +186,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 				PRINTLOG(TEXT("Target actors is empty"));
 				ClearFocus(EAIFocusPriority::Gameplay);
 				MyBlackboard->SetValueAsVector(TEXT("LastKnownLocation"), Actor->GetActorLocation());
-				UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Actor->GetActorLocation(), 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
+				//UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Actor->GetActorLocation(), 15, 15, FRotator::ZeroRotator, FColor::Yellow, 10, 1);
 				MyBlackboard->ClearValue(TEXT("TargetActor"));
 			}
 			// 다른 적들이 있다면
@@ -207,7 +207,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 void ASG_EnemyAIController::HandleAudioStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
 	MyBlackboard->SetValueAsVector(TEXT("TargetLocation"), Stimulus.StimulusLocation);
-	UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Stimulus.StimulusLocation, 15, 15, FRotator::ZeroRotator, FColor::Purple, 10, 1);
+	//UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Stimulus.StimulusLocation, 15, 15, FRotator::ZeroRotator, FColor::Purple, 10, 1);
 
 	PRINTLOG(TEXT("소리 들림"));
 }

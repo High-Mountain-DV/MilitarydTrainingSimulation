@@ -214,9 +214,6 @@ void USG_Task_MoveTo::InitEnemyVariables(class ASG_Enemy* Me)
 	Me->NextTargetLocation = FVector::ZeroVector;
 	Me->AcceptableRadius = AcceptableRadius;
 	Me->TempAcceptableRadius = 50;
-
-	//테스트를 위해 잠시 Debug를 무조건 True로 설정
-	//Me->bDebugMoveTask = bDebugBoxOn;
-	Me->bDebugMoveTask = true;
+	Me->bDebugMoveTask = bDebugBoxOn;
 	Me->bFaceToDirection = bFaceToDirection;
 }
