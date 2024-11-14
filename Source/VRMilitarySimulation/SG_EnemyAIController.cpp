@@ -151,7 +151,8 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 	FString output = TEXT("TargetActors: ");
 	for (auto targetActor : TargetActors)
 	{
-		output += targetActor->GetName() + TEXT("  /  ");
+		if (targetActor)
+			output += targetActor->GetName() + TEXT("  /  ");
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
 	PRINTLOG(TEXT("%s"), *output)
