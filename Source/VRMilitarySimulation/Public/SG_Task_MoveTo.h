@@ -24,7 +24,7 @@ public:
     bool bRun = false;
 
     UPROPERTY(EditAnywhere)
-    bool bDebugBoxOn = true;
+    bool bDebugBoxOn = false;
 
     UPROPERTY(EditAnywhere)
     bool bFaceToDirection = true;
