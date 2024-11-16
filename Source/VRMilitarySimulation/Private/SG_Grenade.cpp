@@ -106,6 +106,17 @@ void ASG_Grenade::BeginPlay()
 	}
 }
 
+void ASG_Grenade::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	UWorld* WorldContext = GetWorld();
+	if (WorldContext)
+	{
+		WorldContext->GetTimerManager().ClearTimer(ExplosionHandle);
+	}
+}
+
 // Called every frame
 void ASG_Grenade::Tick(float DeltaTime)
 {
@@ -165,8 +176,6 @@ void ASG_Grenade::Active(class ACharacter* GrenadeInstigator)
 	BaseMesh->SetSimulatePhysics(true);
 	BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	// Explosion Timer Setting
-	FTimerHandle ExplosionHandle;
 	GetWorld()->GetTimerManager().SetTimer(ExplosionHandle, this, &ASG_Grenade::Explode, DelayTime, false);
 
 	// If Server Grenade, Explosion Collision Setting
@@ -297,13 +306,17 @@ bool ASG_Grenade::CheckTrajectoryCollision(const UObject* WorldContextObject, co
 
 void ASG_Grenade::Explode()
 {
+	if (!IsValid(this)) return;
+
 	//PRINTLOG(TEXT("Grenade's Location: %s"), *GetActorLocation().ToString());
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, FTransform(FRotator::ZeroRotator, GetActorLocation(), FVector(10)), true);
 	// 수류탄 폭발 소리를 출력할 코드
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSFX, GetActorLocation(), 2.0f);
 
 	// If Client Grenade, Destroy
-	if (!GetOwner()->HasAuthority())
+	ACharacter* GrenadeOwner = Cast<ACharacter>(GetOwner());
+
+	if (GrenadeOwner && !GrenadeOwner->HasAuthority())
 	{
 		Destroy();
 		return;
