@@ -35,6 +35,9 @@ void ACSWGameMode::BeginPlay()
 	 //  {
 		// this->EndGame();
   // }, 10.f, false);
+
+	//DUMMY DATA
+	// CompleteOnePlayerLoading(nullptr, 21, "888");
 }
 
 void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, int32 id, const FString& nickname)
@@ -57,19 +60,19 @@ void ACSWGameMode::EndGame()
 	CollectEnemyLog();
 	GameLog.playTime = GetWorld()->GetTimeSeconds() - GameLog.playTime;
 	GameLog.deadPlayer = DeadPlayerCnt;
-	// for (auto nde : UserLogs)
-	// 	PostCombatLog(nde.Key, nde.Value);
+	for (auto nde : UserLogs)
+		PostCombatLog(nde.Key, nde.Value);
 
 
 	//tmp
-	auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
-	
-	if (gi)
-	{
-		gi->StopRecording();
-		gi->ExitSession();
-		gi->GoReportRoom();
-	}
+	// auto *gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+	//
+	// if (gi)
+	// {
+	// 	gi->StopRecording();
+	// 	gi->ExitSession();
+	// 	gi->GoReportRoom();
+	// }
 }
 
 void ACSWGameMode::OnCompleteEndGame()
@@ -174,7 +177,7 @@ void ACSWGameMode::PostCombatLog(const FString& nickname, const FUserLog& userLo
 				if (bWasSuccessful && response.IsValid())
 				{
 					UE_LOG(LogTemp, Log, TEXT("Request succeeded: %s"), *response->GetContentAsString());
-					OnCompleteEndGame();
+						OnCompleteEndGame();
 				}
 				else
 				{
