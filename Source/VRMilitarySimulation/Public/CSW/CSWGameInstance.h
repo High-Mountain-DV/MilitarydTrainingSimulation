@@ -48,8 +48,6 @@ public:
 	
 
 	IOnlineSessionPtr SessionInterface;
-	FString MySessionName;
-	FString CurrentSessionName;
 	FString GenerateTimestampedSessionName() const ;
 	FSearchSignature OnSearchSignatureCompleteDelegate;
 
@@ -144,6 +142,9 @@ private:
 	FString UserToken;
 	int32 UserId;
 	FString UserNickname;
+
+	FString MySessionName;
+	FString CurrentSessionName;
 	TArray<int32> TraineesId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
