@@ -35,6 +35,7 @@ void AHttpActor::RequestToBackend(const FString& path, const FString& method, co
 	
 	req->SetURL(url);
 	req->SetVerb(method);
+	req->SetTimeout(20.f);
 	for (auto pair : header)
 	{
 		req->SetHeader(pair.Key, pair.Value);

@@ -6,7 +6,6 @@
 #include "CSW/CommenderScreen.h"
 #include "CSW/CSWGameInstance.h"
 #include "CSW/HttpActor.h"
-#include "CSW/JsonParseLib.h"
 #include "HSB/PlayerVRCharacter.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,14 +27,6 @@ void ACSWGameMode::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASG_Enemy::StaticClass(), outActors);
 	EnemyCnt = outActors.Num();
 
-
-	// tmp
-	 //  FTimerHandle handle;
-	 //  GetWorld()->GetTimerManager().SetTimer(handle, [this]()
-	 //  {
-		// this->EndGame();
-  // }, 10.f, false);
-
 	//DUMMY DATA
 	// CompleteOnePlayerLoading(nullptr, 21, "888");
 }
@@ -47,10 +38,8 @@ void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, in
 
 	if (CommenderScreen)
 		CommenderScreen->AddPlayerScreen(CamMtl);
-	UserLogs.Add(nickname, FUserLog());
+	UserLogs.Add(nickname, FUserLog(id));
 	gi->AppendTraineesId(id);
-	UE_LOG(LogTemp, Warning, TEXT("trainee ID: %d"), id);
-
 	PlayerCnt++;
 }
 
@@ -98,8 +87,8 @@ void ACSWGameMode::CollectPlayerLog()
 	for (AActor* actor : outActors)
 	{
 		APlayerVRCharacter* player = Cast<APlayerVRCharacter>(actor);
-
-		FString nickname = player->GetActorLabel();
+		
+		FString nickname = player->Tags[0].ToString();
 		int shootingCnt = player->GetShootingCnt();
 
 		if (auto userLog = UserLogs.Find(nickname))
@@ -148,6 +137,7 @@ void ACSWGameMode::PostCombatLog(const FString& nickname, const FUserLog& userLo
 	// make body
 	TSharedPtr<FJsonObject> jsonObject = MakeShareable(new FJsonObject());
 
+	jsonObject->SetNumberField("userId", userLog.userId);
 	jsonObject->SetNumberField("damageDealt", userLog.damageDealt);
 	jsonObject->SetNumberField("assists", userLog.assist);
 	jsonObject->SetNumberField("playTime", GameLog.playTime);
@@ -212,11 +202,8 @@ void ACSWGameMode::AppendHitLog(const TMap<FString, struct TTuple<int32, float>>
 void ACSWGameMode::AppendShootLog(const FString& nickname, int shootingCnt)
 {
 	auto* userLog = UserLogs.Find(nickname);
-
-	if (!userLog)
-		userLog = &UserLogs.Add(nickname, FUserLog());
+	
 	userLog->shootBullet += shootingCnt;
-
 	if (++DeadPlayerCnt == PlayerCnt)
 		EndGame();
 }
