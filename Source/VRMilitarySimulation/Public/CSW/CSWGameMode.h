@@ -14,15 +14,20 @@ struct FUserLog
 {
 	GENERATED_BODY()
 
+	int userId;
 	float damageDealt;
 	int32 assist;
 	int32 kill;
 	int32 hitBullet;
 	int32 shootBullet;
 	int32 awareness;
-	
+
 	FUserLog()
-		: damageDealt(0), assist(0), kill(0), hitBullet(0), shootBullet(0), awareness(0)
+	{
+	}
+	
+	FUserLog(int32 id)
+		: userId(id), damageDealt(0), assist(0), kill(0), hitBullet(0), shootBullet(0), awareness(0)
 	{
 	}
 
@@ -58,7 +63,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, int32 id,const FString& nickname);
 	
-	void AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog, const FString& killer = "");
+	void AppendHitLog(const TMap<FString, struct TTuple<int32, float>>& hitLog, const FString& killer);
 
 	UFUNCTION(BlueprintCallable)
 	void AppendShootLog(const FString& id, int shootingCnt);

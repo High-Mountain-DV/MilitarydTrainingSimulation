@@ -140,7 +140,7 @@ void ASG_Grenade::OnExplosionRangeCompBeginOverlap(UPrimitiveComponent* Overlapp
 	}
 
 	// To Log Encounters
-	FString encounterLabel = OtherActor->GetActorLabel();
+	FString encounterLabel = OtherActor->Tags[0].ToString();
 	EncounterPlayerLabels.Add(encounterLabel);
 
 	// Debug
@@ -416,7 +416,7 @@ void ASG_Grenade::ApplyExplosionDamage(AActor* HitActor, const FVector& Directio
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Player Get Damaged from Grenade!")));
 			Player->DamageProcess(100);
-			FString damagedLabel = Player->GetActorLabel();
+			FString damagedLabel = Player->Tags[0].ToString();
 			DamagedPlayerLabels.Add(damagedLabel);
 		}
 		else
