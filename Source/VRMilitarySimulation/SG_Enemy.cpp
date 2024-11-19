@@ -97,7 +97,7 @@ void ASG_Enemy::BeginPlay()
 	//	GEngine->ClearOnScreenDebugMessages();
 	//}
 	HP = MaxHP;
-	SetActorLabel(TEXT("Enemy"));
+	// SetActorLabel(TEXT("Enemy"));
 
 	Anim = Cast<USG_EnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	check(Anim); if (nullptr == Anim) return;
@@ -645,7 +645,7 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 		Damage *= BodyShotMultiplier;
 	}
 	FString ShooterID;
-	if (Shooter) ShooterID = Shooter->GetActorLabel();
+	if (Shooter) ShooterID = Shooter->Tags[0].ToString();
 	UE_LOG(LogTemp, Warning, TEXT("ShooterID: %s"), *ShooterID);
 
 	ServerRPC_DamageProcess(Damage, ShotDirection, ShooterID);

@@ -265,6 +265,7 @@ void UCSWGameInstance::SetUserId(int32 id)
 void UCSWGameInstance::SetUserNickname(const FString& nickname)
 {
 	UserNickname = nickname;
+	MySessionName = nickname;
 }
 
 void UCSWGameInstance::StartRecording()

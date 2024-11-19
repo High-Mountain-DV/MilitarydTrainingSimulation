@@ -38,6 +38,7 @@ void APlayerVRCharacter::BeginPlay()
 		// GetUserId()의 반환값을 FString으로 변환
 		FString PlayerNickNameString(GameInstance->GetNickname());
 		// SetActorLabel(PlayerNickNameString);
+		Tags.Add(FName(PlayerNickNameString));
 
 		PlayerNickName = PlayerNickNameString;
 
