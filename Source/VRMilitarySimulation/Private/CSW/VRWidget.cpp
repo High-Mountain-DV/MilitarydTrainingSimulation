@@ -3,7 +3,7 @@
 
 #include "CSW/VRWidget.h"
 
-#include "Components/TextBlock.h"
+#include "Components/EditableText.h"
 #include "CSW/KeyboardWidgetActor.h"
 
 void UVRWidget::NativeConstruct()

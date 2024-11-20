@@ -29,10 +29,10 @@ public:
 	class UButton* Lg_Button_InputPassward;
 	
 	UPROPERTY(meta=(BindWidget))
-	class UTextBlock* Lg_Text_Id;
+	class UEditableText* Lg_Text_Id;
 
 	UPROPERTY(meta=(BindWidget))
-	class UTextBlock* Lg_Text_Passward;
+	class UEditableText* Lg_Text_Passward;
 	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* Lg_Button_Login;
@@ -71,13 +71,13 @@ public:
 	class UButton* Rg_Button_Cancel;
 
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* Rg_Text_Id;
+	UEditableText* Rg_Text_Id;
 
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* Rg_Text_Nickname;
+	UEditableText* Rg_Text_Nickname;
 
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* Rg_Text_Passward;
+	UEditableText* Rg_Text_Passward;
 
 
 	UFUNCTION()

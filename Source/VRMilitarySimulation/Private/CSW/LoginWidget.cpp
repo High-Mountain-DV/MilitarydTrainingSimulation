@@ -5,7 +5,6 @@
 
 #include "Components/Button.h"
 #include "Components/EditableText.h"
-#include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "CSW/HttpLoginActor.h"
 
