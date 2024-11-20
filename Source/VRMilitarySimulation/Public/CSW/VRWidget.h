@@ -26,7 +26,7 @@ public:
 
 protected:
 	UPROPERTY()
-	class UTextBlock* SelectedInput;
+	class UEditableText* SelectedInput;
 
 	UPROPERTY()
 	AVRWidgetActor* VRWidgetActor;
