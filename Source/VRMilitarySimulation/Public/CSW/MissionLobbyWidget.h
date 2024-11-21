@@ -55,7 +55,7 @@ public:
 	class UButton* CR_Button_InputRoomName;
 
 	UPROPERTY(meta=(BindWidget))
-	class UTextBlock* CR_Text_RoomName;
+	class UEditableText* CR_Text_RoomName;
 
 	UPROPERTY(meta=(BindWidget))
 	class USlider* CR_Slider_PlayerCount;
