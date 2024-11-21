@@ -8,6 +8,7 @@
 #include "UObject/CoreNet.h"
 #include "CSW/CSWGameInstance.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/OnlineSubsystemTypes.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 APlayerVRCharacter::APlayerVRCharacter()
@@ -15,6 +16,8 @@ APlayerVRCharacter::APlayerVRCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CustomMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CustomMesh"));
+	CustomMesh->SetupAttachment(GetMesh());
 }
 
 void APlayerVRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

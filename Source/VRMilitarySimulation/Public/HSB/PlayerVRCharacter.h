@@ -42,6 +42,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// UpperIK적용된 캐릭터 따라 할 메쉬
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class USkeletalMeshComponent* CustomMesh;
+
 	// Motion Controllers
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "VR")
     class UMotionControllerComponent* RightCPPController;
