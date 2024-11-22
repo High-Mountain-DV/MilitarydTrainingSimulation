@@ -10,17 +10,30 @@
  * 
  */
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FProfileReportData
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
 	FString date;
+
+	UPROPERTY()
 	int32 assists;
+	
+	UPROPERTY()
 	int32 kills;
+
+	UPROPERTY()
 	float accuracy;
+
+	UPROPERTY()
 	float awareness;
+
+	UPROPERTY()
 	float playTime;
+
+	UPROPERTY()
 	FString aggregatedFeedback;
 
 	FProfileReportData()
