@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WaitRoomSlotWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "WaitRoomWidget.generated.h"
 
@@ -28,7 +29,7 @@ public:
 	class UButton* Button_GameReady;
 
 	UPROPERTY(meta=(BindWidget))
-	class UTextBlock* Txt_Users;
+	class UScrollBox* ScrollBox;	
 
 	UFUNCTION(BlueprintCallable)
 	void OnClick_GoLobby();
@@ -39,6 +40,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnClick_GameReady();
 
+	void AddPlayerPanel(const FString& nickname);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UWaitRoomSlotWidget> WaitRoomSlotWidgetFactory;
+	
 private:
 	int32 MaxPlayerCnt;
 	FTimerHandle handle;

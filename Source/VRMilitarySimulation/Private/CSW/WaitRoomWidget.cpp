@@ -4,8 +4,10 @@
 #include "CSW/WaitRoomWidget.h"
 
 #include "Components/Button.h"
+#include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
 #include "CSW/CSWGameInstance.h"
+#include "CSW/WaitRoomSlotWidget.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 
@@ -40,17 +42,21 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// 1. 다른 플레이어들의 정보를 알고싶다.
-	TArray<TObjectPtr<APlayerState>> users = GetWorld()->GetGameState()->PlayerArray;
-
-	// 2. 플레이어들의 이름을 다 모아서 
-	FString names;
-	for( APlayerState* user : users )
-	{
-		names.Append(FString::Printf(TEXT("%s\n"), *user->GetPlayerName()));
-	}
+	// TArray<TObjectPtr<APlayerState>> users = GetWorld()->GetGameState()->PlayerArray;
+	//
+	// // 2. 플레이어들의 이름을 다 모아서 
+	// FString names;
+	// if (users.Num() != ScrollBox->GetChildrenCount())
+	// {
+	// 	users.Last()->GetPlayerName();
+	// }
+	// for( APlayerState* user : users )
+	// {
+	// 	names.Append(FString::Printf(TEXT("%s\n"), *user->GetPlayerName()));
+	// }
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *names);
 	// 3. 출력하고싶다.
-	Txt_Users->SetText(FText::FromString(names));
+	
 	// if (users.Num() == MaxPlayerCnt && !GetWorld()->GetTimerManager().IsTimerActive(handle))
 	// {
 	// 	auto *pc = GetWorld()->GetFirstPlayerController();
@@ -91,6 +97,20 @@ void UWaitRoomWidget::OnClick_GameStart()
 void UWaitRoomWidget::OnClick_GameReady()
 {
 	
+}
+
+void UWaitRoomWidget::AddPlayerPanel(const FString& nickname)
+{
+	UWaitRoomSlotWidget* slot = CreateWidget<UWaitRoomSlotWidget>(this, WaitRoomSlotWidgetFactory);
+	
+	if (slot)
+	{
+		if (ScrollBox->GetChildrenCount() == 0)
+			slot->SetNickname(nickname, true);
+		else
+			slot->SetNickname(nickname, false);
+		ScrollBox->AddChild(slot);
+	}
 }
 
 
