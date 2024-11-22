@@ -3,17 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "ProfileCustomizing.generated.h"
+#include "Components/ScrollBox.h"
+#include "DraggableScrollBox.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API UProfileCustomizing : public UUserWidget
+class VRMILITARYSIMULATION_API UDraggableScrollBox : public UScrollBox
 {
 	GENERATED_BODY()
-
 	
 
 };
