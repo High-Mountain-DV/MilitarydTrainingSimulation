@@ -45,7 +45,7 @@ void AProfileReportWidgetActor::RequestGraph()
 					if (widget)
 					{
 						TArray<FProfileReportData> datas;
-						FJsonObjectConverter::JsonObjectStringToUStruct(*response->GetContentAsString(), &datas);
+						FJsonObjectConverter::JsonArrayStringToUStruct(*response->GetContentAsString(), &datas);
 						widget->SetProfileReportData(datas);
 					}
 				}
