@@ -115,9 +115,12 @@ void UMissionLobbyWidget::FR_OnClickGoMenu()
 void UMissionLobbyWidget::AddSessionSlotWidget(const FRoomInfo& info)
 {
 	USessionSlotWidget* slot = CreateWidget<USessionSlotWidget>(this , SessionSlotWidgetFactory);
-	
-	slot->UpdateInfo(info);
-	// FS_ScrollBox에 추가 하고싶다.
 
-	FS_ScrollBox->AddChild(slot);
+	if (slot)
+	{
+		slot->UpdateInfo(info);
+		
+		// FS_ScrollBox에 추가 하고싶다.
+		FS_ScrollBox->AddChild(slot);
+	}
 }
