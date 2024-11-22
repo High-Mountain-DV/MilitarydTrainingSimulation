@@ -86,7 +86,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 	if (nullptr != Shooter)
 	{
-		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Red, FColor::Green, 1.5f);
+		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
 		if (bHit)
 		{
 			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
@@ -98,7 +98,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			{
 				if (hitCharacter)
 				{
-					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
+					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
 					if (bBodyHit)
 					{
 						UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
@@ -143,7 +143,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			}
 			// 데칼 소환
 			FRotator DecalRotation = UKismetMathLibrary::MakeRotFromX(OutHit.ImpactNormal);
-			UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalFactory, FVector(2.5), OutHit.ImpactPoint, DecalRotation, 100.0f);
+			MulticastRPC_SpawnDecalAtLocation(BulletHoleDecalFactory, FVector(2.5), OutHit.ImpactPoint, DecalRotation, 100.0f);
 			check(MyBullet); if (nullptr == MyBullet) return;
 
 			GetWorld()->GetTimerManager().ClearTimer(DestroyHandle);
@@ -169,6 +169,13 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 void USG_ProjectileSystem::MulticastRPC_SpawnEmitterAtLocation_Implementation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy /*= true*/)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(Shooter->GetWorld(), ParticleToSpawn, SpawnTransform, bAutoDestroy);
+}
+
+void USG_ProjectileSystem::MulticastRPC_SpawnDecalAtLocation(UMaterialInterface* DecalToSpawn, const FVector& DecalSize /*= FVector(1)*/, const FVector& Location /*= FVector(0)*/, const FRotator& Rotation /*= FRotator(-90, 0, 0)*/, float LifeSpan /*= 0*/)
+{
+	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalFactory, DecalSize, Location, Rotation, LifeSpan);
+	UKismetSystemLibrary::DrawDebugBox(GetWorld(), Location, FVector(5), FColor::Purple, FRotator::ZeroRotator, 10);
+
 }
 
 FVector USG_ProjectileSystem::CalculateGravityAndDecelaration(FVector Velocity) const
