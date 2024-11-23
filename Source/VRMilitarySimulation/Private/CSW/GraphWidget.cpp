@@ -3,11 +3,20 @@
 
 #include "CSW/GraphWidget.h"
 
+void UGraphWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
+
 int32 UGraphWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
-	const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
-	const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+                                const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+                                const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 
+	// for (int i = 0; i < Points.Num(); i++)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("%d: %f, %f"), i, Points[i].X, Points[i].Y); 
+	// }
 	FSlateDrawElement::MakeLines(
 		OutDrawElements,
 		LayerId,
@@ -24,7 +33,7 @@ int32 UGraphWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Allotte
 
 void UGraphWidget::SetPoints(int32 Order, float Value)
 {
-	Points.Add(FVector2D(Order * 100, Value));
+	Points.Add(FVector2D(Order * 100, 250 - Value));
 }
 
 void UGraphWidget::SetGraphColor(const FLinearColor& color)
