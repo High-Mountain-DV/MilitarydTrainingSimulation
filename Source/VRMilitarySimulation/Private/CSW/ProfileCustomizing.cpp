@@ -17,42 +17,24 @@ void UProfileCustomizing::NativeConstruct()
 
 void UProfileCustomizing::OnCheckMark(bool bIsChecked)
 {
-	if (bIsChecked)
-	{
 		WidgetSwitcher->SetActiveWidgetIndex(MARK_IDX);
 		CheckBoxAcc->SetCheckedState(ECheckBoxState::Unchecked);
 		CheckBoxCream->SetCheckedState(ECheckBoxState::Unchecked);
-	}
-	else
-	{
 		CheckBoxMark->SetCheckedState(ECheckBoxState::Checked);
-	}
 }
 
 void UProfileCustomizing::OnCheckCream(bool bIsChecked)
 {
-	if (bIsChecked)
-	{
 		WidgetSwitcher->SetActiveWidgetIndex(CREAM_IDX);
 		CheckBoxMark->SetCheckedState(ECheckBoxState::Unchecked);
 		CheckBoxAcc->SetCheckedState(ECheckBoxState::Unchecked);
-	}
-	else
-	{
 		CheckBoxCream->SetCheckedState(ECheckBoxState::Checked);
-	}
 }
 
 void UProfileCustomizing::OnCheckAcc(bool bIsChecked)
 {
-	if (bIsChecked)
-	{
 		WidgetSwitcher->SetActiveWidgetIndex(ACC_IDX);
 		CheckBoxCream->SetCheckedState(ECheckBoxState::Unchecked);
 		CheckBoxMark->SetCheckedState(ECheckBoxState::Unchecked);
-	}
-	else
-	{
 		CheckBoxAcc->SetCheckedState(ECheckBoxState::Checked);
-	}
 }

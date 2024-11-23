@@ -66,9 +66,22 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	class UButton* CR_Button_GoMenu;
 
+	// Map Select ============================
+	UPROPERTY(meta=(BindWidget))
+	UButton* MS_Button_GoBack;
+
+	UPROPERTY(meta=(BindWidget))
+	UButton* MS_Button_GoNext;
+
+	UFUNCTION()
+	void MS_OnClickGoNext();
+
+	UFUNCTION()
+	void MS_OnClickGoBack();
+	
 	// Room Option ===========================
 	UFUNCTION()
-	void RO_OnClickCreateRoom();
+	void RO_OnClickGoNext();
 
 	UFUNCTION()
 	void RO_OnClickGoBack();
@@ -77,9 +90,33 @@ public:
 	UButton* RO_Button_GoBack;
 
 	UPROPERTY(meta=(BindWidget))
-	UButton* RO_Button_CreateRoom;
+	UButton* RO_Button_GoNext;
 
+	UPROPERTY(meta=(BindWidget))
+	class UCheckBox* RO_CheckBox_Noon;
 	
+	UPROPERTY(meta=(BindWidget))
+	class UCheckBox* RO_CheckBox_Night;
+	
+	UFUNCTION()
+	void RO_OnClickNoon(bool bIsChecked);
+
+	UFUNCTION()
+	void RO_OnClickNight(bool bIsChecked);
+	
+	// Enemy Setting ==========================
+	UFUNCTION()
+	void ES_OnClickGoNext();
+
+	UFUNCTION()
+	void ES_OnClickGoBack();
+
+	UPROPERTY(meta=(BindWidget))
+	UButton* ES_Button_GoNext;
+		
+	UPROPERTY(meta=(BindWidget))
+	UButton* ES_Button_GoBack;
+
 	// Find Session===================================
 	UFUNCTION()
 	void FR_OnClickGoMenu();
@@ -99,6 +136,8 @@ public:
 private:
 	const int32 MENU_IDX = 0;
 	const int32 CR_IDX = 1;
-	const int32 RO_IDX = 2;
-	const int32 FR_IDX = 3;
+	const int32 MS_IDX = 2;
+	const int32 RO_IDX = 3;
+	const int32 ES_IDX = 4;
+	const int32 FR_IDX = 5;
 };
