@@ -195,7 +195,7 @@ void USG_ProjectileSystem::PlayBulletFlyBySound()
 		bool& bPlayedSound = bHasPlayedSounds[i];
 		//PRINTLOG(TEXT("Player: %s"), *Player->GetName())
 
-		if (IsValid(Player) && !bPlayedSound && Shooter != Player)
+		if (IsValid(Player) && !bPlayedSound/* && Shooter != Player*/)
 		{
 			PRINTLOG(TEXT("		if (IsValid(Player) && !bPlayedSound && Shooter != Player)"))
 			FVector PlayerLocation = Player->GetActorLocation();
