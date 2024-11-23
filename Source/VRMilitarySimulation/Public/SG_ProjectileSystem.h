@@ -33,7 +33,7 @@ public:
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SpawnEmitterAtLocation(UParticleSystem* ParticleToSpawn, const FTransform& SpawnTransform, bool bAutoDestroy = true);
-
+	void MulticastRPC_SpawnDecalAtLocation(UMaterialInterface* DecalToSpawn, const FVector& DecalSize = FVector(1), const FVector& Location = FVector(0), const FRotator& Rotation = FRotator(-90, 0, 0), float LifeSpan = 0);
 	FVector CalculateGravityAndDecelaration(FVector Velocity) const;
 
 	void PlayBulletFlyBySound();

@@ -3,28 +3,40 @@
 
 #include "CSW/GraphWidget.h"
 
+void UGraphWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
+
 int32 UGraphWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
-	const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
-	const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+                                const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+                                const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 
-	TArray<FVector2D> Points;
-	Points.Add(FVector2D(200, 300));
-	Points.Add(FVector2D(400, 100));
-	Points.Add(FVector2D(600, 450));
-	Points.Add(FVector2D(800, 210));
-	Points.Add(FVector2D(1000, 70));
-	
+	// for (int i = 0; i < Points.Num(); i++)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("%d: %f, %f"), i, Points[i].X, Points[i].Y); 
+	// }
 	FSlateDrawElement::MakeLines(
 		OutDrawElements,
 		LayerId,
 		AllottedGeometry.ToPaintGeometry(),
 		Points,
 		ESlateDrawEffect::None,
-		FLinearColor::Green,
+		GraphColor,
 		true,
 		2.0f
 	);
 	return Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle,
 	                          bParentEnabled);
+}
+
+void UGraphWidget::SetPoints(int32 Order, float Value)
+{
+	Points.Add(FVector2D(Order * 100, 250 - Value));
+}
+
+void UGraphWidget::SetGraphColor(const FLinearColor& color)
+{
+	GraphColor = color;
 }

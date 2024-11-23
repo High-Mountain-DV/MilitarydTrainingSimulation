@@ -3,44 +3,38 @@
 
 #include "CSW/ProfileCustomizing.h"
 
-FReply UProfileCustomizing::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
-	{
-		bDrag = true;
-		DragStartPos = InMouseEvent.GetScreenSpacePosition();
+#include "Components/CheckBox.h"
+#include "Components/WidgetSwitcher.h"
 
-		return FReply::Handled().CaptureMouse(TakeWidget());
-	}
-	return FReply::Unhandled();
+void UProfileCustomizing::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	CheckBoxMark->OnCheckStateChanged.AddDynamic(this, &UProfileCustomizing::OnCheckMark);
+	CheckBoxAcc->OnCheckStateChanged.AddDynamic(this, &UProfileCustomizing::OnCheckAcc);
+	CheckBoxCream->OnCheckStateChanged.AddDynamic(this, &UProfileCustomizing::OnCheckCream);
 }
 
-FReply UProfileCustomizing::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+void UProfileCustomizing::OnCheckMark(bool bIsChecked)
 {
-	if (bDrag)
-	{
-		FVector2D CurrentPos = InMouseEvent.GetScreenSpacePosition();
-
-		if (DragStartPos.X < CurrentPos.X)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("LEFT!!!"));
-		}
-		else if (DragStartPos.X > CurrentPos.X)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Right!!!"));
-		}
-	}
-	return Super::NativeOnMouseMove(InGeometry, InMouseEvent);
+		WidgetSwitcher->SetActiveWidgetIndex(MARK_IDX);
+		CheckBoxAcc->SetCheckedState(ECheckBoxState::Unchecked);
+		CheckBoxCream->SetCheckedState(ECheckBoxState::Unchecked);
+		CheckBoxMark->SetCheckedState(ECheckBoxState::Checked);
 }
 
-FReply UProfileCustomizing::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+void UProfileCustomizing::OnCheckCream(bool bIsChecked)
 {
-	if (bDrag && InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	{
-		bDrag = false;
+		WidgetSwitcher->SetActiveWidgetIndex(CREAM_IDX);
+		CheckBoxMark->SetCheckedState(ECheckBoxState::Unchecked);
+		CheckBoxAcc->SetCheckedState(ECheckBoxState::Unchecked);
+		CheckBoxCream->SetCheckedState(ECheckBoxState::Checked);
+}
 
-		return FReply::Handled().ReleaseMouseCapture();
-	}
-	
-	return FReply::Unhandled();
+void UProfileCustomizing::OnCheckAcc(bool bIsChecked)
+{
+		WidgetSwitcher->SetActiveWidgetIndex(ACC_IDX);
+		CheckBoxCream->SetCheckedState(ECheckBoxState::Unchecked);
+		CheckBoxMark->SetCheckedState(ECheckBoxState::Unchecked);
+		CheckBoxAcc->SetCheckedState(ECheckBoxState::Checked);
 }

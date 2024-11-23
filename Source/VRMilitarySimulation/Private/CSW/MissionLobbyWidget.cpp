@@ -4,6 +4,7 @@
 #include "CSW/MissionLobbyWidget.h"
 
 #include "Components/Button.h"
+#include "Components/CheckBox.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
 #include "Components/Slider.h"
@@ -27,8 +28,16 @@ void UMissionLobbyWidget::NativeConstruct()
 	CR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickGoMenu);
 	CR_Button_InputRoomName->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickInputRoomName);
 
-	RO_Button_CreateRoom->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickCreateRoom);
+	MS_Button_GoNext->OnClicked.AddDynamic(this, &UMissionLobbyWidget::MS_OnClickGoNext);
+	MS_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::MS_OnClickGoBack);
+
+	RO_Button_GoNext->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoNext);
 	RO_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoBack);
+	RO_CheckBox_Noon->OnCheckStateChanged.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickNoon);
+	RO_CheckBox_Night->OnCheckStateChanged.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickNight);
+
+	ES_Button_GoNext->OnClicked.AddDynamic(this, &UMissionLobbyWidget::ES_OnClickGoNext);
+	ES_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::ES_OnClickGoBack);
 	
 	FR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::FR_OnClickGoMenu);
 }
@@ -68,8 +77,7 @@ FString UMissionLobbyWidget::GenerateRandomString(int32 Length)
 
 void UMissionLobbyWidget::CR_OnClickGoNext()
 {
-	WidgetSwitcher->SetActiveWidgetIndex(RO_IDX);
-	
+	WidgetSwitcher->SetActiveWidgetIndex(MS_IDX);
 }
 
 void UMissionLobbyWidget::CR_OnClickGoMenu()
@@ -84,7 +92,44 @@ void UMissionLobbyWidget::CR_OnClickInputRoomName()
 	SpawnKeyboardWidgetActor();
 }
 
-void UMissionLobbyWidget::RO_OnClickCreateRoom()
+// map select
+
+void UMissionLobbyWidget::MS_OnClickGoNext()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(RO_IDX);
+}
+
+void UMissionLobbyWidget::MS_OnClickGoBack()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(CR_IDX);
+}
+
+// room option
+void UMissionLobbyWidget::RO_OnClickGoBack()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(MS_IDX);
+}
+
+void UMissionLobbyWidget::RO_OnClickGoNext()
+{
+	WidgetSwitcher->SetActiveWidgetIndex(ES_IDX);
+}
+
+
+void UMissionLobbyWidget::RO_OnClickNoon(bool bIsChecked)
+{
+	RO_CheckBox_Night->SetCheckedState(ECheckBoxState::Unchecked);
+	RO_CheckBox_Noon->SetCheckedState(ECheckBoxState::Checked);
+}
+
+void UMissionLobbyWidget::RO_OnClickNight(bool bIsChecked)
+{
+	RO_CheckBox_Night->SetCheckedState(ECheckBoxState::Checked);
+	RO_CheckBox_Noon->SetCheckedState(ECheckBoxState::Unchecked);
+}
+
+// enemy setting
+void UMissionLobbyWidget::ES_OnClickGoNext()
 {
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 	FString roomName = CR_Text_RoomName->GetText().ToString();
@@ -101,11 +146,14 @@ void UMissionLobbyWidget::RO_OnClickCreateRoom()
 	gi->CreateMySession(roomName , count);
 }
 
-void UMissionLobbyWidget::RO_OnClickGoBack()
+void UMissionLobbyWidget::ES_OnClickGoBack()
 {
-	WidgetSwitcher->SetActiveWidgetIndex(CR_IDX);
+	WidgetSwitcher->SetActiveWidgetIndex(RO_IDX);
 }
 
+
+
+// find session
 void UMissionLobbyWidget::FR_OnClickGoMenu()
 {
 	FS_ScrollBox->ClearChildren();
@@ -115,9 +163,12 @@ void UMissionLobbyWidget::FR_OnClickGoMenu()
 void UMissionLobbyWidget::AddSessionSlotWidget(const FRoomInfo& info)
 {
 	USessionSlotWidget* slot = CreateWidget<USessionSlotWidget>(this , SessionSlotWidgetFactory);
-	
-	slot->UpdateInfo(info);
-	// FS_ScrollBox에 추가 하고싶다.
 
-	FS_ScrollBox->AddChild(slot);
+	if (slot)
+	{
+		slot->UpdateInfo(info);
+		
+		// FS_ScrollBox에 추가 하고싶다.
+		FS_ScrollBox->AddChild(slot);
+	}
 }
