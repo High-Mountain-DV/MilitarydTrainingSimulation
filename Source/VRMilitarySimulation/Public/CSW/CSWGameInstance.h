@@ -139,9 +139,9 @@ public:
 	const TArray<int32>& GetTraineesId() const;
 	
 private:
-	FString UserToken;
-	int32 UserId;
-	FString UserNickname;
+	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMyMzU3NzQwLCJleHAiOjE3MzI0NDQxNDB9.JuthRfvq1YFkfNWO4uhC9sDmdFR_D8F87wYXmZN0nFk";
+	int32 UserId = 3;
+	FString UserNickname = "1";
 
 	FString MySessionName;
 	FString CurrentSessionName;

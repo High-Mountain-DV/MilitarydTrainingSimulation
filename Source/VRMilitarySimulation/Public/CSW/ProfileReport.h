@@ -10,36 +10,50 @@
  * 
  */
 
+USTRUCT()
+struct FGraphData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	FString Date;
+
+	UPROPERTY()
+	int32 Kills;
+
+	UPROPERTY()
+	float Awareness;
+
+	UPROPERTY()
+	int32 Assists;
+
+	UPROPERTY()
+	float Accuracy;
+
+	UPROPERTY()
+	int32 PlayTime;
+};
+
+USTRUCT(BlueprintType)
+struct FLatestFeedback
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString Feedback;
+};
+
 USTRUCT(BlueprintType)
 struct FProfileReportData
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FString date;
+	TArray<FGraphData> GraphData;
 
 	UPROPERTY()
-	int32 assists;
+	FLatestFeedback LatestFeedback;
 	
-	UPROPERTY()
-	int32 kills;
-
-	UPROPERTY()
-	float accuracy;
-
-	UPROPERTY()
-	float awareness;
-
-	UPROPERTY()
-	float playTime;
-
-	UPROPERTY()
-	FString aggregatedFeedback;
-
-	FProfileReportData()
-		: assists(0), kills(0), accuracy(0), awareness(0), playTime(0)
-	{
-	}
 };
 
 UCLASS()
@@ -65,5 +79,5 @@ public:
 
 	virtual void NativeConstruct() override;
 	
-	void SetProfileReportData(const TArray<FProfileReportData>& Datas);
+	void SetProfileReportData(const FProfileReportData& Report);
 };
