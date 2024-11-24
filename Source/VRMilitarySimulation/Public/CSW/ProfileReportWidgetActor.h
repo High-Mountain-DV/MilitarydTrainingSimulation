@@ -21,6 +21,6 @@ public:
 	void RequestGraph();
 
 private:
-	FString ProfileReportPath;
-	FString ProfileReportMethod;
+	FString ProfileReportPath = "/api/profiles/graph/top5-with-feedback";
+	FString ProfileReportMethod = "GET";
 };
