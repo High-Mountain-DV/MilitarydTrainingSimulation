@@ -347,4 +347,25 @@ const TArray<int32>& UCSWGameInstance::GetTraineesId() const
 	return TraineesId;
 }
 
+void UCSWGameInstance::SetCustomizingPath(const FString& path, ECustomizingCategory Category)
+{
+	switch (Category)
+	{
+	case ECustomizingCategory::MARK:
+		CustomizingPath.MarkPath = path;
+		break ;
+	case ECustomizingCategory::CREAM:
+		CustomizingPath.CreamPath = path;
+		break ;
+	case ECustomizingCategory::ACC:
+		CustomizingPath.AccPath = path;
+		break ;
+	}
+}
+
+const FCustomizingPath& UCSWGameInstance::GetCustomizingPath() const
+{
+	return CustomizingPath;
+}
+
 

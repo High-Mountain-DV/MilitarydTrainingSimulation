@@ -46,44 +46,44 @@ void APlayerVRCharacter::BeginPlay()
 
 void APlayerVRCharacter::CustomLoad()
 {
-	// 저장된 데이터를 로드하고 캐릭터에 반영
-	UCSWGameInstance* LoadedGameInstance = Cast<UCSWGameInstance>(UGameplayStatics::LoadGameFromSlot(TEXT("CharacterSaveSlot"), 0));
-	if (LoadedGameInstance)
-	{
-		FString SaveGamePath = FPaths::ProjectSavedDir();  // Save 디렉토리 경로 확인
-		UE_LOG(LogTemp, Log, TEXT("Save game loaded from: %s"), *SaveGamePath);
-
-		// 레벨 들어가면 커스텀 정보들 적용됨
-		UWorld* World = GetWorld();
-		if (!World)
-			return;
-		FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(World);
-		if (CurrentLevelName == "MainMap")
-		{
-			// 부대마크 머터리얼 로드 및 적용
-			FString* MarkPath/* = LoadedGameInstance->변수명*/; 
-			// 위장크림 머터리얼 로드 및 적용
-			FString* CreamPath/* = LoadedGameInstance->변수명*/;
-			// 악세서리 메쉬 로드 및 적용
-			FString* AccPath/* = LoadedGameInstance->변수명*/;
-
-			if (MarkPath && CreamPath && AccPath)
-			{
-				UMaterialInterface* LoadedMarkMat= LoadObject<UMaterialInterface>(nullptr, **MarkPath);
-				UMaterialInterface* LoadedCreamMat = LoadObject<UMaterialInterface>(nullptr, **CreamPath);
-				UStaticMesh* LoadedAccMesh = LoadObject<UStaticMesh>(nullptr, **AccPath);
-				
-				if (LoadedMarkMat && LoadedCreamMat && LoadedAccMesh)
-				{
-					ServerSetCustomData(LoadedMarkMat, LoadedCreamMat, LoadedAccMesh);
-				}
-			}
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load save game"));
-	}
+	// // 저장된 데이터를 로드하고 캐릭터에 반영
+	// UCSWGameInstance* LoadedGameInstance = Cast<UCSWGameInstance>(UGameplayStatics::LoadGameFromSlot(TEXT("CharacterSaveSlot"), 0));
+	// if (LoadedGameInstance)
+	// {
+	// 	FString SaveGamePath = FPaths::ProjectSavedDir();  // Save 디렉토리 경로 확인
+	// 	UE_LOG(LogTemp, Log, TEXT("Save game loaded from: %s"), *SaveGamePath);
+	//
+	// 	// 레벨 들어가면 커스텀 정보들 적용됨
+	// 	UWorld* World = GetWorld();
+	// 	if (!World)
+	// 		return;
+	// 	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(World);
+	// 	if (CurrentLevelName == "MainMap")
+	// 	{
+	// 		// 부대마크 머터리얼 로드 및 적용
+	// 		FString* MarkPath/* = LoadedGameInstance->변수명*/; 
+	// 		// 위장크림 머터리얼 로드 및 적용
+	// 		FString* CreamPath/* = LoadedGameInstance->변수명*/;
+	// 		// 악세서리 메쉬 로드 및 적용
+	// 		FString* AccPath/* = LoadedGameInstance->변수명*/;
+	//
+	// 		if (MarkPath && CreamPath && AccPath)
+	// 		{
+	// 			UMaterialInterface* LoadedMarkMat= LoadObject<UMaterialInterface>(nullptr, **MarkPath);
+	// 			UMaterialInterface* LoadedCreamMat = LoadObject<UMaterialInterface>(nullptr, **CreamPath);
+	// 			UStaticMesh* LoadedAccMesh = LoadObject<UStaticMesh>(nullptr, **AccPath);
+	// 			
+	// 			if (LoadedMarkMat && LoadedCreamMat && LoadedAccMesh)
+	// 			{
+	// 				ServerSetCustomData(LoadedMarkMat, LoadedCreamMat, LoadedAccMesh);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Error, TEXT("Failed to load save game"));
+	// }
 }
 
 void APlayerVRCharacter::ServerSetCustomData_Implementation(UMaterialInterface * MarkMat, UMaterialInterface * CreamMat, UStaticMesh * AccMesh)
