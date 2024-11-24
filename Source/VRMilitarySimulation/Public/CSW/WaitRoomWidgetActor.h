@@ -15,7 +15,18 @@ class VRMILITARYSIMULATION_API AWaitRoomWidgetActor : public AVRWidgetActor
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
+
 	UFUNCTION(BlueprintCallable)
 	void AddPlayerPanel(const FString& nickname);
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	TSubclassOf<AActor> BuildingModel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	FTransform SpawnSpot;
 	
+	int32 MaxPlayerCnt;
+	int32 PlayerCnt = 0;
 };
