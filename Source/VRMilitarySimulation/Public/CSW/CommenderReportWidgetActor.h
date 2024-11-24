@@ -4,22 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "CSW/VRWidgetActor.h"
-#include "ReportWidgetActor.generated.h"
+#include "CommenderReportWidgetActor.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VRMILITARYSIMULATION_API AReportWidgetActor : public AVRWidgetActor
+class VRMILITARYSIMULATION_API ACommenderReportWidgetActor : public AVRWidgetActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void BeginPlay() override;
-	void RequestReport();
+
 	
+	void RequestReport(int32 Id, const FString& Token, class UReportSlot* Report);
+
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	TSubclassOf<UUserWidget> ReportSlotFactory;
+
 	FString ReportPath = "/api/combats/commander/user/";
 	FString ReportMethod = "GET";
-	
 };

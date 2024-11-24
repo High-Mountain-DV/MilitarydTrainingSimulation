@@ -3,46 +3,37 @@
 
 #include "CSW/ReportWrapperWidget.h"
 
-#include "CSW/ReportWidget.h"
 #include "Components/Button.h"
-#include "Components/WidgetSwitcher.h"
+#include "Components/HorizontalBox.h"
+#include "Components/TextBlock.h"
+#include "CSW/ReportWidget.h"
+#include "CSW/CSWGameInstance.h"
+#include "CSW/ReportSlot.h"
 
 void UReportWrapperWidget::NativeConstruct()
 {
-	Super::NativeConstruct();
-
-	ButtonGoLeft->OnClicked.AddDynamic(this, &UReportWrapperWidget::OnClickGoLeft);
-	ButtonGoRight->OnClicked.AddDynamic(this, &UReportWrapperWidget::OnClickGoRight);
+	ButtonGoHome->OnClicked.AddDynamic(this, &UReportWrapperWidget::OnClickGoHome);
 }
 
-void UReportWrapperWidget::OnClickGoLeft()
+void UReportWrapperWidget::OnClickGoHome()
 {
-	int32 len = WidgetSwitcher->GetChildrenCount();
-	int32 idx = WidgetSwitcher->GetActiveWidgetIndex();
+	auto gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 
-	if (len)
+	if (gi)
 	{
-		WidgetSwitcher->SetActiveWidgetIndex(--idx < 0 ? len - 1 : idx);
+		gi->ResetTraineesId();
+		gi->GoLobby();
 	}
 }
 
-void UReportWrapperWidget::OnClickGoRight()
+void UReportWrapperWidget::AddReportSlot(UReportSlot* slot)
 {
-	int32 len = WidgetSwitcher->GetChildrenCount();
-	int32 idx = WidgetSwitcher->GetActiveWidgetIndex();
-
-	if (len)
-	{
-		WidgetSwitcher->SetActiveWidgetIndex(++idx % len);
-	}
+	HorizontalBox->AddChild(slot);
 }
 
-void UReportWrapperWidget::AppendReport(UReportWidget* Report)
+void UReportWrapperWidget::SetReportData(int32 playTime, int32 injured, int32 dead)
 {
-	WidgetSwitcher->AddChild(Report);
-	if (WidgetSwitcher->GetChildrenCount() > 1)
-	{
-		ButtonGoLeft->SetVisibility(ESlateVisibility::Visible);
-		ButtonGoRight->SetVisibility(ESlateVisibility::Visible);
-	}
+	TextPlayTime->SetText(FText::FromString(FString::FromInt(playTime)));
+	TextInjured->SetText(FText::FromString(FString::FromInt(injured)));
+	TextDead->SetText(FText::FromString(FString::FromInt(dead)));
 }
