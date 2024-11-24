@@ -8,6 +8,30 @@
 #include "Online/SessionsOSSAdapter.h"
 #include "CSWGameInstance.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FCustomizingPath
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FString MarkPath;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString CreamPath;
+	
+	UPROPERTY(BlueprintReadOnly)
+	FString AccPath;
+};
+
+UENUM(BlueprintType)
+enum ECustomizingCategory : uint8
+{
+	MARK,
+	CREAM,
+	ACC
+};
+
 USTRUCT(BlueprintType)
 struct FRoomInfo
 {
@@ -137,6 +161,12 @@ public:
 
 	bool IsCommender() const; 
 	const TArray<int32>& GetTraineesId() const;
+
+
+	// customizing ============================
+	void SetCustomizingPath(const FString& path, ECustomizingCategory Category);
+
+	const FCustomizingPath& GetCustomizingPath() const;
 	
 private:
 	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMyMzU3NzQwLCJleHAiOjE3MzI0NDQxNDB9.JuthRfvq1YFkfNWO4uhC9sDmdFR_D8F87wYXmZN0nFk";
@@ -146,6 +176,8 @@ private:
 	FString MySessionName;
 	FString CurrentSessionName;
 	TArray<int32> TraineesId;
+
+	FCustomizingPath CustomizingPath;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	FString LobbyURL = "/Game/MilitarySimulator/CSW/Maps/Streaming/LobbyStreaming";
