@@ -22,6 +22,7 @@ void UReportWidget::OnClickGoLobby()
 
 	if (gi)
 	{
+		gi->ResetTraineesId();
 		gi->GoLobby();
 	}
 }

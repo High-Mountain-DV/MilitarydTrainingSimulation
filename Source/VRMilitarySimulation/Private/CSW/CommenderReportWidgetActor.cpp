@@ -1,44 +1,49 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CSW/ReportWidgetActor.h"
+#include "CSW/CommenderReportWidgetActor.h"
 
 #include "ImageUtils.h"
 #include "Components/WidgetComponent.h"
 #include "CSW/CSWGameInstance.h"
+#include "CSW/ReportSlot.h"
 #include "CSW/ReportWidget.h"
 #include "CSW/ReportWrapperWidget.h"
 #include "Interfaces/IHttpResponse.h"
 
-void AReportWidgetActor::BeginPlay()
+void ACommenderReportWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+	auto* gi = Cast<UCSWGameInstance>(GetGameInstance());
+	auto* reportWrapper = Cast<UReportWrapperWidget>(WidgetComp->GetWidget());
 	
 	if (gi->IsCommender())
 	{
-		Destroy();
+		auto& arr = gi->GetTraineesId();
+		for (int i = 0; i < arr.Num(); i++)
+		{
+			auto* report = CreateWidget<UReportSlot>(GetWorld(), ReportSlotFactory);
+			reportWrapper->AddReportSlot(report);
+			RequestReport(arr[i], gi->GetUserToken(), report);
+		}	
 	}
 	else
 	{
-		RequestReport();
+		Destroy();
 	}
 }
 
-void AReportWidgetActor::RequestReport()
+void ACommenderReportWidgetActor::RequestReport(int32 Id, const FString& Token, class UReportSlot* Report)
 {
 	TMap<FString, FString> header;
-	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
-	auto* Report = Cast<UReportWidget>(WidgetComp->GetWidget());
-	
+
 	// header
 	header.Add("Content-Type","application/json");
-	header.Add(header.Add("Authorization", gi->GetUserToken()));
-	
+	header.Add(header.Add("Authorization", Token));
+
 	RequestToBackend(
-		ReportPath + FString::FromInt(gi->GetUserId()) + "/latest",
+		ReportPath + FString::FromInt(Id) + "/latest",
 		ReportMethod,
 		header,
 		"",
@@ -75,7 +80,10 @@ void AReportWidgetActor::RequestReport()
 							Report->SetRadarGraph(texture);
 						}
 					});
-					Report->SetReportData(data);
+					Report->SetReportData(data.nickname, data.kill, data.accuracy, data.feedback);
+					auto* reportWrapper = Cast<UReportWrapperWidget>(WidgetComp->GetWidget());
+					if (reportWrapper)
+						reportWrapper->SetReportData(data.playTime, data.injuredPlayer, data.deadPlayer);	
 				}
 			}
 			else

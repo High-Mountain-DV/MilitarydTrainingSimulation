@@ -18,19 +18,24 @@ public:
 	void NativeConstruct() override;
 	
 	UPROPERTY(meta=(BindWidget))
-	class UWidgetSwitcher* WidgetSwitcher;
+	class UButton* ButtonGoHome;
 
 	UPROPERTY(meta=(BindWidget))
-	class UButton* ButtonGoLeft;
+	class UHorizontalBox* HorizontalBox;
 
 	UPROPERTY(meta=(BindWidget))
-	UButton* ButtonGoRight;
+	class UTextBlock* TextPlayTime;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* TextInjured;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* TextDead;
+	
 	UFUNCTION()
-	void OnClickGoLeft();
+	void OnClickGoHome();
 
-	UFUNCTION()
-	void OnClickGoRight();
+	void AddReportSlot(class UReportSlot* slot);
 
-	void AppendReport(class UReportWidget* Report);
+	void SetReportData(int32 playTime, int32 injured, int32 dead);
 };
