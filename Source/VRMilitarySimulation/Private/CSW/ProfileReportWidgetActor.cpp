@@ -12,7 +12,8 @@
 void AProfileReportWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	RequestGraph();
 }
 
 void AProfileReportWidgetActor::RequestGraph()
@@ -27,7 +28,7 @@ void AProfileReportWidgetActor::RequestGraph()
 
 	RequestToBackend(
 		ProfileReportPath,
-		ProfileReportPath,
+		ProfileReportMethod,
 		header,
 		"",
 		[this](FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful)
@@ -44,9 +45,9 @@ void AProfileReportWidgetActor::RequestGraph()
 					auto widget = Cast<UProfileReport>(WidgetComp->GetWidget());
 					if (widget)
 					{
-						TArray<FProfileReportData> datas;
-						FJsonObjectConverter::JsonArrayStringToUStruct(*response->GetContentAsString(), &datas);
-						widget->SetProfileReportData(datas);
+						FProfileReportData report;
+						FJsonObjectConverter::JsonObjectStringToUStruct(*response->GetContentAsString(), &report);
+						widget->SetProfileReportData(report);
 					}
 				}
 			}

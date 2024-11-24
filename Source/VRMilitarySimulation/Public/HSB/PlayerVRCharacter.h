@@ -35,6 +35,17 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void Multicast_UpdateControllerTransform(const FTransform& RightTransform, const FTransform& LeftTransform);
 
+public:
+	// 커스텀 정보 로드할 함수
+	UFUNCTION(BlueprintCallable)
+	void CustomLoad();
+
+	UFUNCTION(Server, Reliable)
+    void ServerSetCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
+
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastUpdateCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
