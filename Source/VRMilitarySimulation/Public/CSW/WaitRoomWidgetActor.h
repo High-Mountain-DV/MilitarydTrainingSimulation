@@ -18,7 +18,7 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void AddPlayerPanel(const FString& nickname);
+	void AddPlayerPanel(const FString& nickname, bool bCommender);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))

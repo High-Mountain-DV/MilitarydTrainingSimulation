@@ -169,7 +169,7 @@ public:
 	const FCustomizingPath& GetCustomizingPath() const;
 	
 private:
-	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMyMzU3NzQwLCJleHAiOjE3MzI0NDQxNDB9.JuthRfvq1YFkfNWO4uhC9sDmdFR_D8F87wYXmZN0nFk";
+	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMyNTE1NDUyLCJleHAiOjE3MzI2MDE4NTJ9.Nn9fK-t5pbUwX_5MSQu3HgeG7dB5hM033HjkcOOdHDc";
 	int32 UserId = 3;
 	FString UserNickname = "1";
 
