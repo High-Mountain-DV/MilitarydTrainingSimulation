@@ -645,7 +645,7 @@ void ASG_Enemy::DamageProcess(float Damage, const FName& BoneName, const FVector
 		Damage *= BodyShotMultiplier;
 	}
 	FString ShooterID;
-	if (Shooter) ShooterID = Shooter->Tags[0].ToString();
+	if (Shooter) ShooterID = Shooter->Tags[1].ToString();
 	UE_LOG(LogTemp, Warning, TEXT("ShooterID: %s"), *ShooterID);
 
 	ServerRPC_DamageProcess(Damage, ShotDirection, ShooterID);

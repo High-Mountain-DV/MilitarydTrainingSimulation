@@ -23,13 +23,13 @@ void AWaitRoomWidgetActor::BeginPlay()
 	}
 }
 
-void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname)
+void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname, bool bIsCommender)
 {
 	UWaitRoomWidget* widget = Cast<UWaitRoomWidget>(WidgetComp->GetWidget());
-
+	
 	if (widget)
 	{
-		widget->AddPlayerPanel(nickname);
+		widget->AddPlayerPanel(nickname, bIsCommender);
 		if (++PlayerCnt == MaxPlayerCnt)
 		{
 			TArray<AActor *> actors;

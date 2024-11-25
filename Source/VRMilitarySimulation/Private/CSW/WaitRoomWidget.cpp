@@ -10,6 +10,7 @@
 #include "CSW/WaitRoomSlotWidget.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 void UWaitRoomWidget::NativeConstruct()
 {
@@ -42,9 +43,29 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// 1. 다른 플레이어들의 정보를 알고싶다.
-	// TArray<TObjectPtr<APlayerState>> users = GetWorld()->GetGameState()->PlayerArray;
+	// TArray<AActor *> newPlayers;
+	// UGameplayStatics::GetAllActorsOfClass(GetWorld(), APawn::StaticClass(), newPlayers);
 	//
-	// // 2. 플레이어들의 이름을 다 모아서 
+	// // 2. 새로 찾은 플레이어가 기존 플레이어보다 많으면 새로 찾은 플레이어를 추가한다
+	// if (newPlayers.Num() != Players.Num())
+	// {
+	// 	for (auto newPlayer : newPlayers)
+	// 	{
+	// 		if (newPlayer->Tags.Num() >= 3)
+	// 		{
+	// 			if (!Players.Find(newPlayer))
+	// 			{
+	// 				Players.Add(newPlayer);
+	// 				AddPlayerPanel(newPlayer->Tags[NAME].ToString(), newPlayer->Tags[ROLE].ToString() == "Commender");
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	 
+
+	
+	
 	// FString names;
 	// if (users.Num() != ScrollBox->GetChildrenCount())
 	// {
@@ -56,7 +77,7 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// }
 	// UE_LOG(LogTemp, Warning, TEXT("%s"), *names);
 	// 3. 출력하고싶다.
-	
+	//
 	// if (users.Num() == MaxPlayerCnt && !GetWorld()->GetTimerManager().IsTimerActive(handle))
 	// {
 	// 	auto *pc = GetWorld()->GetFirstPlayerController();
@@ -99,16 +120,13 @@ void UWaitRoomWidget::OnClick_GameReady()
 	
 }
 
-void UWaitRoomWidget::AddPlayerPanel(const FString& nickname)
+void UWaitRoomWidget::AddPlayerPanel(const FString& nickname, bool bIsCommender)
 {
 	UWaitRoomSlotWidget* slot = CreateWidget<UWaitRoomSlotWidget>(this, WaitRoomSlotWidgetFactory);
 	
 	if (slot)
 	{
-		if (ScrollBox->GetChildrenCount() == 0)
-			slot->SetNickname(nickname, true);
-		else
-			slot->SetNickname(nickname, false);
+		slot->SetNickname(nickname, bIsCommender);
 		ScrollBox->AddChild(slot);
 	}
 }
