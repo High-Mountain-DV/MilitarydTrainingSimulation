@@ -86,7 +86,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 	if (nullptr != Shooter)
 	{
-		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Red, FColor::Green, 1.5f);
+		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, tracechannel, false, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Red, FColor::Green, 1.5f);
 		if (bHit)
 		{
 			ACharacter* hitCharacter = Cast<ACharacter>(OutHit.GetActor());
@@ -98,7 +98,7 @@ void USG_ProjectileSystem::TickComponent(float DeltaTime, ELevelTick TickType, F
 			{
 				if (hitCharacter)
 				{
-					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
+					bool bBodyHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, NextLocation, bodychannel, true, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FColor::Purple, FColor::Green, 1.5f);
 					if (bBodyHit)
 					{
 						UE_LOG(LogTemp, Warning, TEXT("BoneName: {%s}"), *OutHit.BoneName.ToString());
@@ -195,7 +195,7 @@ void USG_ProjectileSystem::PlayBulletFlyBySound()
 		bool& bPlayedSound = bHasPlayedSounds[i];
 		//PRINTLOG(TEXT("Player: %s"), *Player->GetName())
 
-		if (IsValid(Player) && !bPlayedSound/* && Shooter != Player*/)
+		if (IsValid(Player) && !bPlayedSound && Shooter != Player)
 		{
 			PRINTLOG(TEXT("		if (IsValid(Player) && !bPlayedSound && Shooter != Player)"))
 			FVector PlayerLocation = Player->GetActorLocation();
