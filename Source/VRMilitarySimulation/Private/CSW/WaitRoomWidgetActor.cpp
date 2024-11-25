@@ -3,7 +3,6 @@
 
 #include "CSW/WaitRoomWidgetActor.h"
 
-#include "ImaginaryBlueprintData.h"
 #include "Components/WidgetComponent.h"
 #include "CSW/CSWGameInstance.h"
 #include "CSW/WaitRoomWidget.h"
