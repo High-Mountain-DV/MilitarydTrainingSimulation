@@ -27,19 +27,29 @@ void APlayerVRCharacter::BeginPlay()
 	
 	// 게임 인스턴스에서 ID 가져오기
 	UCSWGameInstance* GameInstance = Cast<UCSWGameInstance>(GetGameInstance());
-	if (GameInstance)
+	if (GameInstance && IsLocallyControlled())
 	{
-		// 플레이어 ID를 액터 이름으로 설정
-		// GetUserId()의 반환값을 FString으로 변환
-		FString PlayerNickNameString(GameInstance->GetNickname());
-		// SetActorLabel(PlayerNickNameString);
-		Tags.Add(FName(PlayerNickNameString));
-
-		PlayerNickName = PlayerNickNameString;
-
-		int32 PlayerIDString(GameInstance->GetUserId());
-		PlayerId = PlayerIDString;
+		ServerSetNicknameAndID(GameInstance->GetNickname(), GameInstance->GetUserId());
 	}
+}
+
+void APlayerVRCharacter::ServerSetNicknameAndID_Implementation(const FString& nickname, int32 id)
+{
+	MulticastSetNicknameAndID(nickname, id);
+}
+
+void APlayerVRCharacter::MulticastSetNicknameAndID_Implementation(const FString& nickname, int32 id)
+{
+	// 플레이어 ID를 액터 이름으로 설정
+	// GetUserId()의 반환값을 FString으로 변환
+	FString PlayerNickNameString(nickname);
+	// SetActorLabel(PlayerNickNameString);
+	Tags.Add(FName(PlayerNickNameString));
+
+	PlayerNickName = PlayerNickNameString;
+
+	int32 PlayerIDString(id);
+	PlayerId = PlayerIDString;
 }
 
 void APlayerVRCharacter::CustomLoad()
