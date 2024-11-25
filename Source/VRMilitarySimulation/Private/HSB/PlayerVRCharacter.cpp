@@ -43,14 +43,13 @@ void APlayerVRCharacter::MulticastSetNicknameAndID_Implementation(const FString&
 {
 	// 플레이어 ID를 액터 이름으로 설정
 	// GetUserId()의 반환값을 FString으로 변환
-	FString PlayerNickNameString(nickname);
-	// SetActorLabel(PlayerNickNameString);
-	Tags.Add(FName(PlayerNickNameString));
 
-	PlayerNickName = PlayerNickNameString;
+	UE_LOG(LogTemp, Warning, TEXT("multicast nickname: %s, id: %d"), *nickname, id);
+	
+	Tags.Add(FName(nickname));
 
-	int32 PlayerIDString(id);
-	PlayerId = PlayerIDString;
+	PlayerNickName = nickname;
+	PlayerId = id;
 }
 
 void APlayerVRCharacter::CustomLoad()
