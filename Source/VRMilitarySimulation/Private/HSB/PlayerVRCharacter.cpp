@@ -29,6 +29,7 @@ void APlayerVRCharacter::BeginPlay()
 	UCSWGameInstance* GameInstance = Cast<UCSWGameInstance>(GetGameInstance());
 	if (GameInstance && IsLocallyControlled())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("nickname: %s, id: %d"), *(GameInstance->GetNickname()), GameInstance->GetUserId());
 		ServerSetNicknameAndID(GameInstance->GetNickname(), GameInstance->GetUserId());
 	}
 }
