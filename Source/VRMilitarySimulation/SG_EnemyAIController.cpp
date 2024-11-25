@@ -156,7 +156,7 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *output);
 	PRINTLOG(TEXT("%s"), *output)
-	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, FString::Printf(TEXT("%s"), *output));
+	//GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, FString::Printf(TEXT("%s"), *output));
 }
 
 void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimulus)
