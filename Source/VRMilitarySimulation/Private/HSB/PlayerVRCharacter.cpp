@@ -163,6 +163,10 @@ void APlayerVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsLocallyControlled())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("my userID: %d, my nickname: %s"), PlayerId, *PlayerNickName);
+	}
 }
 
 // Called to bind functionality to input
