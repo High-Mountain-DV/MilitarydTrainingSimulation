@@ -40,13 +40,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnClick_GameReady();
 
-	void AddPlayerPanel(const FString& nickname);
+	void AddPlayerPanel(const FString& nickname, bool bIsCommender);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UWaitRoomSlotWidget> WaitRoomSlotWidgetFactory;
 	
 private:
+	UPROPERTY()
+	TSet<AActor *> Players;
+	
 	int32 MaxPlayerCnt;
 	FTimerHandle handle;
+
+	const int32 ROLE = 0;
+	const int32 READY = 1;
+	const int32 NAME = 2;
 
 };

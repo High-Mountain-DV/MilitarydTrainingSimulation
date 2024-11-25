@@ -27,12 +27,14 @@ void ACSWGameMode::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASG_Enemy::StaticClass(), outActors);
 	EnemyCnt = outActors.Num();
 
-	//DUMMY DATA
-	// CompleteOnePlayerLoading(nullptr, 21, "888");
+	// DUMMY DATA
+	 // CompleteOnePlayerLoading(nullptr, 21, "888");
 }
 
 void ACSWGameMode::CompleteOnePlayerLoading(UMaterialInstanceDynamic* CamMtl, int32 id, const FString& nickname)
 {
+	UE_LOG(LogTemp, Warning, TEXT("CompleteOnePlayerLoading: %d"), id);
+	
 	auto* CommenderScreen = Cast<ACommenderScreen>(UGameplayStatics::GetActorOfClass(GetWorld(), ACommenderScreen::StaticClass()));
 	auto* gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
 
@@ -88,7 +90,7 @@ void ACSWGameMode::CollectPlayerLog()
 	{
 		APlayerVRCharacter* player = Cast<APlayerVRCharacter>(actor);
 		
-		FString nickname = player->Tags[0].ToString();
+		FString nickname = player->Tags[1].ToString();
 		int shootingCnt = player->GetShootingCnt();
 
 		if (auto userLog = UserLogs.Find(nickname))
