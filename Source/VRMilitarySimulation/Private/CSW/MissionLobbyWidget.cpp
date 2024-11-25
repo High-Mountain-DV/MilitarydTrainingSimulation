@@ -21,25 +21,25 @@ void UMissionLobbyWidget::NativeConstruct()
 	// OnSearchSignatureCompleteDelegate에 AddSessionSlotWidget을 연결하고싶다.
 	gi->OnSearchSignatureCompleteDelegate.AddDynamic(this , &UMissionLobbyWidget::AddSessionSlotWidget);
 
-	MENU_Button_GoCreateRoom->OnClicked.AddDynamic(this , &UMissionLobbyWidget::MENU_OnClickGoCreateRoom);
-	MENU_Button_GoFindSessions->OnClicked.AddDynamic(this , &UMissionLobbyWidget::MENU_OnClickGoFindSessions);
+	MENU_Button_GoCreateRoom->OnPressed.AddDynamic(this , &UMissionLobbyWidget::MENU_OnClickGoCreateRoom);
+	MENU_Button_GoFindSessions->OnPressed.AddDynamic(this , &UMissionLobbyWidget::MENU_OnClickGoFindSessions);
 
-	CR_Button_GoNext->OnClicked.AddDynamic(this , &UMissionLobbyWidget::CR_OnClickGoNext);
-	CR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickGoMenu);
-	CR_Button_InputRoomName->OnClicked.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickInputRoomName);
+	CR_Button_GoNext->OnPressed.AddDynamic(this , &UMissionLobbyWidget::CR_OnClickGoNext);
+	CR_Button_GoMenu->OnPressed.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickGoMenu);
+	CR_Button_InputRoomName->OnPressed.AddDynamic(this, &UMissionLobbyWidget::CR_OnClickInputRoomName);
 
-	MS_Button_GoNext->OnClicked.AddDynamic(this, &UMissionLobbyWidget::MS_OnClickGoNext);
-	MS_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::MS_OnClickGoBack);
+	MS_Button_GoNext->OnPressed.AddDynamic(this, &UMissionLobbyWidget::MS_OnClickGoNext);
+	MS_Button_GoBack->OnPressed.AddDynamic(this, &UMissionLobbyWidget::MS_OnClickGoBack);
 
-	RO_Button_GoNext->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoNext);
-	RO_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoBack);
+	RO_Button_GoNext->OnPressed.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoNext);
+	RO_Button_GoBack->OnPressed.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickGoBack);
 	RO_CheckBox_Noon->OnCheckStateChanged.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickNoon);
 	RO_CheckBox_Night->OnCheckStateChanged.AddDynamic(this, &UMissionLobbyWidget::RO_OnClickNight);
 
-	ES_Button_GoNext->OnClicked.AddDynamic(this, &UMissionLobbyWidget::ES_OnClickGoNext);
-	ES_Button_GoBack->OnClicked.AddDynamic(this, &UMissionLobbyWidget::ES_OnClickGoBack);
+	ES_Button_GoNext->OnPressed.AddDynamic(this, &UMissionLobbyWidget::ES_OnClickGoNext);
+	ES_Button_GoBack->OnPressed.AddDynamic(this, &UMissionLobbyWidget::ES_OnClickGoBack);
 	
-	FR_Button_GoMenu->OnClicked.AddDynamic(this, &UMissionLobbyWidget::FR_OnClickGoMenu);
+	FR_Button_GoMenu->OnPressed.AddDynamic(this, &UMissionLobbyWidget::FR_OnClickGoMenu);
 }
 
 void UMissionLobbyWidget::MENU_OnClickGoCreateRoom()
