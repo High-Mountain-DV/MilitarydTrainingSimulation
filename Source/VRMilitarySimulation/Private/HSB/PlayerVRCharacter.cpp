@@ -29,6 +29,7 @@ void APlayerVRCharacter::BeginPlay()
 	UCSWGameInstance* GameInstance = Cast<UCSWGameInstance>(GetGameInstance());
 	if (GameInstance && IsLocallyControlled())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("nickname: %s, id: %d"), *(GameInstance->GetNickname()), GameInstance->GetUserId());
 		ServerSetNicknameAndID(GameInstance->GetNickname(), GameInstance->GetUserId());
 	}
 }
@@ -42,14 +43,15 @@ void APlayerVRCharacter::MulticastSetNicknameAndID_Implementation(const FString&
 {
 	// 플레이어 ID를 액터 이름으로 설정
 	// GetUserId()의 반환값을 FString으로 변환
-	FString PlayerNickNameString(nickname);
-	// SetActorLabel(PlayerNickNameString);
-	Tags.Add(FName(PlayerNickNameString));
 
-	PlayerNickName = PlayerNickNameString;
+	UE_LOG(LogTemp, Warning, TEXT("multicast nickname: %s, id: %d"), *nickname, id);
+	
 
-	int32 PlayerIDString(id);
-	PlayerId = PlayerIDString;
+	Tags.Add(*nickname);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *Tags[1].ToString());
+	PlayerNickName = nickname;
+	PlayerId = id;
 }
 
 void APlayerVRCharacter::CustomLoad()
@@ -162,6 +164,10 @@ void APlayerVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsLocallyControlled())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("my userID: %d, my nickname: %s"), PlayerId, *PlayerNickName);
+	}
 }
 
 // Called to bind functionality to input
