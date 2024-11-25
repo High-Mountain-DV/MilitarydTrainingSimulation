@@ -46,8 +46,8 @@ void APlayerVRCharacter::MulticastSetNicknameAndID_Implementation(const FString&
 
 	UE_LOG(LogTemp, Warning, TEXT("multicast nickname: %s, id: %d"), *nickname, id);
 	
-	Tags.Add(FName(nickname));
 
+	Tags.Add(FName(nickname));
 	PlayerNickName = nickname;
 	PlayerId = id;
 }
