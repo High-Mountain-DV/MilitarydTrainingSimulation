@@ -40,8 +40,6 @@ void APlayerVRCharacter::BeginPlay()
 		int32 PlayerIDString(GameInstance->GetUserId());
 		PlayerId = PlayerIDString;
 	}
-
-	
 }
 
 void APlayerVRCharacter::CustomLoad()
