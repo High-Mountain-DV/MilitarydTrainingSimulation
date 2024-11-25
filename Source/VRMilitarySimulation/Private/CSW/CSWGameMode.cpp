@@ -92,6 +92,7 @@ void ACSWGameMode::CollectPlayerLog()
 		
 		FString nickname = player->Tags[1].ToString();
 		int shootingCnt = player->GetShootingCnt();
+		UE_LOG(LogTemp, Warning, TEXT("player tag: %s, %d"), *nickname, shootingCnt);
 
 		if (auto userLog = UserLogs.Find(nickname))
 		{
