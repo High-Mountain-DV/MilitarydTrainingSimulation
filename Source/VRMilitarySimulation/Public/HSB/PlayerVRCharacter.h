@@ -19,6 +19,14 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// 플레이어 태그 설정 함수
+	UFUNCTION(Server, Reliable)
+	void ServerSetNicknameAndID(const FString& nickname, int32 id);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetNicknameAndID(const FString& nickname, int32 id);
+	
+	
 	// 커스텀 정보 로드할 함수
 	UFUNCTION(BlueprintCallable)
 	void CustomLoad();
