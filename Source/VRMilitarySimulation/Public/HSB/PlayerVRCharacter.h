@@ -23,11 +23,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CustomLoad();
 
-	//UFUNCTION(Server, Reliable)
-	//void ServerSetCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
+	UFUNCTION(Server, Reliable)
+	void ServerSetCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
 
-	//UFUNCTION(NetMulticast, Reliable)
-	//void MulticastUpdateCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastUpdateCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
 
 public:	
 	// Called every frame
