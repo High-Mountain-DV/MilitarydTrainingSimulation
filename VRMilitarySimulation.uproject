@@ -85,6 +85,15 @@
 				"Android",
 				"VisionOS"
 			]
+		},
+		{
+			"Name": "UBIKSolver",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Win64",
+				"Linux",
+				"Android"
+			]
 		}
 	],
 	"TargetPlatforms": [
