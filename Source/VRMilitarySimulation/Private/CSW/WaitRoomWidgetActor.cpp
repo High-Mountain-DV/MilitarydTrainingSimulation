@@ -28,18 +28,23 @@ void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname, bool bIsComme
 	
 	if (widget)
 	{
-		widget->AddPlayerPanel(nickname, bIsCommender);
+		// widget->AddPlayerPanel(nickname, bIsCommender);
 		if (++PlayerCnt == MaxPlayerCnt)
 		{
-			TArray<AActor *> actors;
-			UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Wall")), actors);
-			
-			if (!actors.IsEmpty())
+			FTimerHandle handle;
+
+			GetWorldTimerManager().SetTimer(handle, [this]()
 			{
-				GetWorld()->SpawnActor<AActor>(BuildingModel, SpawnSpot)->SetActorScale3D(SpawnSpot.GetScale3D());
-				actors[0]->Destroy();
-				WidgetComp->SetVisibility(false);
-			}
+				TArray<AActor *> actors;
+				UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Wall")), actors);
+				
+				if (!actors.IsEmpty())
+				{
+					GetWorld()->SpawnActor<AActor>(BuildingModel, SpawnSpot)->SetActorScale3D(SpawnSpot.GetScale3D());
+					actors[0]->Destroy();
+					WidgetComp->SetVisibility(false);
+				}
+			}, 1.f, false);
 		}
 	}
 }
