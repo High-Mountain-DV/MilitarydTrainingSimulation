@@ -19,9 +19,12 @@ public:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	UPROPERTY(meta=(BindWidget))
-	class USlider* TimeSlider;
+	// UPROPERTY(meta=(BindWidget))
+	// class USlider* TimeSlider;
 
+	UPROPERTY(meta=(BindWidget))
+	class UProgressBar* ProgressTimeBar;
+	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* ButtonPlay;
 
@@ -35,11 +38,11 @@ public:
 	UButton* ButtonExit;
 	
 
-	UFUNCTION()
-	void OnClickTimeSliderBegin();
-
-	UFUNCTION()
-	void OnClickTimeSliderEnd();
+	// UFUNCTION()
+	// void OnClickTimeSliderBegin();
+	//
+	// UFUNCTION()
+	// void OnClickTimeSliderEnd();
 
 	UFUNCTION()
 	void OnClickPlay();
