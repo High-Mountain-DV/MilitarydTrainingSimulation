@@ -49,9 +49,12 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// // 2. 새로 찾은 플레이어가 기존 플레이어보다 많으면 새로 찾은 플레이어를 추가한다
 	if (newPlayers.Num() != Players.Num())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%d"), newPlayers.Num());
+		UE_LOG(LogTemp, Warning, TEXT("%d"), Players.Num());
+
 		for (auto newPlayer : newPlayers)
 		{
-			if (newPlayer->Tags.Num() >= 1)
+			if (newPlayer->Tags.Num() >= 3)
 			{
 				if (!Players.Find(newPlayer))
 				{
