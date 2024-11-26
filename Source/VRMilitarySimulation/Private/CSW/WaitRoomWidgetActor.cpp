@@ -3,7 +3,6 @@
 
 #include "CSW/WaitRoomWidgetActor.h"
 
-#include "ImaginaryBlueprintData.h"
 #include "Components/WidgetComponent.h"
 #include "CSW/CSWGameInstance.h"
 #include "CSW/WaitRoomWidget.h"
@@ -23,24 +22,29 @@ void AWaitRoomWidgetActor::BeginPlay()
 	}
 }
 
-void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname)
+void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname, bool bIsCommender)
 {
 	UWaitRoomWidget* widget = Cast<UWaitRoomWidget>(WidgetComp->GetWidget());
-
+	
 	if (widget)
 	{
-		widget->AddPlayerPanel(nickname);
+		// widget->AddPlayerPanel(nickname, bIsCommender);
 		if (++PlayerCnt == MaxPlayerCnt)
 		{
-			TArray<AActor *> actors;
-			UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Wall")), actors);
-			
-			if (!actors.IsEmpty())
+			FTimerHandle handle;
+
+			GetWorldTimerManager().SetTimer(handle, [this]()
 			{
-				GetWorld()->SpawnActor<AActor>(BuildingModel, SpawnSpot)->SetActorScale3D(SpawnSpot.GetScale3D());
-				actors[0]->Destroy();
-				WidgetComp->SetVisibility(false);
-			}
+				TArray<AActor *> actors;
+				UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Wall")), actors);
+				
+				if (!actors.IsEmpty())
+				{
+					GetWorld()->SpawnActor<AActor>(BuildingModel, SpawnSpot)->SetActorScale3D(SpawnSpot.GetScale3D());
+					actors[0]->Destroy();
+					WidgetComp->SetVisibility(false);
+				}
+			}, 1.f, false);
 		}
 	}
 }

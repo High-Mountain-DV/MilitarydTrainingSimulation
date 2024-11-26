@@ -169,9 +169,9 @@ public:
 	const FCustomizingPath& GetCustomizingPath() const;
 	
 private:
-	FString UserToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzMyMzU3NzQwLCJleHAiOjE3MzI0NDQxNDB9.JuthRfvq1YFkfNWO4uhC9sDmdFR_D8F87wYXmZN0nFk";
-	int32 UserId = 3;
-	FString UserNickname = "1";
+	FString UserToken;
+	int32 UserId;
+	FString UserNickname;
 
 	FString MySessionName;
 	FString CurrentSessionName;

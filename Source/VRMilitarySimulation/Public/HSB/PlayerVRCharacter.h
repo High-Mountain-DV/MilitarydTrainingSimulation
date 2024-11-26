@@ -19,15 +19,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// 플레이어 태그 설정 함수
+	UFUNCTION(Server, Reliable)
+	void ServerSetNicknameAndID(const FString& nickname, int32 id);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetNicknameAndID(const FString& nickname, int32 id);
+	
+	
 	// 커스텀 정보 로드할 함수
 	UFUNCTION(BlueprintCallable)
 	void CustomLoad();
 
 	UFUNCTION(Server, Reliable)
-    void ServerSetCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
+	void ServerSetCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
 
-    UFUNCTION(NetMulticast, Reliable)
-    void MulticastUpdateCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastUpdateCustomData(UMaterialInterface* MarkMat, UMaterialInterface* CreamMat, UStaticMesh* AccMesh);
 
 public:	
 	// Called every frame
@@ -35,10 +43,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	// UpperIK적용된 캐릭터 따라 할 메쉬
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class USkeletalMeshComponent* CustomMesh;
 
 public:
 	// 데미지 받는 함수
