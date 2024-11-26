@@ -52,7 +52,7 @@ struct FProfileReportData
 	TArray<FGraphData> GraphData;
 
 	UPROPERTY()
-	FLatestFeedback LatestFeedback;
+	FString LatestFeedback;
 	
 };
 
@@ -76,6 +76,9 @@ public:
 
 	UPROPERTY(meta=(BindWidget))
 	class UGraphWidget* Graph_PlayTime;
+
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* TextBlock_Feedback;
 
 	virtual void NativeConstruct() override;
 	

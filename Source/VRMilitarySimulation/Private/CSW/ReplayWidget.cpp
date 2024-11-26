@@ -4,6 +4,7 @@
 #include "CSW/ReplayWidget.h"
 
 #include "Components/Button.h"
+#include "Components/ProgressBar.h"
 #include "Components/Slider.h"
 #include "CSW/CSWGameInstance.h"
 #include "Engine/DemoNetDriver.h"
@@ -12,14 +13,14 @@ void UReplayWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (auto demo = GetWorld()->GetDemoNetDriver())
-	{
-		float TotalTime = GetWorld()->GetDemoNetDriver()->GetDemoTotalTime();
-		TimeSlider->SetMaxValue(TotalTime);
-	}
+	// if (auto demo = GetWorld()->GetDemoNetDriver())
+	// {
+	// 	float TotalTime = GetWorld()->GetDemoNetDriver()->GetDemoTotalTime();
+	// 	TimeSlider->SetMaxValue(TotalTime);
+	// }
 
-	TimeSlider->OnMouseCaptureBegin.AddDynamic(this ,&UReplayWidget::OnClickTimeSliderBegin);
-	TimeSlider->OnMouseCaptureEnd.AddDynamic(this, &UReplayWidget::OnClickTimeSliderEnd);
+	// TimeSlider->OnMouseCaptureBegin.AddDynamic(this ,&UReplayWidget::OnClickTimeSliderBegin);
+	// TimeSlider->OnMouseCaptureEnd.AddDynamic(this, &UReplayWidget::OnClickTimeSliderEnd);
 	
 	ButtonRewind->OnPressed.AddDynamic(this, &UReplayWidget::OnClickRewind);
 	ButtonPlay->OnPressed.AddDynamic(this, &UReplayWidget::OnClickPlay);
@@ -33,28 +34,28 @@ void UReplayWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 	if (auto demo = GetWorld()->GetDemoNetDriver())
 	{
-		TimeSlider->SetValue(demo->GetDemoCurrentTime());
+		ProgressTimeBar->SetPercent(demo->GetDemoCurrentTime() / demo->GetDemoTotalTime());
 	}
 }
 
-void UReplayWidget::OnClickTimeSliderBegin()
-{
-		UE_LOG(LogTemp, Warning, TEXT("%f"), TimeSlider->GetValue());
-	if (auto demo = GetWorld()->GetDemoNetDriver())
-	{
-		demo->SetDemoCurrentTime(TimeSlider->GetValue());
-	}
-}
-
-void UReplayWidget::OnClickTimeSliderEnd()
-{
-	UE_LOG(LogTemp, Warning, TEXT("%f"), TimeSlider->GetValue());
-
-	if (auto demo = GetWorld()->GetDemoNetDriver())
-	{
-		demo->SetDemoCurrentTime(TimeSlider->GetValue());
-	}
-}
+// void UReplayWidget::OnClickTimeSliderBegin()
+// {
+// 		UE_LOG(LogTemp, Warning, TEXT("%f"), TimeSlider->GetValue());
+// 	if (auto demo = GetWorld()->GetDemoNetDriver())
+// 	{
+// 		demo->SetDemoCurrentTime(TimeSlider->GetValue());
+// 	}
+// }
+//
+// void UReplayWidget::OnClickTimeSliderEnd()
+// {
+// 	UE_LOG(LogTemp, Warning, TEXT("%f"), TimeSlider->GetValue());
+//
+// 	if (auto demo = GetWorld()->GetDemoNetDriver())
+// 	{
+// 		demo->SetDemoCurrentTime(TimeSlider->GetValue());
+// 	}
+// }
 
 void UReplayWidget::OnClickPlay()
 {
@@ -76,7 +77,7 @@ void UReplayWidget::OnClickRewind()
 	if (auto demo = GetWorld()->GetDemoNetDriver())
 	{
 		// demo->GotoTimeInSeconds(std::clamp(demo->GetDemoCurrentTime() - 5.f, 0.f, demo->GetDemoTotalTime()));
-		demo->SetDemoCurrentTime(std::clamp(demo->GetDemoCurrentTime() - 5.f, 0.f, demo->GetDemoTotalTime()));
+		// demo->SetDemoCurrentTime(std::clamp(demo->GetDemoCurrentTime() - 5.f, 0.f, demo->GetDemoTotalTime()));
 
 	}
 }
@@ -86,8 +87,7 @@ void UReplayWidget::OnClickSkip()
 	if (auto demo = GetWorld()->GetDemoNetDriver())
 	{
 		// demo->GotoTimeInSeconds(std::clamp(demo->GetDemoCurrentTime() + 5.f, 0.f, demo->GetDemoTotalTime()));
-		demo->SetDemoCurrentTime(std::clamp(demo->GetDemoCurrentTime() + 5.f, 0.f, demo->GetDemoTotalTime()));
-
+		// demo->SetDemoCurrentTime(std::clamp(demo->GetDemoCurrentTime() + 5.f, 0.f, demo->GetDemoTotalTime()));
 	}
 }
 
