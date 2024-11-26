@@ -26,6 +26,16 @@ void UReportWrapperWidget::OnClickGoHome()
 	}
 }
 
+void UReportWrapperWidget::OnClickReplay()
+{
+	auto gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+
+	if (gi)
+	{
+		gi->ReplayRecording();
+	}
+}
+
 void UReportWrapperWidget::AddReportSlot(UReportSlot* slot)
 {
 	HorizontalBox->AddChild(slot);
