@@ -43,24 +43,24 @@ void UWaitRoomWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// 1. 다른 플레이어들의 정보를 알고싶다.
-	// TArray<AActor *> newPlayers;
-	// UGameplayStatics::GetAllActorsOfClass(GetWorld(), APawn::StaticClass(), newPlayers);
-	//
+	TArray<AActor *> newPlayers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APawn::StaticClass(), newPlayers);
+	
 	// // 2. 새로 찾은 플레이어가 기존 플레이어보다 많으면 새로 찾은 플레이어를 추가한다
-	// if (newPlayers.Num() != Players.Num())
-	// {
-	// 	for (auto newPlayer : newPlayers)
-	// 	{
-	// 		if (newPlayer->Tags.Num() >= 3)
-	// 		{
-	// 			if (!Players.Find(newPlayer))
-	// 			{
-	// 				Players.Add(newPlayer);
-	// 				AddPlayerPanel(newPlayer->Tags[NAME].ToString(), newPlayer->Tags[ROLE].ToString() == "Commender");
-	// 			}
-	// 		}
-	// 	}
-	// }
+	if (newPlayers.Num() != Players.Num())
+	{
+		for (auto newPlayer : newPlayers)
+		{
+			if (newPlayer->Tags.Num() >= 1)
+			{
+				if (!Players.Find(newPlayer))
+				{
+					Players.Add(newPlayer);
+					AddPlayerPanel(newPlayer->Tags[NAME].ToString(), newPlayer->Tags[ROLE].ToString() == "Commender");
+				}
+			}
+		}
+	}
 
 	 
 
