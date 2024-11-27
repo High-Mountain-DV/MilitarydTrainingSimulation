@@ -19,6 +19,9 @@ public:
 	
 	UPROPERTY(meta=(BindWidget))
 	class UButton* ButtonGoHome;
+	
+	UPROPERTY(meta=(BindWidget))
+	class UButton* ButtonReplay;
 
 	UPROPERTY(meta=(BindWidget))
 	class UHorizontalBox* HorizontalBox;
@@ -34,6 +37,9 @@ public:
 	
 	UFUNCTION()
 	void OnClickGoHome();
+
+	UFUNCTION()
+	void OnClickReplay();
 
 	void AddReportSlot(class UReportSlot* slot);
 
