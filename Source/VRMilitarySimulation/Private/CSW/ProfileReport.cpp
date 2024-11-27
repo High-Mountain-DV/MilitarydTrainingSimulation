@@ -31,5 +31,5 @@ void UProfileReport::SetProfileReportData(const FProfileReportData& Report)
 		Graph_Accuracy->SetPoints(order, FMath::GetMappedRangeValueClamped(FVector2D(0, 1), FVector2D(0, 250), Datas[i].Accuracy));
 		Graph_Awareness->SetPoints(order, FMath::GetMappedRangeValueClamped(FVector2D(0, 10), FVector2D(0, 250),Datas[i].Awareness));
 	}
-	TextBlock_Feedback->SetText(FText::FromString(Report.LatestFeedback));
+	TextBlock_Feedback->SetText(FText::FromString(Report.LatestFeedback.Left(70)));
 }
