@@ -161,7 +161,7 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 
 void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (Stimulus.WasSuccessfullySensed())
+	if (Stimulus.WasSuccessfullySensed() && !Actor->ActorHasTag(TEXT("Dead")))
 	{
 		PRINTLOG(TEXT("성공적으로 타겟 설정, %s"), *Actor->GetName());
 		TargetActors.Add(Actor);

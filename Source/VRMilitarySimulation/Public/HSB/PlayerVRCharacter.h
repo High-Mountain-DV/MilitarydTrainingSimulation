@@ -66,4 +66,7 @@ public:
 	int32 PlayerId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString PlayerNickName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bIsDead = false;
 };
