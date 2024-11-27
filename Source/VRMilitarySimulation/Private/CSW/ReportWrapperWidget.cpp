@@ -13,6 +13,7 @@
 void UReportWrapperWidget::NativeConstruct()
 {
 	ButtonGoHome->OnClicked.AddDynamic(this, &UReportWrapperWidget::OnClickGoHome);
+	ButtonReplay->OnClicked.AddDynamic(this, &UReportWrapperWidget::OnClickReplay);
 }
 
 void UReportWrapperWidget::OnClickGoHome()
@@ -23,6 +24,16 @@ void UReportWrapperWidget::OnClickGoHome()
 	{
 		gi->ResetTraineesId();
 		gi->GoLobby();
+	}
+}
+
+void UReportWrapperWidget::OnClickReplay()
+{
+	auto gi = Cast<UCSWGameInstance>(GetWorld()->GetGameInstance());
+
+	if (gi)
+	{
+		gi->ReplayRecording();
 	}
 }
 
