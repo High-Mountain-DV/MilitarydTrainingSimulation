@@ -207,7 +207,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 
 void ASG_EnemyAIController::HandleAudioStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
-	MyBlackboard->SetValueAsVector(TEXT("TargetLocation"), Stimulus.StimulusLocation);
+	MyBlackboard->SetValueAsVector(TEXT("SoundLocation"), Stimulus.StimulusLocation);
 	//UKismetSystemLibrary::DrawDebugCapsule(GetWorld(), Stimulus.StimulusLocation, 15, 15, FRotator::ZeroRotator, FColor::Purple, 10, 1);
 
 	PRINTLOG(TEXT("소리 들림"));
