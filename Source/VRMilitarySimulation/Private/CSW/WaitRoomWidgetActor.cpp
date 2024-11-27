@@ -29,7 +29,7 @@ void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname, bool bIsComme
 	if (widget)
 	{
 		// widget->AddPlayerPanel(nickname, bIsCommender);
-		if (++PlayerCnt == MaxPlayerCnt)
+		if (++PlayerCnt >= MaxPlayerCnt)
 		{
 			FTimerHandle handle;
 
@@ -44,7 +44,7 @@ void AWaitRoomWidgetActor::AddPlayerPanel(const FString& nickname, bool bIsComme
 					actors[0]->Destroy();
 					WidgetComp->SetVisibility(false);
 				}
-			}, 1.f, false);
+			}, 5.f, false);
 		}
 	}
 }
