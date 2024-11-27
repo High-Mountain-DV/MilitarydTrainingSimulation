@@ -18,6 +18,9 @@ AVRWidgetActor::AVRWidgetActor()
 
 	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("MainWidgetComp"));
 	WidgetComp->SetupAttachment(SceneComp);
+
+	ConstructorHelpers::FObjectFinder<UMaterial> mat(TEXT("/Game/MilitarySimulator/SHN/UI/M_testWdiget_Inst.M_testWdiget_Inst"));
+	WidgetComp->SetMaterial(0, mat.Object);
 }
 
 // Called when the game starts or when spawned
