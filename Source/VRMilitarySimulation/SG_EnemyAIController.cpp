@@ -161,6 +161,7 @@ void ASG_EnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus
 
 void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimulus)
 {
+	PRINTLOG(TEXT("HandleVisualStimuls, Actor has \"Dead\" Tag?: %d"), Actor->ActorHasTag(TEXT("Dead")))
 	if (Stimulus.WasSuccessfullySensed() && !Actor->ActorHasTag(TEXT("Dead")))
 	{
 		PRINTLOG(TEXT("성공적으로 타겟 설정, %s"), *Actor->GetName());
@@ -176,7 +177,7 @@ void ASG_EnemyAIController::HandleVisualStimuls(AActor* Actor, FAIStimulus Stimu
 		PRINTLOG(TEXT("타겟 놓침"));
 
 		// 제 1타겟으로 지정하고 있던 액터가 사라지면
-		if (Actor == TargetActors[0])
+		if (!TargetActors.IsEmpty() && Actor == TargetActors[0])
 		{
 			TargetActors.RemoveAt(0);
 
