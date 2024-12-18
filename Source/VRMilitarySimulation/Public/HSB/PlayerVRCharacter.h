@@ -69,4 +69,34 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bIsDead = false;
+
+// 튜토리얼 함수들
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	bool HasCompletedMovementTutorial();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MovementDistance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 MinRequiredMovementDistance;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool HasCompletedRotationTutorial();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float RotationAngle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MinRequiredRotationAngle;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool HasCompletedGunLoadTutorial();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bHasLoadedGun = false;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool HasCompletedGunShootTutorial();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float ShotsFired;
 };

@@ -182,3 +182,27 @@ int APlayerVRCharacter::GetShootingCnt() const
 	return ShootingCnt;
 }
 
+bool APlayerVRCharacter::HasCompletedMovementTutorial()
+{
+	// 플레이어가 특정 거리 이상 이동했는지 확인
+	return MovementDistance > MinRequiredMovementDistance;
+}
+
+bool APlayerVRCharacter::HasCompletedRotationTutorial()
+{
+	// 플레이어가 특정 각도 이상 회전했는지 확인
+	return FMath::Abs(RotationAngle) > MinRequiredRotationAngle;
+}
+
+bool APlayerVRCharacter::HasCompletedGunLoadTutorial()
+{
+	// 총 장전 액션 완료 여부 확인
+	return bHasLoadedGun;
+}
+
+bool APlayerVRCharacter::HasCompletedGunShootTutorial()
+{
+	// 총 발사 액션 완료 여부 확인
+	return ShotsFired > 0;
+}
+
