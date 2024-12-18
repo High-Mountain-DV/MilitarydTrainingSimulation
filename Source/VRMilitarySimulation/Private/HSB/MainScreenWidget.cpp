@@ -36,7 +36,7 @@ void UMainScreenWidget::Enter_Tutorial()
         LoadingGameMode->CreateLoadingWidget();
 
         // 레벨 로딩 시작
-        GameInstance->StartLevelLoading("MainGameLevel");
+        GameInstance->StartLevelLoading("Tutorial_Map");
 
         // 일정 시간 후 로딩 완료 (실제로는 비동기 로딩 완료 이벤트에 연결)
         FTimerHandle TimerHandle;
