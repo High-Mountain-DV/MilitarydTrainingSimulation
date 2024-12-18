@@ -36,4 +36,7 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
 	bool bLogin = false;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(AllowPrivateAccess))
+	TSubclassOf<UUserWidget> PreLobbyWidgetFactory;
+
 };
