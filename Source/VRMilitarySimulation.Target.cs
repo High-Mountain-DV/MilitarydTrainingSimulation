@@ -11,5 +11,8 @@ public class VRMilitarySimulationTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
 		ExtraModuleNames.AddRange( new string[] { "VRMilitarySimulation" } );
-	}
+
+        // 사전 컴파일 활성화
+        bPrecompile = true;
+    }
 }
