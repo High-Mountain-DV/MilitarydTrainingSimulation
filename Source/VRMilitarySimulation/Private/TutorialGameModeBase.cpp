@@ -34,43 +34,43 @@ void ATutorialGameModeBase::ShowTutorialUI(ETutorialStage Stage)
 
 void ATutorialGameModeBase::CheckTutorialProgress(ETutorialStage CurrentStage)
 {
-    APlayerVRCharacter* PlayerCharacter = Cast<APlayerVRCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (!PlayerCharacter) return;
+    //APlayerVRCharacter* PlayerCharacter = Cast<APlayerVRCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    //if (!PlayerCharacter) return;
 
-    switch (CurrentStage)
-    {
-    case ETutorialStage::Movement:
-        if (PlayerCharacter->HasCompletedMovementTutorial())
-        {
-            CurrentTutorialStage = ETutorialStage::Rotation;
-            ShowTutorialUI(CurrentTutorialStage);
-        }
-        break;
+    //switch (CurrentStage)
+    //{
+    //case ETutorialStage::Movement:
+    //    if (PlayerCharacter->HasCompletedMovementTutorial())
+    //    {
+    //        CurrentTutorialStage = ETutorialStage::Rotation;
+    //        ShowTutorialUI(CurrentTutorialStage);
+    //    }
+    //    break;
 
-    case ETutorialStage::Rotation:
-        if (PlayerCharacter->HasCompletedRotationTutorial())
-        {
-            CurrentTutorialStage = ETutorialStage::GunLoad;
-            ShowTutorialUI(CurrentTutorialStage);
-        }
-        break;
+    //case ETutorialStage::Rotation:
+    //    if (PlayerCharacter->HasCompletedRotationTutorial())
+    //    {
+    //        CurrentTutorialStage = ETutorialStage::GunLoad;
+    //        ShowTutorialUI(CurrentTutorialStage);
+    //    }
+    //    break;
 
-    case ETutorialStage::GunLoad:
-        if (PlayerCharacter->HasCompletedGunLoadTutorial())
-        {
-            CurrentTutorialStage = ETutorialStage::GunShoot;
-            ShowTutorialUI(CurrentTutorialStage);
-        }
-        break;
+    //case ETutorialStage::GunLoad:
+    //    if (PlayerCharacter->HasCompletedGunLoadTutorial())
+    //    {
+    //        CurrentTutorialStage = ETutorialStage::GunShoot;
+    //        ShowTutorialUI(CurrentTutorialStage);
+    //    }
+    //    break;
 
-    case ETutorialStage::GunShoot:
-        if (PlayerCharacter->HasCompletedGunShootTutorial())
-        {
-            CurrentTutorialStage = ETutorialStage::Completed;
-            // 튜토리얼 완료 처리
-        }
-        break;
-    }
+    //case ETutorialStage::GunShoot:
+    //    if (PlayerCharacter->HasCompletedGunShootTutorial())
+    //    {
+    //        CurrentTutorialStage = ETutorialStage::Completed;
+    //        // 튜토리얼 완료 처리
+    //    }
+    //    break;
+    //}
 }
 
 void ATutorialGameModeBase::UpdateTutorialProgress()
