@@ -18,9 +18,22 @@ void AHttpLoginActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto* widget = Cast<ULoginWidget>(WidgetComp->GetWidget());
-	if (widget)
-		widget->SetHttpLoginActor(this);
+	auto* gi = Cast<UCSWGameInstance>(GetGameInstance());
+	if (gi)
+	{
+		if (gi->GetNickname().IsEmpty())
+		{
+			auto* widget = Cast<ULoginWidget>(WidgetComp->GetWidget());
+			if (widget)
+				widget->SetHttpLoginActor(this);
+		}
+		else
+		{
+			WidgetComp->SetWidget(CreateWidget<UUserWidget>(GetWorld(), PreLobbyWidgetFactory));
+			Open();
+		}
+	}
+	
 }
 
 void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
@@ -55,9 +68,8 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 				}
 			}
 			gi->SetUserToken(response->GetHeader("Authorization"));
-			Open();
+			WidgetComp->SetWidget(CreateWidget<UUserWidget>(GetWorld(), PreLobbyWidgetFactory));
 			bLogin = true;
-			WidgetComp->SetVisibility(false);
 		}
 		else
 		{
