@@ -29,7 +29,8 @@ void AHttpLoginActor::BeginPlay()
 		}
 		else
 		{
-			WidgetComp->SetWidget(CreateWidget(this, PreLobbyWidgetFactory));
+			WidgetComp->SetWidget(CreateWidget<UUserWidget>(GetWorld(), PreLobbyWidgetFactory));
+			Open();
 		}
 	}
 	
@@ -67,7 +68,7 @@ void AHttpLoginActor::RequestLogin(const FString& id, const FString& password)
 				}
 			}
 			gi->SetUserToken(response->GetHeader("Authorization"));
-			WidgetComp->SetWidget(CreateWidget(this, PreLobbyWidgetFactory));
+			WidgetComp->SetWidget(CreateWidget<UUserWidget>(GetWorld(), PreLobbyWidgetFactory));
 			bLogin = true;
 		}
 		else
